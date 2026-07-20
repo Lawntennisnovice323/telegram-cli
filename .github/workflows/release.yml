@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+      - run: uv sync --all-groups --locked
+      - run: uv run ruff format --check .
+      - run: uv run ruff check .
+      - run: uv run ty check
+      - run: uv run pytest --cov=clitg --cov-branch --cov-fail-under=100
+      - run: uv run python -m clitg.catalog
+      - run: git diff --exit-code -- schemas
+      - run: uv build --no-sources
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - uses: astral-sh/setup-uv@v7
+      - run: uv publish --trusted-publishing always dist/*
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --generate-notes --verify-tag

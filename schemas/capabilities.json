@@ -1,0 +1,6408 @@
+{
+  "capabilities": [
+    {
+      "command": null,
+      "method": "account.acceptAuthorization",
+      "python_class": "telethon.tl.functions.account.AcceptAuthorizationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.cancelPasswordEmail",
+      "python_class": "telethon.tl.functions.account.CancelPasswordEmailRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.changeAuthorizationSettings",
+      "python_class": "telethon.tl.functions.account.ChangeAuthorizationSettingsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.changePhone",
+      "python_class": "telethon.tl.functions.account.ChangePhoneRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.checkUsername",
+      "python_class": "telethon.tl.functions.account.CheckUsernameRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.clearRecentEmojiStatuses",
+      "python_class": "telethon.tl.functions.account.ClearRecentEmojiStatusesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.confirmBotConnection",
+      "python_class": "telethon.tl.functions.account.ConfirmBotConnectionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.confirmPasswordEmail",
+      "python_class": "telethon.tl.functions.account.ConfirmPasswordEmailRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.confirmPhone",
+      "python_class": "telethon.tl.functions.account.ConfirmPhoneRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.createBusinessChatLink",
+      "python_class": "telethon.tl.functions.account.CreateBusinessChatLinkRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.createTheme",
+      "python_class": "telethon.tl.functions.account.CreateThemeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.declinePasswordReset",
+      "python_class": "telethon.tl.functions.account.DeclinePasswordResetRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.deleteAccount",
+      "python_class": "telethon.tl.functions.account.DeleteAccountRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.deleteAutoSaveExceptions",
+      "python_class": "telethon.tl.functions.account.DeleteAutoSaveExceptionsRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.deleteBusinessChatLink",
+      "python_class": "telethon.tl.functions.account.DeleteBusinessChatLinkRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.deletePasskey",
+      "python_class": "telethon.tl.functions.account.DeletePasskeyRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.deleteSecureValue",
+      "python_class": "telethon.tl.functions.account.DeleteSecureValueRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.deleteWebBrowserSettingsExceptions",
+      "python_class": "telethon.tl.functions.account.DeleteWebBrowserSettingsExceptionsRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.disablePeerConnectedBot",
+      "python_class": "telethon.tl.functions.account.DisablePeerConnectedBotRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.editBusinessChatLink",
+      "python_class": "telethon.tl.functions.account.EditBusinessChatLinkRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.finishTakeoutSession",
+      "python_class": "telethon.tl.functions.account.FinishTakeoutSessionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getAccountTTL",
+      "python_class": "telethon.tl.functions.account.GetAccountTTLRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getAllSecureValues",
+      "python_class": "telethon.tl.functions.account.GetAllSecureValuesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getAuthorizationForm",
+      "python_class": "telethon.tl.functions.account.GetAuthorizationFormRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getAuthorizations",
+      "python_class": "telethon.tl.functions.account.GetAuthorizationsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getAutoDownloadSettings",
+      "python_class": "telethon.tl.functions.account.GetAutoDownloadSettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getAutoSaveSettings",
+      "python_class": "telethon.tl.functions.account.GetAutoSaveSettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getBotBusinessConnection",
+      "python_class": "telethon.tl.functions.account.GetBotBusinessConnectionRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getBusinessChatLinks",
+      "python_class": "telethon.tl.functions.account.GetBusinessChatLinksRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getChannelDefaultEmojiStatuses",
+      "python_class": "telethon.tl.functions.account.GetChannelDefaultEmojiStatusesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getChannelRestrictedStatusEmojis",
+      "python_class": "telethon.tl.functions.account.GetChannelRestrictedStatusEmojisRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getChatThemes",
+      "python_class": "telethon.tl.functions.account.GetChatThemesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getCollectibleEmojiStatuses",
+      "python_class": "telethon.tl.functions.account.GetCollectibleEmojiStatusesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getConnectedBots",
+      "python_class": "telethon.tl.functions.account.GetConnectedBotsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getContactSignUpNotification",
+      "python_class": "telethon.tl.functions.account.GetContactSignUpNotificationRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getContentSettings",
+      "python_class": "telethon.tl.functions.account.GetContentSettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getDefaultBackgroundEmojis",
+      "python_class": "telethon.tl.functions.account.GetDefaultBackgroundEmojisRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getDefaultEmojiStatuses",
+      "python_class": "telethon.tl.functions.account.GetDefaultEmojiStatusesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getDefaultGroupPhotoEmojis",
+      "python_class": "telethon.tl.functions.account.GetDefaultGroupPhotoEmojisRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getDefaultProfilePhotoEmojis",
+      "python_class": "telethon.tl.functions.account.GetDefaultProfilePhotoEmojisRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getGlobalPrivacySettings",
+      "python_class": "telethon.tl.functions.account.GetGlobalPrivacySettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getMultiWallPapers",
+      "python_class": "telethon.tl.functions.account.GetMultiWallPapersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getNotifyExceptions",
+      "python_class": "telethon.tl.functions.account.GetNotifyExceptionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getNotifySettings",
+      "python_class": "telethon.tl.functions.account.GetNotifySettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getPaidMessagesRevenue",
+      "python_class": "telethon.tl.functions.account.GetPaidMessagesRevenueRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getPasskeys",
+      "python_class": "telethon.tl.functions.account.GetPasskeysRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getPassword",
+      "python_class": "telethon.tl.functions.account.GetPasswordRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getPasswordSettings",
+      "python_class": "telethon.tl.functions.account.GetPasswordSettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getPrivacy",
+      "python_class": "telethon.tl.functions.account.GetPrivacyRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getReactionsNotifySettings",
+      "python_class": "telethon.tl.functions.account.GetReactionsNotifySettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getRecentEmojiStatuses",
+      "python_class": "telethon.tl.functions.account.GetRecentEmojiStatusesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getSavedMusicIds",
+      "python_class": "telethon.tl.functions.account.GetSavedMusicIdsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getSavedRingtones",
+      "python_class": "telethon.tl.functions.account.GetSavedRingtonesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getSecureValue",
+      "python_class": "telethon.tl.functions.account.GetSecureValueRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getTheme",
+      "python_class": "telethon.tl.functions.account.GetThemeRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getThemes",
+      "python_class": "telethon.tl.functions.account.GetThemesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getTmpPassword",
+      "python_class": "telethon.tl.functions.account.GetTmpPasswordRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getUniqueGiftChatThemes",
+      "python_class": "telethon.tl.functions.account.GetUniqueGiftChatThemesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getWallPaper",
+      "python_class": "telethon.tl.functions.account.GetWallPaperRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getWallPapers",
+      "python_class": "telethon.tl.functions.account.GetWallPapersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getWebAuthorizations",
+      "python_class": "telethon.tl.functions.account.GetWebAuthorizationsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.getWebBrowserSettings",
+      "python_class": "telethon.tl.functions.account.GetWebBrowserSettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.initPasskeyRegistration",
+      "python_class": "telethon.tl.functions.account.InitPasskeyRegistrationRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.initTakeoutSession",
+      "python_class": "telethon.tl.functions.account.InitTakeoutSessionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.installTheme",
+      "python_class": "telethon.tl.functions.account.InstallThemeRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.installWallPaper",
+      "python_class": "telethon.tl.functions.account.InstallWallPaperRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.invalidateSignInCodes",
+      "python_class": "telethon.tl.functions.account.InvalidateSignInCodesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.registerDevice",
+      "python_class": "telethon.tl.functions.account.RegisterDeviceRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.registerPasskey",
+      "python_class": "telethon.tl.functions.account.RegisterPasskeyRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.reorderUsernames",
+      "python_class": "telethon.tl.functions.account.ReorderUsernamesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.reportPeer",
+      "python_class": "telethon.tl.functions.account.ReportPeerRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.reportProfilePhoto",
+      "python_class": "telethon.tl.functions.account.ReportProfilePhotoRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resendPasswordEmail",
+      "python_class": "telethon.tl.functions.account.ResendPasswordEmailRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resetAuthorization",
+      "python_class": "telethon.tl.functions.account.ResetAuthorizationRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resetNotifySettings",
+      "python_class": "telethon.tl.functions.account.ResetNotifySettingsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resetPassword",
+      "python_class": "telethon.tl.functions.account.ResetPasswordRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resetWallPapers",
+      "python_class": "telethon.tl.functions.account.ResetWallPapersRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resetWebAuthorization",
+      "python_class": "telethon.tl.functions.account.ResetWebAuthorizationRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resetWebAuthorizations",
+      "python_class": "telethon.tl.functions.account.ResetWebAuthorizationsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.resolveBusinessChatLink",
+      "python_class": "telethon.tl.functions.account.ResolveBusinessChatLinkRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.saveAutoDownloadSettings",
+      "python_class": "telethon.tl.functions.account.SaveAutoDownloadSettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.saveAutoSaveSettings",
+      "python_class": "telethon.tl.functions.account.SaveAutoSaveSettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.saveMusic",
+      "python_class": "telethon.tl.functions.account.SaveMusicRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.saveRingtone",
+      "python_class": "telethon.tl.functions.account.SaveRingtoneRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.saveSecureValue",
+      "python_class": "telethon.tl.functions.account.SaveSecureValueRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.saveTheme",
+      "python_class": "telethon.tl.functions.account.SaveThemeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.saveWallPaper",
+      "python_class": "telethon.tl.functions.account.SaveWallPaperRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.sendChangePhoneCode",
+      "python_class": "telethon.tl.functions.account.SendChangePhoneCodeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.sendConfirmPhoneCode",
+      "python_class": "telethon.tl.functions.account.SendConfirmPhoneCodeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.sendVerifyEmailCode",
+      "python_class": "telethon.tl.functions.account.SendVerifyEmailCodeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.sendVerifyPhoneCode",
+      "python_class": "telethon.tl.functions.account.SendVerifyPhoneCodeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setAccountTTL",
+      "python_class": "telethon.tl.functions.account.SetAccountTTLRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setAuthorizationTTL",
+      "python_class": "telethon.tl.functions.account.SetAuthorizationTTLRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setContactSignUpNotification",
+      "python_class": "telethon.tl.functions.account.SetContactSignUpNotificationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setContentSettings",
+      "python_class": "telethon.tl.functions.account.SetContentSettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setGlobalPrivacySettings",
+      "python_class": "telethon.tl.functions.account.SetGlobalPrivacySettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setMainProfileTab",
+      "python_class": "telethon.tl.functions.account.SetMainProfileTabRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setPrivacy",
+      "python_class": "telethon.tl.functions.account.SetPrivacyRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.setReactionsNotifySettings",
+      "python_class": "telethon.tl.functions.account.SetReactionsNotifySettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.toggleConnectedBotPaused",
+      "python_class": "telethon.tl.functions.account.ToggleConnectedBotPausedRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.toggleNoPaidMessagesException",
+      "python_class": "telethon.tl.functions.account.ToggleNoPaidMessagesExceptionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.toggleSponsoredMessages",
+      "python_class": "telethon.tl.functions.account.ToggleSponsoredMessagesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.toggleUsername",
+      "python_class": "telethon.tl.functions.account.ToggleUsernameRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.toggleWebBrowserSettingsException",
+      "python_class": "telethon.tl.functions.account.ToggleWebBrowserSettingsExceptionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.unregisterDevice",
+      "python_class": "telethon.tl.functions.account.UnregisterDeviceRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateBirthday",
+      "python_class": "telethon.tl.functions.account.UpdateBirthdayRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateBusinessAwayMessage",
+      "python_class": "telethon.tl.functions.account.UpdateBusinessAwayMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateBusinessGreetingMessage",
+      "python_class": "telethon.tl.functions.account.UpdateBusinessGreetingMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateBusinessIntro",
+      "python_class": "telethon.tl.functions.account.UpdateBusinessIntroRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateBusinessLocation",
+      "python_class": "telethon.tl.functions.account.UpdateBusinessLocationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateBusinessWorkHours",
+      "python_class": "telethon.tl.functions.account.UpdateBusinessWorkHoursRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateColor",
+      "python_class": "telethon.tl.functions.account.UpdateColorRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateConnectedBot",
+      "python_class": "telethon.tl.functions.account.UpdateConnectedBotRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateDeviceLocked",
+      "python_class": "telethon.tl.functions.account.UpdateDeviceLockedRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateEmojiStatus",
+      "python_class": "telethon.tl.functions.account.UpdateEmojiStatusRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateNotifySettings",
+      "python_class": "telethon.tl.functions.account.UpdateNotifySettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updatePasswordSettings",
+      "python_class": "telethon.tl.functions.account.UpdatePasswordSettingsRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updatePersonalChannel",
+      "python_class": "telethon.tl.functions.account.UpdatePersonalChannelRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateProfile",
+      "python_class": "telethon.tl.functions.account.UpdateProfileRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateStatus",
+      "python_class": "telethon.tl.functions.account.UpdateStatusRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateTheme",
+      "python_class": "telethon.tl.functions.account.UpdateThemeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateUsername",
+      "python_class": "telethon.tl.functions.account.UpdateUsernameRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.updateWebBrowserSettings",
+      "python_class": "telethon.tl.functions.account.UpdateWebBrowserSettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.uploadRingtone",
+      "python_class": "telethon.tl.functions.account.UploadRingtoneRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.uploadTheme",
+      "python_class": "telethon.tl.functions.account.UploadThemeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.uploadWallPaper",
+      "python_class": "telethon.tl.functions.account.UploadWallPaperRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.verifyEmail",
+      "python_class": "telethon.tl.functions.account.VerifyEmailRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "account.verifyPhone",
+      "python_class": "telethon.tl.functions.account.VerifyPhoneRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "aicompose.createTone",
+      "python_class": "telethon.tl.functions.aicompose.CreateToneRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "aicompose.deleteTone",
+      "python_class": "telethon.tl.functions.aicompose.DeleteToneRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "aicompose.getTone",
+      "python_class": "telethon.tl.functions.aicompose.GetToneRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "aicompose.getToneExample",
+      "python_class": "telethon.tl.functions.aicompose.GetToneExampleRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "aicompose.getTones",
+      "python_class": "telethon.tl.functions.aicompose.GetTonesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "aicompose.saveTone",
+      "python_class": "telethon.tl.functions.aicompose.SaveToneRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "aicompose.updateTone",
+      "python_class": "telethon.tl.functions.aicompose.UpdateToneRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.acceptLoginToken",
+      "python_class": "telethon.tl.functions.auth.AcceptLoginTokenRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.bindTempAuthKey",
+      "python_class": "telethon.tl.functions.auth.BindTempAuthKeyRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.cancelCode",
+      "python_class": "telethon.tl.functions.auth.CancelCodeRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.checkPaidAuth",
+      "python_class": "telethon.tl.functions.auth.CheckPaidAuthRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.checkPassword",
+      "python_class": "telethon.tl.functions.auth.CheckPasswordRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.checkRecoveryPassword",
+      "python_class": "telethon.tl.functions.auth.CheckRecoveryPasswordRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.dropTempAuthKeys",
+      "python_class": "telethon.tl.functions.auth.DropTempAuthKeysRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.exportAuthorization",
+      "python_class": "telethon.tl.functions.auth.ExportAuthorizationRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.exportLoginToken",
+      "python_class": "telethon.tl.functions.auth.ExportLoginTokenRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.finishPasskeyLogin",
+      "python_class": "telethon.tl.functions.auth.FinishPasskeyLoginRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.importAuthorization",
+      "python_class": "telethon.tl.functions.auth.ImportAuthorizationRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.importBotAuthorization",
+      "python_class": "telethon.tl.functions.auth.ImportBotAuthorizationRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.importLoginToken",
+      "python_class": "telethon.tl.functions.auth.ImportLoginTokenRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.importWebTokenAuthorization",
+      "python_class": "telethon.tl.functions.auth.ImportWebTokenAuthorizationRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.initPasskeyLogin",
+      "python_class": "telethon.tl.functions.auth.InitPasskeyLoginRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.logOut",
+      "python_class": "telethon.tl.functions.auth.LogOutRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.recoverPassword",
+      "python_class": "telethon.tl.functions.auth.RecoverPasswordRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.reportMissingCode",
+      "python_class": "telethon.tl.functions.auth.ReportMissingCodeRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.requestFirebaseSms",
+      "python_class": "telethon.tl.functions.auth.RequestFirebaseSmsRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.requestPasswordRecovery",
+      "python_class": "telethon.tl.functions.auth.RequestPasswordRecoveryRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.resendCode",
+      "python_class": "telethon.tl.functions.auth.ResendCodeRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.resetAuthorizations",
+      "python_class": "telethon.tl.functions.auth.ResetAuthorizationsRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.resetLoginEmail",
+      "python_class": "telethon.tl.functions.auth.ResetLoginEmailRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.sendCode",
+      "python_class": "telethon.tl.functions.auth.SendCodeRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.signIn",
+      "python_class": "telethon.tl.functions.auth.SignInRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "auth.signUp",
+      "python_class": "telethon.tl.functions.auth.SignUpRequest",
+      "reason": null,
+      "risk": "critical",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.addPreviewMedia",
+      "python_class": "telethon.tl.functions.bots.AddPreviewMediaRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.allowSendMessage",
+      "python_class": "telethon.tl.functions.bots.AllowSendMessageRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.answerWebhookJSONQuery",
+      "python_class": "telethon.tl.functions.bots.AnswerWebhookJSONQueryRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.canSendMessage",
+      "python_class": "telethon.tl.functions.bots.CanSendMessageRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.checkDownloadFileParams",
+      "python_class": "telethon.tl.functions.bots.CheckDownloadFileParamsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.checkUsername",
+      "python_class": "telethon.tl.functions.bots.CheckUsernameRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.createBot",
+      "python_class": "telethon.tl.functions.bots.CreateBotRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.deletePreviewMedia",
+      "python_class": "telethon.tl.functions.bots.DeletePreviewMediaRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.editAccessSettings",
+      "python_class": "telethon.tl.functions.bots.EditAccessSettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.editPreviewMedia",
+      "python_class": "telethon.tl.functions.bots.EditPreviewMediaRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.exportBotToken",
+      "python_class": "telethon.tl.functions.bots.ExportBotTokenRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getAccessSettings",
+      "python_class": "telethon.tl.functions.bots.GetAccessSettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getAdminedBots",
+      "python_class": "telethon.tl.functions.bots.GetAdminedBotsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getBotCommands",
+      "python_class": "telethon.tl.functions.bots.GetBotCommandsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getBotInfo",
+      "python_class": "telethon.tl.functions.bots.GetBotInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getBotMenuButton",
+      "python_class": "telethon.tl.functions.bots.GetBotMenuButtonRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getBotRecommendations",
+      "python_class": "telethon.tl.functions.bots.GetBotRecommendationsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getPopularAppBots",
+      "python_class": "telethon.tl.functions.bots.GetPopularAppBotsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getPreviewInfo",
+      "python_class": "telethon.tl.functions.bots.GetPreviewInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getPreviewMedias",
+      "python_class": "telethon.tl.functions.bots.GetPreviewMediasRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.getRequestedWebViewButton",
+      "python_class": "telethon.tl.functions.bots.GetRequestedWebViewButtonRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.invokeWebViewCustomMethod",
+      "python_class": "telethon.tl.functions.bots.InvokeWebViewCustomMethodRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.reorderPreviewMedias",
+      "python_class": "telethon.tl.functions.bots.ReorderPreviewMediasRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.reorderUsernames",
+      "python_class": "telethon.tl.functions.bots.ReorderUsernamesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.requestWebViewButton",
+      "python_class": "telethon.tl.functions.bots.RequestWebViewButtonRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.resetBotCommands",
+      "python_class": "telethon.tl.functions.bots.ResetBotCommandsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.sendCustomRequest",
+      "python_class": "telethon.tl.functions.bots.SendCustomRequestRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.setBotBroadcastDefaultAdminRights",
+      "python_class": "telethon.tl.functions.bots.SetBotBroadcastDefaultAdminRightsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.setBotCommands",
+      "python_class": "telethon.tl.functions.bots.SetBotCommandsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.setBotGroupDefaultAdminRights",
+      "python_class": "telethon.tl.functions.bots.SetBotGroupDefaultAdminRightsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.setBotInfo",
+      "python_class": "telethon.tl.functions.bots.SetBotInfoRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.setBotMenuButton",
+      "python_class": "telethon.tl.functions.bots.SetBotMenuButtonRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.setCustomVerification",
+      "python_class": "telethon.tl.functions.bots.SetCustomVerificationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.setJoinChatResults",
+      "python_class": "telethon.tl.functions.bots.SetJoinChatResultsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.toggleUserEmojiStatusPermission",
+      "python_class": "telethon.tl.functions.bots.ToggleUserEmojiStatusPermissionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.toggleUsername",
+      "python_class": "telethon.tl.functions.bots.ToggleUsernameRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.updateStarRefProgram",
+      "python_class": "telethon.tl.functions.bots.UpdateStarRefProgramRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "bots.updateUserEmojiStatus",
+      "python_class": "telethon.tl.functions.bots.UpdateUserEmojiStatusRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.checkSearchPostsFlood",
+      "python_class": "telethon.tl.functions.channels.CheckSearchPostsFloodRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.checkUsername",
+      "python_class": "telethon.tl.functions.channels.CheckUsernameRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.convertToGigagroup",
+      "python_class": "telethon.tl.functions.channels.ConvertToGigagroupRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.createChannel",
+      "python_class": "telethon.tl.functions.channels.CreateChannelRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.deactivateAllUsernames",
+      "python_class": "telethon.tl.functions.channels.DeactivateAllUsernamesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.deleteChannel",
+      "python_class": "telethon.tl.functions.channels.DeleteChannelRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.deleteHistory",
+      "python_class": "telethon.tl.functions.channels.DeleteHistoryRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.deleteMessages",
+      "python_class": "telethon.tl.functions.channels.DeleteMessagesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.deleteParticipantHistory",
+      "python_class": "telethon.tl.functions.channels.DeleteParticipantHistoryRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.editAdmin",
+      "python_class": "telethon.tl.functions.channels.EditAdminRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.editBanned",
+      "python_class": "telethon.tl.functions.channels.EditBannedRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.editLocation",
+      "python_class": "telethon.tl.functions.channels.EditLocationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.editPhoto",
+      "python_class": "telethon.tl.functions.channels.EditPhotoRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.editTitle",
+      "python_class": "telethon.tl.functions.channels.EditTitleRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.exportMessageLink",
+      "python_class": "telethon.tl.functions.channels.ExportMessageLinkRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getAdminLog",
+      "python_class": "telethon.tl.functions.channels.GetAdminLogRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getAdminedPublicChannels",
+      "python_class": "telethon.tl.functions.channels.GetAdminedPublicChannelsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getChannelRecommendations",
+      "python_class": "telethon.tl.functions.channels.GetChannelRecommendationsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getChannels",
+      "python_class": "telethon.tl.functions.channels.GetChannelsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getFullChannel",
+      "python_class": "telethon.tl.functions.channels.GetFullChannelRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getGroupsForDiscussion",
+      "python_class": "telethon.tl.functions.channels.GetGroupsForDiscussionRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getInactiveChannels",
+      "python_class": "telethon.tl.functions.channels.GetInactiveChannelsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getLeftChannels",
+      "python_class": "telethon.tl.functions.channels.GetLeftChannelsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getMessageAuthor",
+      "python_class": "telethon.tl.functions.channels.GetMessageAuthorRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getMessages",
+      "python_class": "telethon.tl.functions.channels.GetMessagesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getParticipant",
+      "python_class": "telethon.tl.functions.channels.GetParticipantRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getParticipants",
+      "python_class": "telethon.tl.functions.channels.GetParticipantsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.getSendAs",
+      "python_class": "telethon.tl.functions.channels.GetSendAsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.inviteToChannel",
+      "python_class": "telethon.tl.functions.channels.InviteToChannelRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.joinChannel",
+      "python_class": "telethon.tl.functions.channels.JoinChannelRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.leaveChannel",
+      "python_class": "telethon.tl.functions.channels.LeaveChannelRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.readHistory",
+      "python_class": "telethon.tl.functions.channels.ReadHistoryRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.readMessageContents",
+      "python_class": "telethon.tl.functions.channels.ReadMessageContentsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.reorderUsernames",
+      "python_class": "telethon.tl.functions.channels.ReorderUsernamesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.reportAntiSpamFalsePositive",
+      "python_class": "telethon.tl.functions.channels.ReportAntiSpamFalsePositiveRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.reportSpam",
+      "python_class": "telethon.tl.functions.channels.ReportSpamRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.restrictSponsoredMessages",
+      "python_class": "telethon.tl.functions.channels.RestrictSponsoredMessagesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.searchPosts",
+      "python_class": "telethon.tl.functions.channels.SearchPostsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.setBoostsToUnblockRestrictions",
+      "python_class": "telethon.tl.functions.channels.SetBoostsToUnblockRestrictionsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.setDiscussionGroup",
+      "python_class": "telethon.tl.functions.channels.SetDiscussionGroupRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.setEmojiStickers",
+      "python_class": "telethon.tl.functions.channels.SetEmojiStickersRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.setMainProfileTab",
+      "python_class": "telethon.tl.functions.channels.SetMainProfileTabRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.setStickers",
+      "python_class": "telethon.tl.functions.channels.SetStickersRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleAntiSpam",
+      "python_class": "telethon.tl.functions.channels.ToggleAntiSpamRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleAutotranslation",
+      "python_class": "telethon.tl.functions.channels.ToggleAutotranslationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleForum",
+      "python_class": "telethon.tl.functions.channels.ToggleForumRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleJoinRequest",
+      "python_class": "telethon.tl.functions.channels.ToggleJoinRequestRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleJoinToSend",
+      "python_class": "telethon.tl.functions.channels.ToggleJoinToSendRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleParticipantsHidden",
+      "python_class": "telethon.tl.functions.channels.ToggleParticipantsHiddenRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.togglePreHistoryHidden",
+      "python_class": "telethon.tl.functions.channels.TogglePreHistoryHiddenRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleSignatures",
+      "python_class": "telethon.tl.functions.channels.ToggleSignaturesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleSlowMode",
+      "python_class": "telethon.tl.functions.channels.ToggleSlowModeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleUsername",
+      "python_class": "telethon.tl.functions.channels.ToggleUsernameRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.toggleViewForumAsMessages",
+      "python_class": "telethon.tl.functions.channels.ToggleViewForumAsMessagesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.updateColor",
+      "python_class": "telethon.tl.functions.channels.UpdateColorRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.updateEmojiStatus",
+      "python_class": "telethon.tl.functions.channels.UpdateEmojiStatusRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.updatePaidMessagesPrice",
+      "python_class": "telethon.tl.functions.channels.UpdatePaidMessagesPriceRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "channels.updateUsername",
+      "python_class": "telethon.tl.functions.channels.UpdateUsernameRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.checkChatlistInvite",
+      "python_class": "telethon.tl.functions.chatlists.CheckChatlistInviteRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.deleteExportedInvite",
+      "python_class": "telethon.tl.functions.chatlists.DeleteExportedInviteRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.editExportedInvite",
+      "python_class": "telethon.tl.functions.chatlists.EditExportedInviteRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.exportChatlistInvite",
+      "python_class": "telethon.tl.functions.chatlists.ExportChatlistInviteRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.getChatlistUpdates",
+      "python_class": "telethon.tl.functions.chatlists.GetChatlistUpdatesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.getExportedInvites",
+      "python_class": "telethon.tl.functions.chatlists.GetExportedInvitesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.getLeaveChatlistSuggestions",
+      "python_class": "telethon.tl.functions.chatlists.GetLeaveChatlistSuggestionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.hideChatlistUpdates",
+      "python_class": "telethon.tl.functions.chatlists.HideChatlistUpdatesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.joinChatlistInvite",
+      "python_class": "telethon.tl.functions.chatlists.JoinChatlistInviteRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.joinChatlistUpdates",
+      "python_class": "telethon.tl.functions.chatlists.JoinChatlistUpdatesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "chatlists.leaveChatlist",
+      "python_class": "telethon.tl.functions.chatlists.LeaveChatlistRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.acceptContact",
+      "python_class": "telethon.tl.functions.contacts.AcceptContactRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.addContact",
+      "python_class": "telethon.tl.functions.contacts.AddContactRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.block",
+      "python_class": "telethon.tl.functions.contacts.BlockRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.blockFromReplies",
+      "python_class": "telethon.tl.functions.contacts.BlockFromRepliesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.deleteByPhones",
+      "python_class": "telethon.tl.functions.contacts.DeleteByPhonesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.deleteContacts",
+      "python_class": "telethon.tl.functions.contacts.DeleteContactsRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.editCloseFriends",
+      "python_class": "telethon.tl.functions.contacts.EditCloseFriendsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.exportContactToken",
+      "python_class": "telethon.tl.functions.contacts.ExportContactTokenRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.getBirthdays",
+      "python_class": "telethon.tl.functions.contacts.GetBirthdaysRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.getBlocked",
+      "python_class": "telethon.tl.functions.contacts.GetBlockedRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.getContactIDs",
+      "python_class": "telethon.tl.functions.contacts.GetContactIDsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": "contacts.list",
+      "method": "contacts.getContacts",
+      "python_class": "telethon.tl.functions.contacts.GetContactsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "contacts.getLocated",
+      "python_class": "telethon.tl.functions.contacts.GetLocatedRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.getSaved",
+      "python_class": "telethon.tl.functions.contacts.GetSavedRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.getSponsoredPeers",
+      "python_class": "telethon.tl.functions.contacts.GetSponsoredPeersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.getStatuses",
+      "python_class": "telethon.tl.functions.contacts.GetStatusesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.getTopPeers",
+      "python_class": "telethon.tl.functions.contacts.GetTopPeersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.importContactToken",
+      "python_class": "telethon.tl.functions.contacts.ImportContactTokenRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.importContacts",
+      "python_class": "telethon.tl.functions.contacts.ImportContactsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.resetSaved",
+      "python_class": "telethon.tl.functions.contacts.ResetSavedRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.resetTopPeerRating",
+      "python_class": "telethon.tl.functions.contacts.ResetTopPeerRatingRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.resolvePhone",
+      "python_class": "telethon.tl.functions.contacts.ResolvePhoneRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.resolveUsername",
+      "python_class": "telethon.tl.functions.contacts.ResolveUsernameRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.search",
+      "python_class": "telethon.tl.functions.contacts.SearchRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.setBlocked",
+      "python_class": "telethon.tl.functions.contacts.SetBlockedRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.toggleTopPeers",
+      "python_class": "telethon.tl.functions.contacts.ToggleTopPeersRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.unblock",
+      "python_class": "telethon.tl.functions.contacts.UnblockRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "contacts.updateContactNote",
+      "python_class": "telethon.tl.functions.contacts.UpdateContactNoteRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "folders.editPeerFolders",
+      "python_class": "telethon.tl.functions.folders.EditPeerFoldersRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "fragment.getCollectibleInfo",
+      "python_class": "telethon.tl.functions.fragment.GetCollectibleInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.destroyAuthKey",
+      "python_class": "telethon.tl.functions.DestroyAuthKeyRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.destroySession",
+      "python_class": "telethon.tl.functions.DestroySessionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.getFutureSalts",
+      "python_class": "telethon.tl.functions.GetFutureSaltsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.initConnection",
+      "python_class": "telethon.tl.functions.InitConnectionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeAfterMsg",
+      "python_class": "telethon.tl.functions.InvokeAfterMsgRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeAfterMsgs",
+      "python_class": "telethon.tl.functions.InvokeAfterMsgsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithApnsSecret",
+      "python_class": "telethon.tl.functions.InvokeWithApnsSecretRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithBusinessConnection",
+      "python_class": "telethon.tl.functions.InvokeWithBusinessConnectionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithGooglePlayIntegrity",
+      "python_class": "telethon.tl.functions.InvokeWithGooglePlayIntegrityRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithLayer",
+      "python_class": "telethon.tl.functions.InvokeWithLayerRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithMessagesRange",
+      "python_class": "telethon.tl.functions.InvokeWithMessagesRangeRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithReCaptcha",
+      "python_class": "telethon.tl.functions.InvokeWithReCaptchaRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithTakeout",
+      "python_class": "telethon.tl.functions.InvokeWithTakeoutRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.invokeWithoutUpdates",
+      "python_class": "telethon.tl.functions.InvokeWithoutUpdatesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.ping",
+      "python_class": "telethon.tl.functions.PingRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.pingDelayDisconnect",
+      "python_class": "telethon.tl.functions.PingDelayDisconnectRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.reqDHParams",
+      "python_class": "telethon.tl.functions.ReqDHParamsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.reqPq",
+      "python_class": "telethon.tl.functions.ReqPqRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.reqPqMulti",
+      "python_class": "telethon.tl.functions.ReqPqMultiRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.rpcDropAnswer",
+      "python_class": "telethon.tl.functions.RpcDropAnswerRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "functions.setClientDHParams",
+      "python_class": "telethon.tl.functions.SetClientDHParamsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.acceptTermsOfService",
+      "python_class": "telethon.tl.functions.help.AcceptTermsOfServiceRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.dismissSuggestion",
+      "python_class": "telethon.tl.functions.help.DismissSuggestionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.editUserInfo",
+      "python_class": "telethon.tl.functions.help.EditUserInfoRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getAppConfig",
+      "python_class": "telethon.tl.functions.help.GetAppConfigRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getAppUpdate",
+      "python_class": "telethon.tl.functions.help.GetAppUpdateRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getCdnConfig",
+      "python_class": "telethon.tl.functions.help.GetCdnConfigRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getConfig",
+      "python_class": "telethon.tl.functions.help.GetConfigRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getCountriesList",
+      "python_class": "telethon.tl.functions.help.GetCountriesListRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getDeepLinkInfo",
+      "python_class": "telethon.tl.functions.help.GetDeepLinkInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getInviteText",
+      "python_class": "telethon.tl.functions.help.GetInviteTextRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getNearestDc",
+      "python_class": "telethon.tl.functions.help.GetNearestDcRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getPassportConfig",
+      "python_class": "telethon.tl.functions.help.GetPassportConfigRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getPeerColors",
+      "python_class": "telethon.tl.functions.help.GetPeerColorsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getPeerProfileColors",
+      "python_class": "telethon.tl.functions.help.GetPeerProfileColorsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getPremiumPromo",
+      "python_class": "telethon.tl.functions.help.GetPremiumPromoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getPromoData",
+      "python_class": "telethon.tl.functions.help.GetPromoDataRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getRecentMeUrls",
+      "python_class": "telethon.tl.functions.help.GetRecentMeUrlsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getSupport",
+      "python_class": "telethon.tl.functions.help.GetSupportRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getSupportName",
+      "python_class": "telethon.tl.functions.help.GetSupportNameRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getTermsOfServiceUpdate",
+      "python_class": "telethon.tl.functions.help.GetTermsOfServiceUpdateRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getTimezonesList",
+      "python_class": "telethon.tl.functions.help.GetTimezonesListRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.getUserInfo",
+      "python_class": "telethon.tl.functions.help.GetUserInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.hidePromoData",
+      "python_class": "telethon.tl.functions.help.HidePromoDataRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.saveAppLog",
+      "python_class": "telethon.tl.functions.help.SaveAppLogRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "help.setBotUpdatesStatus",
+      "python_class": "telethon.tl.functions.help.SetBotUpdatesStatusRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "langpack.getDifference",
+      "python_class": "telethon.tl.functions.langpack.GetDifferenceRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "langpack.getLangPack",
+      "python_class": "telethon.tl.functions.langpack.GetLangPackRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "langpack.getLanguage",
+      "python_class": "telethon.tl.functions.langpack.GetLanguageRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "langpack.getLanguages",
+      "python_class": "telethon.tl.functions.langpack.GetLanguagesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "langpack.getStrings",
+      "python_class": "telethon.tl.functions.langpack.GetStringsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.acceptEncryption",
+      "python_class": "telethon.tl.functions.messages.AcceptEncryptionRequest",
+      "reason": "Secret-chat encryption state is not implemented",
+      "risk": "write",
+      "status": "unsupported"
+    },
+    {
+      "command": null,
+      "method": "messages.acceptUrlAuth",
+      "python_class": "telethon.tl.functions.messages.AcceptUrlAuthRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.addChatUser",
+      "python_class": "telethon.tl.functions.messages.AddChatUserRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.addPollAnswer",
+      "python_class": "telethon.tl.functions.messages.AddPollAnswerRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.appendTodoList",
+      "python_class": "telethon.tl.functions.messages.AppendTodoListRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.checkChatInvite",
+      "python_class": "telethon.tl.functions.messages.CheckChatInviteRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.checkHistoryImport",
+      "python_class": "telethon.tl.functions.messages.CheckHistoryImportRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.checkHistoryImportPeer",
+      "python_class": "telethon.tl.functions.messages.CheckHistoryImportPeerRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.checkQuickReplyShortcut",
+      "python_class": "telethon.tl.functions.messages.CheckQuickReplyShortcutRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.checkUrlAuthMatchCode",
+      "python_class": "telethon.tl.functions.messages.CheckUrlAuthMatchCodeRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.clearAllDrafts",
+      "python_class": "telethon.tl.functions.messages.ClearAllDraftsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.clearRecentReactions",
+      "python_class": "telethon.tl.functions.messages.ClearRecentReactionsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.clearRecentStickers",
+      "python_class": "telethon.tl.functions.messages.ClearRecentStickersRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.clickSponsoredMessage",
+      "python_class": "telethon.tl.functions.messages.ClickSponsoredMessageRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.composeMessageWithAI",
+      "python_class": "telethon.tl.functions.messages.ComposeMessageWithAIRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.createChat",
+      "python_class": "telethon.tl.functions.messages.CreateChatRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.createForumTopic",
+      "python_class": "telethon.tl.functions.messages.CreateForumTopicRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.declineUrlAuth",
+      "python_class": "telethon.tl.functions.messages.DeclineUrlAuthRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteChat",
+      "python_class": "telethon.tl.functions.messages.DeleteChatRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteChatUser",
+      "python_class": "telethon.tl.functions.messages.DeleteChatUserRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteExportedChatInvite",
+      "python_class": "telethon.tl.functions.messages.DeleteExportedChatInviteRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteFactCheck",
+      "python_class": "telethon.tl.functions.messages.DeleteFactCheckRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteHistory",
+      "python_class": "telethon.tl.functions.messages.DeleteHistoryRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.delete",
+      "method": "messages.deleteMessages",
+      "python_class": "telethon.tl.functions.messages.DeleteMessagesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteParticipantReaction",
+      "python_class": "telethon.tl.functions.messages.DeleteParticipantReactionRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteParticipantReactions",
+      "python_class": "telethon.tl.functions.messages.DeleteParticipantReactionsRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deletePhoneCallHistory",
+      "python_class": "telethon.tl.functions.messages.DeletePhoneCallHistoryRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deletePollAnswer",
+      "python_class": "telethon.tl.functions.messages.DeletePollAnswerRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteQuickReplyMessages",
+      "python_class": "telethon.tl.functions.messages.DeleteQuickReplyMessagesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteQuickReplyShortcut",
+      "python_class": "telethon.tl.functions.messages.DeleteQuickReplyShortcutRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteRevokedExportedChatInvites",
+      "python_class": "telethon.tl.functions.messages.DeleteRevokedExportedChatInvitesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteSavedHistory",
+      "python_class": "telethon.tl.functions.messages.DeleteSavedHistoryRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": "scheduled.cancel",
+      "method": "messages.deleteScheduledMessages",
+      "python_class": "telethon.tl.functions.messages.DeleteScheduledMessagesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.deleteTopicHistory",
+      "python_class": "telethon.tl.functions.messages.DeleteTopicHistoryRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.discardEncryption",
+      "python_class": "telethon.tl.functions.messages.DiscardEncryptionRequest",
+      "reason": "Secret-chat encryption state is not implemented",
+      "risk": "destructive",
+      "status": "unsupported"
+    },
+    {
+      "command": null,
+      "method": "messages.editChatAbout",
+      "python_class": "telethon.tl.functions.messages.EditChatAboutRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editChatAdmin",
+      "python_class": "telethon.tl.functions.messages.EditChatAdminRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editChatCreator",
+      "python_class": "telethon.tl.functions.messages.EditChatCreatorRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editChatDefaultBannedRights",
+      "python_class": "telethon.tl.functions.messages.EditChatDefaultBannedRightsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editChatParticipantRank",
+      "python_class": "telethon.tl.functions.messages.EditChatParticipantRankRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editChatPhoto",
+      "python_class": "telethon.tl.functions.messages.EditChatPhotoRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editChatTitle",
+      "python_class": "telethon.tl.functions.messages.EditChatTitleRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editExportedChatInvite",
+      "python_class": "telethon.tl.functions.messages.EditExportedChatInviteRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editFactCheck",
+      "python_class": "telethon.tl.functions.messages.EditFactCheckRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editForumTopic",
+      "python_class": "telethon.tl.functions.messages.EditForumTopicRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.editInlineBotMessage",
+      "python_class": "telethon.tl.functions.messages.EditInlineBotMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.edit",
+      "method": "messages.editMessage",
+      "python_class": "telethon.tl.functions.messages.EditMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.editQuickReplyShortcut",
+      "python_class": "telethon.tl.functions.messages.EditQuickReplyShortcutRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.exportChatInvite",
+      "python_class": "telethon.tl.functions.messages.ExportChatInviteRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.faveSticker",
+      "python_class": "telethon.tl.functions.messages.FaveStickerRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.forward",
+      "method": "messages.forwardMessages",
+      "python_class": "telethon.tl.functions.messages.ForwardMessagesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.getAdminsWithInvites",
+      "python_class": "telethon.tl.functions.messages.GetAdminsWithInvitesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getAllDrafts",
+      "python_class": "telethon.tl.functions.messages.GetAllDraftsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getAllStickers",
+      "python_class": "telethon.tl.functions.messages.GetAllStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getArchivedStickers",
+      "python_class": "telethon.tl.functions.messages.GetArchivedStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getAttachMenuBot",
+      "python_class": "telethon.tl.functions.messages.GetAttachMenuBotRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getAttachMenuBots",
+      "python_class": "telethon.tl.functions.messages.GetAttachMenuBotsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getAttachedStickers",
+      "python_class": "telethon.tl.functions.messages.GetAttachedStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getAvailableEffects",
+      "python_class": "telethon.tl.functions.messages.GetAvailableEffectsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getAvailableReactions",
+      "python_class": "telethon.tl.functions.messages.GetAvailableReactionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getBotApp",
+      "python_class": "telethon.tl.functions.messages.GetBotAppRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getBotCallbackAnswer",
+      "python_class": "telethon.tl.functions.messages.GetBotCallbackAnswerRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getChatInviteImporters",
+      "python_class": "telethon.tl.functions.messages.GetChatInviteImportersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getChats",
+      "python_class": "telethon.tl.functions.messages.GetChatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getCommonChats",
+      "python_class": "telethon.tl.functions.messages.GetCommonChatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getCustomEmojiDocuments",
+      "python_class": "telethon.tl.functions.messages.GetCustomEmojiDocumentsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDefaultHistoryTTL",
+      "python_class": "telethon.tl.functions.messages.GetDefaultHistoryTTLRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDefaultTagReactions",
+      "python_class": "telethon.tl.functions.messages.GetDefaultTagReactionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDhConfig",
+      "python_class": "telethon.tl.functions.messages.GetDhConfigRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDialogFilters",
+      "python_class": "telethon.tl.functions.messages.GetDialogFiltersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDialogUnreadMarks",
+      "python_class": "telethon.tl.functions.messages.GetDialogUnreadMarksRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDialogs",
+      "python_class": "telethon.tl.functions.messages.GetDialogsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDiscussionMessage",
+      "python_class": "telethon.tl.functions.messages.GetDiscussionMessageRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getDocumentByHash",
+      "python_class": "telethon.tl.functions.messages.GetDocumentByHashRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiGameInfo",
+      "python_class": "telethon.tl.functions.messages.GetEmojiGameInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiGroups",
+      "python_class": "telethon.tl.functions.messages.GetEmojiGroupsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiKeywords",
+      "python_class": "telethon.tl.functions.messages.GetEmojiKeywordsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiKeywordsDifference",
+      "python_class": "telethon.tl.functions.messages.GetEmojiKeywordsDifferenceRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiKeywordsLanguages",
+      "python_class": "telethon.tl.functions.messages.GetEmojiKeywordsLanguagesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiProfilePhotoGroups",
+      "python_class": "telethon.tl.functions.messages.GetEmojiProfilePhotoGroupsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiStatusGroups",
+      "python_class": "telethon.tl.functions.messages.GetEmojiStatusGroupsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiStickerGroups",
+      "python_class": "telethon.tl.functions.messages.GetEmojiStickerGroupsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiStickers",
+      "python_class": "telethon.tl.functions.messages.GetEmojiStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getEmojiURL",
+      "python_class": "telethon.tl.functions.messages.GetEmojiURLRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getExportedChatInvite",
+      "python_class": "telethon.tl.functions.messages.GetExportedChatInviteRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getExportedChatInvites",
+      "python_class": "telethon.tl.functions.messages.GetExportedChatInvitesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getExtendedMedia",
+      "python_class": "telethon.tl.functions.messages.GetExtendedMediaRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getFactCheck",
+      "python_class": "telethon.tl.functions.messages.GetFactCheckRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getFavedStickers",
+      "python_class": "telethon.tl.functions.messages.GetFavedStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getFeaturedEmojiStickers",
+      "python_class": "telethon.tl.functions.messages.GetFeaturedEmojiStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getFeaturedStickers",
+      "python_class": "telethon.tl.functions.messages.GetFeaturedStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": "topics.list",
+      "method": "messages.getForumTopics",
+      "python_class": "telethon.tl.functions.messages.GetForumTopicsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.getForumTopicsByID",
+      "python_class": "telethon.tl.functions.messages.GetForumTopicsByIDRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getFullChat",
+      "python_class": "telethon.tl.functions.messages.GetFullChatRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getFutureChatCreatorAfterLeave",
+      "python_class": "telethon.tl.functions.messages.GetFutureChatCreatorAfterLeaveRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getGameHighScores",
+      "python_class": "telethon.tl.functions.messages.GetGameHighScoresRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.list",
+      "method": "messages.getHistory",
+      "python_class": "telethon.tl.functions.messages.GetHistoryRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.getInlineBotResults",
+      "python_class": "telethon.tl.functions.messages.GetInlineBotResultsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getInlineGameHighScores",
+      "python_class": "telethon.tl.functions.messages.GetInlineGameHighScoresRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getMaskStickers",
+      "python_class": "telethon.tl.functions.messages.GetMaskStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getMessageEditData",
+      "python_class": "telethon.tl.functions.messages.GetMessageEditDataRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getMessageReactionsList",
+      "python_class": "telethon.tl.functions.messages.GetMessageReactionsListRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getMessageReadParticipants",
+      "python_class": "telethon.tl.functions.messages.GetMessageReadParticipantsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.get",
+      "method": "messages.getMessages",
+      "python_class": "telethon.tl.functions.messages.GetMessagesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.getMessagesReactions",
+      "python_class": "telethon.tl.functions.messages.GetMessagesReactionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getMessagesViews",
+      "python_class": "telethon.tl.functions.messages.GetMessagesViewsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getMyStickers",
+      "python_class": "telethon.tl.functions.messages.GetMyStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getOldFeaturedStickers",
+      "python_class": "telethon.tl.functions.messages.GetOldFeaturedStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getOnlines",
+      "python_class": "telethon.tl.functions.messages.GetOnlinesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getOutboxReadDate",
+      "python_class": "telethon.tl.functions.messages.GetOutboxReadDateRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPaidReactionPrivacy",
+      "python_class": "telethon.tl.functions.messages.GetPaidReactionPrivacyRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPeerDialogs",
+      "python_class": "telethon.tl.functions.messages.GetPeerDialogsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPeerSettings",
+      "python_class": "telethon.tl.functions.messages.GetPeerSettingsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPersonalChannelHistory",
+      "python_class": "telethon.tl.functions.messages.GetPersonalChannelHistoryRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPinnedDialogs",
+      "python_class": "telethon.tl.functions.messages.GetPinnedDialogsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPinnedSavedDialogs",
+      "python_class": "telethon.tl.functions.messages.GetPinnedSavedDialogsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPollResults",
+      "python_class": "telethon.tl.functions.messages.GetPollResultsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPollVotes",
+      "python_class": "telethon.tl.functions.messages.GetPollVotesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getPreparedInlineMessage",
+      "python_class": "telethon.tl.functions.messages.GetPreparedInlineMessageRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getQuickReplies",
+      "python_class": "telethon.tl.functions.messages.GetQuickRepliesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getQuickReplyMessages",
+      "python_class": "telethon.tl.functions.messages.GetQuickReplyMessagesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getRecentLocations",
+      "python_class": "telethon.tl.functions.messages.GetRecentLocationsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getRecentReactions",
+      "python_class": "telethon.tl.functions.messages.GetRecentReactionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getRecentStickers",
+      "python_class": "telethon.tl.functions.messages.GetRecentStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getReplies",
+      "python_class": "telethon.tl.functions.messages.GetRepliesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getRichMessage",
+      "python_class": "telethon.tl.functions.messages.GetRichMessageRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSavedDialogs",
+      "python_class": "telethon.tl.functions.messages.GetSavedDialogsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSavedDialogsByID",
+      "python_class": "telethon.tl.functions.messages.GetSavedDialogsByIDRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSavedGifs",
+      "python_class": "telethon.tl.functions.messages.GetSavedGifsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSavedHistory",
+      "python_class": "telethon.tl.functions.messages.GetSavedHistoryRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSavedReactionTags",
+      "python_class": "telethon.tl.functions.messages.GetSavedReactionTagsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": "scheduled.list",
+      "method": "messages.getScheduledHistory",
+      "python_class": "telethon.tl.functions.messages.GetScheduledHistoryRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.getScheduledMessages",
+      "python_class": "telethon.tl.functions.messages.GetScheduledMessagesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSearchCounters",
+      "python_class": "telethon.tl.functions.messages.GetSearchCountersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSearchResultsCalendar",
+      "python_class": "telethon.tl.functions.messages.GetSearchResultsCalendarRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSearchResultsPositions",
+      "python_class": "telethon.tl.functions.messages.GetSearchResultsPositionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSplitRanges",
+      "python_class": "telethon.tl.functions.messages.GetSplitRangesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSponsoredMessages",
+      "python_class": "telethon.tl.functions.messages.GetSponsoredMessagesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getStickerSet",
+      "python_class": "telethon.tl.functions.messages.GetStickerSetRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getStickers",
+      "python_class": "telethon.tl.functions.messages.GetStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getSuggestedDialogFilters",
+      "python_class": "telethon.tl.functions.messages.GetSuggestedDialogFiltersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getTopReactions",
+      "python_class": "telethon.tl.functions.messages.GetTopReactionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getUnreadMentions",
+      "python_class": "telethon.tl.functions.messages.GetUnreadMentionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getUnreadPollVotes",
+      "python_class": "telethon.tl.functions.messages.GetUnreadPollVotesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getUnreadReactions",
+      "python_class": "telethon.tl.functions.messages.GetUnreadReactionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getWebPage",
+      "python_class": "telethon.tl.functions.messages.GetWebPageRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.getWebPagePreview",
+      "python_class": "telethon.tl.functions.messages.GetWebPagePreviewRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.hideAllChatJoinRequests",
+      "python_class": "telethon.tl.functions.messages.HideAllChatJoinRequestsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.hideChatJoinRequest",
+      "python_class": "telethon.tl.functions.messages.HideChatJoinRequestRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.hidePeerSettingsBar",
+      "python_class": "telethon.tl.functions.messages.HidePeerSettingsBarRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.importChatInvite",
+      "python_class": "telethon.tl.functions.messages.ImportChatInviteRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.initHistoryImport",
+      "python_class": "telethon.tl.functions.messages.InitHistoryImportRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.installStickerSet",
+      "python_class": "telethon.tl.functions.messages.InstallStickerSetRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.markDialogUnread",
+      "python_class": "telethon.tl.functions.messages.MarkDialogUnreadRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.migrateChat",
+      "python_class": "telethon.tl.functions.messages.MigrateChatRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.prolongWebView",
+      "python_class": "telethon.tl.functions.messages.ProlongWebViewRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.rateTranscribedAudio",
+      "python_class": "telethon.tl.functions.messages.RateTranscribedAudioRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.readDiscussion",
+      "python_class": "telethon.tl.functions.messages.ReadDiscussionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.readEncryptedHistory",
+      "python_class": "telethon.tl.functions.messages.ReadEncryptedHistoryRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.readFeaturedStickers",
+      "python_class": "telethon.tl.functions.messages.ReadFeaturedStickersRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.read",
+      "method": "messages.readHistory",
+      "python_class": "telethon.tl.functions.messages.ReadHistoryRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.readMentions",
+      "python_class": "telethon.tl.functions.messages.ReadMentionsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.readMessageContents",
+      "python_class": "telethon.tl.functions.messages.ReadMessageContentsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.readPollVotes",
+      "python_class": "telethon.tl.functions.messages.ReadPollVotesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.readReactions",
+      "python_class": "telethon.tl.functions.messages.ReadReactionsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.readSavedHistory",
+      "python_class": "telethon.tl.functions.messages.ReadSavedHistoryRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.receivedMessages",
+      "python_class": "telethon.tl.functions.messages.ReceivedMessagesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.receivedQueue",
+      "python_class": "telethon.tl.functions.messages.ReceivedQueueRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reorderPinnedDialogs",
+      "python_class": "telethon.tl.functions.messages.ReorderPinnedDialogsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reorderPinnedForumTopics",
+      "python_class": "telethon.tl.functions.messages.ReorderPinnedForumTopicsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reorderPinnedSavedDialogs",
+      "python_class": "telethon.tl.functions.messages.ReorderPinnedSavedDialogsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reorderQuickReplies",
+      "python_class": "telethon.tl.functions.messages.ReorderQuickRepliesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reorderStickerSets",
+      "python_class": "telethon.tl.functions.messages.ReorderStickerSetsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.report",
+      "python_class": "telethon.tl.functions.messages.ReportRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reportEncryptedSpam",
+      "python_class": "telethon.tl.functions.messages.ReportEncryptedSpamRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reportMessagesDelivery",
+      "python_class": "telethon.tl.functions.messages.ReportMessagesDeliveryRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reportMusicListen",
+      "python_class": "telethon.tl.functions.messages.ReportMusicListenRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reportReaction",
+      "python_class": "telethon.tl.functions.messages.ReportReactionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reportReadMetrics",
+      "python_class": "telethon.tl.functions.messages.ReportReadMetricsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reportSpam",
+      "python_class": "telethon.tl.functions.messages.ReportSpamRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.reportSponsoredMessage",
+      "python_class": "telethon.tl.functions.messages.ReportSponsoredMessageRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.requestAppWebView",
+      "python_class": "telethon.tl.functions.messages.RequestAppWebViewRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.requestEncryption",
+      "python_class": "telethon.tl.functions.messages.RequestEncryptionRequest",
+      "reason": "Secret-chat encryption state is not implemented",
+      "risk": "unknown",
+      "status": "unsupported"
+    },
+    {
+      "command": null,
+      "method": "messages.requestMainWebView",
+      "python_class": "telethon.tl.functions.messages.RequestMainWebViewRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.requestSimpleWebView",
+      "python_class": "telethon.tl.functions.messages.RequestSimpleWebViewRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.requestUrlAuth",
+      "python_class": "telethon.tl.functions.messages.RequestUrlAuthRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.requestWebView",
+      "python_class": "telethon.tl.functions.messages.RequestWebViewRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.saveDefaultSendAs",
+      "python_class": "telethon.tl.functions.messages.SaveDefaultSendAsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.saveDraft",
+      "python_class": "telethon.tl.functions.messages.SaveDraftRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.saveGif",
+      "python_class": "telethon.tl.functions.messages.SaveGifRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.savePreparedInlineMessage",
+      "python_class": "telethon.tl.functions.messages.SavePreparedInlineMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.saveRecentSticker",
+      "python_class": "telethon.tl.functions.messages.SaveRecentStickerRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.search",
+      "method": "messages.search",
+      "python_class": "telethon.tl.functions.messages.SearchRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.searchCustomEmoji",
+      "python_class": "telethon.tl.functions.messages.SearchCustomEmojiRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.searchEmojiStickerSets",
+      "python_class": "telethon.tl.functions.messages.SearchEmojiStickerSetsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.searchGlobal",
+      "python_class": "telethon.tl.functions.messages.SearchGlobalRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.searchSentMedia",
+      "python_class": "telethon.tl.functions.messages.SearchSentMediaRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.searchStickerSets",
+      "python_class": "telethon.tl.functions.messages.SearchStickerSetsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.searchStickers",
+      "python_class": "telethon.tl.functions.messages.SearchStickersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.sendBotRequestedPeer",
+      "python_class": "telethon.tl.functions.messages.SendBotRequestedPeerRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.sendEncrypted",
+      "python_class": "telethon.tl.functions.messages.SendEncryptedRequest",
+      "reason": "Secret-chat encryption state is not implemented",
+      "risk": "write",
+      "status": "unsupported"
+    },
+    {
+      "command": null,
+      "method": "messages.sendEncryptedFile",
+      "python_class": "telethon.tl.functions.messages.SendEncryptedFileRequest",
+      "reason": "Secret-chat encryption state is not implemented",
+      "risk": "write",
+      "status": "unsupported"
+    },
+    {
+      "command": null,
+      "method": "messages.sendEncryptedService",
+      "python_class": "telethon.tl.functions.messages.SendEncryptedServiceRequest",
+      "reason": "Secret-chat encryption state is not implemented",
+      "risk": "write",
+      "status": "unsupported"
+    },
+    {
+      "command": null,
+      "method": "messages.sendInlineBotResult",
+      "python_class": "telethon.tl.functions.messages.SendInlineBotResultRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.send",
+      "method": "messages.sendMedia",
+      "python_class": "telethon.tl.functions.messages.SendMediaRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": "messages.send",
+      "method": "messages.sendMessage",
+      "python_class": "telethon.tl.functions.messages.SendMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": "messages.send",
+      "method": "messages.sendMultiMedia",
+      "python_class": "telethon.tl.functions.messages.SendMultiMediaRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.sendPaidReaction",
+      "python_class": "telethon.tl.functions.messages.SendPaidReactionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.sendQuickReplyMessages",
+      "python_class": "telethon.tl.functions.messages.SendQuickReplyMessagesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.react",
+      "method": "messages.sendReaction",
+      "python_class": "telethon.tl.functions.messages.SendReactionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.sendScheduledMessages",
+      "python_class": "telethon.tl.functions.messages.SendScheduledMessagesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.sendScreenshotNotification",
+      "python_class": "telethon.tl.functions.messages.SendScreenshotNotificationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.sendVote",
+      "python_class": "telethon.tl.functions.messages.SendVoteRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.sendWebViewData",
+      "python_class": "telethon.tl.functions.messages.SendWebViewDataRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.sendWebViewResultMessage",
+      "python_class": "telethon.tl.functions.messages.SendWebViewResultMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setBotCallbackAnswer",
+      "python_class": "telethon.tl.functions.messages.SetBotCallbackAnswerRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setBotGuestChatResult",
+      "python_class": "telethon.tl.functions.messages.SetBotGuestChatResultRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setBotPrecheckoutResults",
+      "python_class": "telethon.tl.functions.messages.SetBotPrecheckoutResultsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setBotShippingResults",
+      "python_class": "telethon.tl.functions.messages.SetBotShippingResultsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setChatAvailableReactions",
+      "python_class": "telethon.tl.functions.messages.SetChatAvailableReactionsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setChatTheme",
+      "python_class": "telethon.tl.functions.messages.SetChatThemeRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setChatWallPaper",
+      "python_class": "telethon.tl.functions.messages.SetChatWallPaperRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setDefaultHistoryTTL",
+      "python_class": "telethon.tl.functions.messages.SetDefaultHistoryTTLRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setDefaultReaction",
+      "python_class": "telethon.tl.functions.messages.SetDefaultReactionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setEncryptedTyping",
+      "python_class": "telethon.tl.functions.messages.SetEncryptedTypingRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setGameScore",
+      "python_class": "telethon.tl.functions.messages.SetGameScoreRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setHistoryTTL",
+      "python_class": "telethon.tl.functions.messages.SetHistoryTTLRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setInlineBotResults",
+      "python_class": "telethon.tl.functions.messages.SetInlineBotResultsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setInlineGameScore",
+      "python_class": "telethon.tl.functions.messages.SetInlineGameScoreRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.setTyping",
+      "python_class": "telethon.tl.functions.messages.SetTypingRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.startBot",
+      "python_class": "telethon.tl.functions.messages.StartBotRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.startHistoryImport",
+      "python_class": "telethon.tl.functions.messages.StartHistoryImportRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.summarizeText",
+      "python_class": "telethon.tl.functions.messages.SummarizeTextRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleBotInAttachMenu",
+      "python_class": "telethon.tl.functions.messages.ToggleBotInAttachMenuRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleDialogFilterTags",
+      "python_class": "telethon.tl.functions.messages.ToggleDialogFilterTagsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleDialogPin",
+      "python_class": "telethon.tl.functions.messages.ToggleDialogPinRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleNoForwards",
+      "python_class": "telethon.tl.functions.messages.ToggleNoForwardsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.togglePaidReactionPrivacy",
+      "python_class": "telethon.tl.functions.messages.TogglePaidReactionPrivacyRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.togglePeerTranslations",
+      "python_class": "telethon.tl.functions.messages.TogglePeerTranslationsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleSavedDialogPin",
+      "python_class": "telethon.tl.functions.messages.ToggleSavedDialogPinRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleStickerSets",
+      "python_class": "telethon.tl.functions.messages.ToggleStickerSetsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleSuggestedPostApproval",
+      "python_class": "telethon.tl.functions.messages.ToggleSuggestedPostApprovalRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.toggleTodoCompleted",
+      "python_class": "telethon.tl.functions.messages.ToggleTodoCompletedRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.transcribeAudio",
+      "python_class": "telethon.tl.functions.messages.TranscribeAudioRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.translateText",
+      "python_class": "telethon.tl.functions.messages.TranslateTextRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.uninstallStickerSet",
+      "python_class": "telethon.tl.functions.messages.UninstallStickerSetRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.unpinAllMessages",
+      "python_class": "telethon.tl.functions.messages.UnpinAllMessagesRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.updateDialogFilter",
+      "python_class": "telethon.tl.functions.messages.UpdateDialogFilterRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.updateDialogFiltersOrder",
+      "python_class": "telethon.tl.functions.messages.UpdateDialogFiltersOrderRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.updatePinnedForumTopic",
+      "python_class": "telethon.tl.functions.messages.UpdatePinnedForumTopicRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": "messages.pin",
+      "method": "messages.updatePinnedMessage",
+      "python_class": "telethon.tl.functions.messages.UpdatePinnedMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "high-level"
+    },
+    {
+      "command": null,
+      "method": "messages.updateSavedReactionTag",
+      "python_class": "telethon.tl.functions.messages.UpdateSavedReactionTagRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.uploadEncryptedFile",
+      "python_class": "telethon.tl.functions.messages.UploadEncryptedFileRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.uploadImportedMedia",
+      "python_class": "telethon.tl.functions.messages.UploadImportedMediaRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.uploadMedia",
+      "python_class": "telethon.tl.functions.messages.UploadMediaRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "messages.viewSponsoredMessage",
+      "python_class": "telethon.tl.functions.messages.ViewSponsoredMessageRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.applyGiftCode",
+      "python_class": "telethon.tl.functions.payments.ApplyGiftCodeRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.assignAppStoreTransaction",
+      "python_class": "telethon.tl.functions.payments.AssignAppStoreTransactionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.assignPlayMarketTransaction",
+      "python_class": "telethon.tl.functions.payments.AssignPlayMarketTransactionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.botCancelStarsSubscription",
+      "python_class": "telethon.tl.functions.payments.BotCancelStarsSubscriptionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.canPurchaseStore",
+      "python_class": "telethon.tl.functions.payments.CanPurchaseStoreRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.changeStarsSubscription",
+      "python_class": "telethon.tl.functions.payments.ChangeStarsSubscriptionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.checkCanSendGift",
+      "python_class": "telethon.tl.functions.payments.CheckCanSendGiftRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.checkGiftCode",
+      "python_class": "telethon.tl.functions.payments.CheckGiftCodeRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.clearSavedInfo",
+      "python_class": "telethon.tl.functions.payments.ClearSavedInfoRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.connectStarRefBot",
+      "python_class": "telethon.tl.functions.payments.ConnectStarRefBotRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.convertStarGift",
+      "python_class": "telethon.tl.functions.payments.ConvertStarGiftRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.craftStarGift",
+      "python_class": "telethon.tl.functions.payments.CraftStarGiftRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.createStarGiftCollection",
+      "python_class": "telethon.tl.functions.payments.CreateStarGiftCollectionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.deleteStarGiftCollection",
+      "python_class": "telethon.tl.functions.payments.DeleteStarGiftCollectionRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.editConnectedStarRefBot",
+      "python_class": "telethon.tl.functions.payments.EditConnectedStarRefBotRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.exportInvoice",
+      "python_class": "telethon.tl.functions.payments.ExportInvoiceRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.fulfillStarsSubscription",
+      "python_class": "telethon.tl.functions.payments.FulfillStarsSubscriptionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getBankCardData",
+      "python_class": "telethon.tl.functions.payments.GetBankCardDataRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getConnectedStarRefBot",
+      "python_class": "telethon.tl.functions.payments.GetConnectedStarRefBotRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getConnectedStarRefBots",
+      "python_class": "telethon.tl.functions.payments.GetConnectedStarRefBotsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getCraftStarGifts",
+      "python_class": "telethon.tl.functions.payments.GetCraftStarGiftsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getGiveawayInfo",
+      "python_class": "telethon.tl.functions.payments.GetGiveawayInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getPaymentForm",
+      "python_class": "telethon.tl.functions.payments.GetPaymentFormRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getPaymentReceipt",
+      "python_class": "telethon.tl.functions.payments.GetPaymentReceiptRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getPremiumGiftCodeOptions",
+      "python_class": "telethon.tl.functions.payments.GetPremiumGiftCodeOptionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getResaleStarGifts",
+      "python_class": "telethon.tl.functions.payments.GetResaleStarGiftsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getSavedInfo",
+      "python_class": "telethon.tl.functions.payments.GetSavedInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getSavedStarGift",
+      "python_class": "telethon.tl.functions.payments.GetSavedStarGiftRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getSavedStarGifts",
+      "python_class": "telethon.tl.functions.payments.GetSavedStarGiftsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGiftActiveAuctions",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftActiveAuctionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGiftAuctionAcquiredGifts",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftAuctionAcquiredGiftsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGiftAuctionState",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftAuctionStateRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGiftCollections",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftCollectionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGiftUpgradeAttributes",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftUpgradeAttributesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGiftUpgradePreview",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftUpgradePreviewRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGiftWithdrawalUrl",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftWithdrawalUrlRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarGifts",
+      "python_class": "telethon.tl.functions.payments.GetStarGiftsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsGiftOptions",
+      "python_class": "telethon.tl.functions.payments.GetStarsGiftOptionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsGiveawayOptions",
+      "python_class": "telethon.tl.functions.payments.GetStarsGiveawayOptionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsRevenueAdsAccountUrl",
+      "python_class": "telethon.tl.functions.payments.GetStarsRevenueAdsAccountUrlRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsRevenueStats",
+      "python_class": "telethon.tl.functions.payments.GetStarsRevenueStatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsRevenueWithdrawalUrl",
+      "python_class": "telethon.tl.functions.payments.GetStarsRevenueWithdrawalUrlRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsStatus",
+      "python_class": "telethon.tl.functions.payments.GetStarsStatusRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsSubscriptions",
+      "python_class": "telethon.tl.functions.payments.GetStarsSubscriptionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsTopupOptions",
+      "python_class": "telethon.tl.functions.payments.GetStarsTopupOptionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsTransactions",
+      "python_class": "telethon.tl.functions.payments.GetStarsTransactionsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getStarsTransactionsByID",
+      "python_class": "telethon.tl.functions.payments.GetStarsTransactionsByIDRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getSuggestedStarRefBots",
+      "python_class": "telethon.tl.functions.payments.GetSuggestedStarRefBotsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getUniqueStarGift",
+      "python_class": "telethon.tl.functions.payments.GetUniqueStarGiftRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.getUniqueStarGiftValueInfo",
+      "python_class": "telethon.tl.functions.payments.GetUniqueStarGiftValueInfoRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.launchPrepaidGiveaway",
+      "python_class": "telethon.tl.functions.payments.LaunchPrepaidGiveawayRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.refundStarsCharge",
+      "python_class": "telethon.tl.functions.payments.RefundStarsChargeRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.reorderStarGiftCollections",
+      "python_class": "telethon.tl.functions.payments.ReorderStarGiftCollectionsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.resolveStarGiftOffer",
+      "python_class": "telethon.tl.functions.payments.ResolveStarGiftOfferRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.saveStarGift",
+      "python_class": "telethon.tl.functions.payments.SaveStarGiftRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.sendPaymentForm",
+      "python_class": "telethon.tl.functions.payments.SendPaymentFormRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.sendStarGiftOffer",
+      "python_class": "telethon.tl.functions.payments.SendStarGiftOfferRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.sendStarsForm",
+      "python_class": "telethon.tl.functions.payments.SendStarsFormRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.toggleChatStarGiftNotifications",
+      "python_class": "telethon.tl.functions.payments.ToggleChatStarGiftNotificationsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.toggleStarGiftsPinnedToTop",
+      "python_class": "telethon.tl.functions.payments.ToggleStarGiftsPinnedToTopRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.transferStarGift",
+      "python_class": "telethon.tl.functions.payments.TransferStarGiftRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.updateStarGiftCollection",
+      "python_class": "telethon.tl.functions.payments.UpdateStarGiftCollectionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.updateStarGiftPrice",
+      "python_class": "telethon.tl.functions.payments.UpdateStarGiftPriceRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.upgradeStarGift",
+      "python_class": "telethon.tl.functions.payments.UpgradeStarGiftRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "payments.validateRequestedInfo",
+      "python_class": "telethon.tl.functions.payments.ValidateRequestedInfoRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.acceptCall",
+      "python_class": "telethon.tl.functions.phone.AcceptCallRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.checkGroupCall",
+      "python_class": "telethon.tl.functions.phone.CheckGroupCallRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.confirmCall",
+      "python_class": "telethon.tl.functions.phone.ConfirmCallRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.createConferenceCall",
+      "python_class": "telethon.tl.functions.phone.CreateConferenceCallRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.createGroupCall",
+      "python_class": "telethon.tl.functions.phone.CreateGroupCallRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.declineConferenceCallInvite",
+      "python_class": "telethon.tl.functions.phone.DeclineConferenceCallInviteRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.deleteConferenceCallParticipants",
+      "python_class": "telethon.tl.functions.phone.DeleteConferenceCallParticipantsRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.deleteGroupCallMessages",
+      "python_class": "telethon.tl.functions.phone.DeleteGroupCallMessagesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.deleteGroupCallParticipantMessages",
+      "python_class": "telethon.tl.functions.phone.DeleteGroupCallParticipantMessagesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.discardCall",
+      "python_class": "telethon.tl.functions.phone.DiscardCallRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.discardGroupCall",
+      "python_class": "telethon.tl.functions.phone.DiscardGroupCallRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.editGroupCallParticipant",
+      "python_class": "telethon.tl.functions.phone.EditGroupCallParticipantRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.editGroupCallTitle",
+      "python_class": "telethon.tl.functions.phone.EditGroupCallTitleRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.exportGroupCallInvite",
+      "python_class": "telethon.tl.functions.phone.ExportGroupCallInviteRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getCallConfig",
+      "python_class": "telethon.tl.functions.phone.GetCallConfigRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getGroupCall",
+      "python_class": "telethon.tl.functions.phone.GetGroupCallRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getGroupCallChainBlocks",
+      "python_class": "telethon.tl.functions.phone.GetGroupCallChainBlocksRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getGroupCallJoinAs",
+      "python_class": "telethon.tl.functions.phone.GetGroupCallJoinAsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getGroupCallStars",
+      "python_class": "telethon.tl.functions.phone.GetGroupCallStarsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getGroupCallStreamChannels",
+      "python_class": "telethon.tl.functions.phone.GetGroupCallStreamChannelsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getGroupCallStreamRtmpUrl",
+      "python_class": "telethon.tl.functions.phone.GetGroupCallStreamRtmpUrlRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.getGroupParticipants",
+      "python_class": "telethon.tl.functions.phone.GetGroupParticipantsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.inviteConferenceCallParticipant",
+      "python_class": "telethon.tl.functions.phone.InviteConferenceCallParticipantRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.inviteToGroupCall",
+      "python_class": "telethon.tl.functions.phone.InviteToGroupCallRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.joinGroupCall",
+      "python_class": "telethon.tl.functions.phone.JoinGroupCallRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.joinGroupCallPresentation",
+      "python_class": "telethon.tl.functions.phone.JoinGroupCallPresentationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.leaveGroupCall",
+      "python_class": "telethon.tl.functions.phone.LeaveGroupCallRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.leaveGroupCallPresentation",
+      "python_class": "telethon.tl.functions.phone.LeaveGroupCallPresentationRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.receivedCall",
+      "python_class": "telethon.tl.functions.phone.ReceivedCallRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.requestCall",
+      "python_class": "telethon.tl.functions.phone.RequestCallRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.saveCallDebug",
+      "python_class": "telethon.tl.functions.phone.SaveCallDebugRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.saveCallLog",
+      "python_class": "telethon.tl.functions.phone.SaveCallLogRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.saveDefaultGroupCallJoinAs",
+      "python_class": "telethon.tl.functions.phone.SaveDefaultGroupCallJoinAsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.saveDefaultSendAs",
+      "python_class": "telethon.tl.functions.phone.SaveDefaultSendAsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.sendConferenceCallBroadcast",
+      "python_class": "telethon.tl.functions.phone.SendConferenceCallBroadcastRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.sendGroupCallEncryptedMessage",
+      "python_class": "telethon.tl.functions.phone.SendGroupCallEncryptedMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.sendGroupCallMessage",
+      "python_class": "telethon.tl.functions.phone.SendGroupCallMessageRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.sendSignalingData",
+      "python_class": "telethon.tl.functions.phone.SendSignalingDataRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.setCallRating",
+      "python_class": "telethon.tl.functions.phone.SetCallRatingRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.startScheduledGroupCall",
+      "python_class": "telethon.tl.functions.phone.StartScheduledGroupCallRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.toggleGroupCallRecord",
+      "python_class": "telethon.tl.functions.phone.ToggleGroupCallRecordRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.toggleGroupCallSettings",
+      "python_class": "telethon.tl.functions.phone.ToggleGroupCallSettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "phone.toggleGroupCallStartSubscription",
+      "python_class": "telethon.tl.functions.phone.ToggleGroupCallStartSubscriptionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "photos.deletePhotos",
+      "python_class": "telethon.tl.functions.photos.DeletePhotosRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "photos.getUserPhotos",
+      "python_class": "telethon.tl.functions.photos.GetUserPhotosRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "photos.updateProfilePhoto",
+      "python_class": "telethon.tl.functions.photos.UpdateProfilePhotoRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "photos.uploadContactProfilePhoto",
+      "python_class": "telethon.tl.functions.photos.UploadContactProfilePhotoRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "photos.uploadProfilePhoto",
+      "python_class": "telethon.tl.functions.photos.UploadProfilePhotoRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "premium.applyBoost",
+      "python_class": "telethon.tl.functions.premium.ApplyBoostRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "premium.getBoostsList",
+      "python_class": "telethon.tl.functions.premium.GetBoostsListRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "premium.getBoostsStatus",
+      "python_class": "telethon.tl.functions.premium.GetBoostsStatusRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "premium.getMyBoosts",
+      "python_class": "telethon.tl.functions.premium.GetMyBoostsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "premium.getUserBoosts",
+      "python_class": "telethon.tl.functions.premium.GetUserBoostsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "smsjobs.finishJob",
+      "python_class": "telethon.tl.functions.smsjobs.FinishJobRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "smsjobs.getSmsJob",
+      "python_class": "telethon.tl.functions.smsjobs.GetSmsJobRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "smsjobs.getStatus",
+      "python_class": "telethon.tl.functions.smsjobs.GetStatusRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "smsjobs.isEligibleToJoin",
+      "python_class": "telethon.tl.functions.smsjobs.IsEligibleToJoinRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "smsjobs.join",
+      "python_class": "telethon.tl.functions.smsjobs.JoinRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "smsjobs.leave",
+      "python_class": "telethon.tl.functions.smsjobs.LeaveRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "smsjobs.updateSettings",
+      "python_class": "telethon.tl.functions.smsjobs.UpdateSettingsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.getBroadcastStats",
+      "python_class": "telethon.tl.functions.stats.GetBroadcastStatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.getMegagroupStats",
+      "python_class": "telethon.tl.functions.stats.GetMegagroupStatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.getMessagePublicForwards",
+      "python_class": "telethon.tl.functions.stats.GetMessagePublicForwardsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.getMessageStats",
+      "python_class": "telethon.tl.functions.stats.GetMessageStatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.getPollStats",
+      "python_class": "telethon.tl.functions.stats.GetPollStatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.getStoryPublicForwards",
+      "python_class": "telethon.tl.functions.stats.GetStoryPublicForwardsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.getStoryStats",
+      "python_class": "telethon.tl.functions.stats.GetStoryStatsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stats.loadAsyncGraph",
+      "python_class": "telethon.tl.functions.stats.LoadAsyncGraphRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.addStickerToSet",
+      "python_class": "telethon.tl.functions.stickers.AddStickerToSetRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.changeSticker",
+      "python_class": "telethon.tl.functions.stickers.ChangeStickerRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.changeStickerPosition",
+      "python_class": "telethon.tl.functions.stickers.ChangeStickerPositionRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.checkShortName",
+      "python_class": "telethon.tl.functions.stickers.CheckShortNameRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.createStickerSet",
+      "python_class": "telethon.tl.functions.stickers.CreateStickerSetRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.deleteStickerSet",
+      "python_class": "telethon.tl.functions.stickers.DeleteStickerSetRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.removeStickerFromSet",
+      "python_class": "telethon.tl.functions.stickers.RemoveStickerFromSetRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.renameStickerSet",
+      "python_class": "telethon.tl.functions.stickers.RenameStickerSetRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.replaceSticker",
+      "python_class": "telethon.tl.functions.stickers.ReplaceStickerRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.setStickerSetThumb",
+      "python_class": "telethon.tl.functions.stickers.SetStickerSetThumbRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stickers.suggestShortName",
+      "python_class": "telethon.tl.functions.stickers.SuggestShortNameRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.activateStealthMode",
+      "python_class": "telethon.tl.functions.stories.ActivateStealthModeRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.canSendStory",
+      "python_class": "telethon.tl.functions.stories.CanSendStoryRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.createAlbum",
+      "python_class": "telethon.tl.functions.stories.CreateAlbumRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.deleteAlbum",
+      "python_class": "telethon.tl.functions.stories.DeleteAlbumRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.deleteStories",
+      "python_class": "telethon.tl.functions.stories.DeleteStoriesRequest",
+      "reason": null,
+      "risk": "destructive",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.editStory",
+      "python_class": "telethon.tl.functions.stories.EditStoryRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.exportStoryLink",
+      "python_class": "telethon.tl.functions.stories.ExportStoryLinkRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getAlbumStories",
+      "python_class": "telethon.tl.functions.stories.GetAlbumStoriesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getAlbums",
+      "python_class": "telethon.tl.functions.stories.GetAlbumsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getAllReadPeerStories",
+      "python_class": "telethon.tl.functions.stories.GetAllReadPeerStoriesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getAllStories",
+      "python_class": "telethon.tl.functions.stories.GetAllStoriesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getChatsToSend",
+      "python_class": "telethon.tl.functions.stories.GetChatsToSendRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getPeerMaxIDs",
+      "python_class": "telethon.tl.functions.stories.GetPeerMaxIDsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getPeerStories",
+      "python_class": "telethon.tl.functions.stories.GetPeerStoriesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getPinnedStories",
+      "python_class": "telethon.tl.functions.stories.GetPinnedStoriesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getStoriesArchive",
+      "python_class": "telethon.tl.functions.stories.GetStoriesArchiveRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getStoriesByID",
+      "python_class": "telethon.tl.functions.stories.GetStoriesByIDRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getStoriesViews",
+      "python_class": "telethon.tl.functions.stories.GetStoriesViewsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getStoryReactionsList",
+      "python_class": "telethon.tl.functions.stories.GetStoryReactionsListRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.getStoryViewsList",
+      "python_class": "telethon.tl.functions.stories.GetStoryViewsListRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.incrementStoryViews",
+      "python_class": "telethon.tl.functions.stories.IncrementStoryViewsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.readStories",
+      "python_class": "telethon.tl.functions.stories.ReadStoriesRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.reorderAlbums",
+      "python_class": "telethon.tl.functions.stories.ReorderAlbumsRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.report",
+      "python_class": "telethon.tl.functions.stories.ReportRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.searchPosts",
+      "python_class": "telethon.tl.functions.stories.SearchPostsRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.sendReaction",
+      "python_class": "telethon.tl.functions.stories.SendReactionRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.sendStory",
+      "python_class": "telethon.tl.functions.stories.SendStoryRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.startLive",
+      "python_class": "telethon.tl.functions.stories.StartLiveRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.toggleAllStoriesHidden",
+      "python_class": "telethon.tl.functions.stories.ToggleAllStoriesHiddenRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.togglePeerStoriesHidden",
+      "python_class": "telethon.tl.functions.stories.TogglePeerStoriesHiddenRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.togglePinned",
+      "python_class": "telethon.tl.functions.stories.TogglePinnedRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.togglePinnedToTop",
+      "python_class": "telethon.tl.functions.stories.TogglePinnedToTopRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "stories.updateAlbum",
+      "python_class": "telethon.tl.functions.stories.UpdateAlbumRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "updates.getChannelDifference",
+      "python_class": "telethon.tl.functions.updates.GetChannelDifferenceRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "updates.getDifference",
+      "python_class": "telethon.tl.functions.updates.GetDifferenceRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "updates.getState",
+      "python_class": "telethon.tl.functions.updates.GetStateRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.getCdnFile",
+      "python_class": "telethon.tl.functions.upload.GetCdnFileRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.getCdnFileHashes",
+      "python_class": "telethon.tl.functions.upload.GetCdnFileHashesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.getFile",
+      "python_class": "telethon.tl.functions.upload.GetFileRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.getFileHashes",
+      "python_class": "telethon.tl.functions.upload.GetFileHashesRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.getWebFile",
+      "python_class": "telethon.tl.functions.upload.GetWebFileRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.reuploadCdnFile",
+      "python_class": "telethon.tl.functions.upload.ReuploadCdnFileRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.saveBigFilePart",
+      "python_class": "telethon.tl.functions.upload.SaveBigFilePartRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "upload.saveFilePart",
+      "python_class": "telethon.tl.functions.upload.SaveFilePartRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "users.getFullUser",
+      "python_class": "telethon.tl.functions.users.GetFullUserRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "users.getRequirementsToContact",
+      "python_class": "telethon.tl.functions.users.GetRequirementsToContactRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "users.getSavedMusic",
+      "python_class": "telethon.tl.functions.users.GetSavedMusicRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "users.getSavedMusicByID",
+      "python_class": "telethon.tl.functions.users.GetSavedMusicByIDRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "users.getUsers",
+      "python_class": "telethon.tl.functions.users.GetUsersRequest",
+      "reason": null,
+      "risk": "read",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "users.setSecureValueErrors",
+      "python_class": "telethon.tl.functions.users.SetSecureValueErrorsRequest",
+      "reason": null,
+      "risk": "write",
+      "status": "raw-only"
+    },
+    {
+      "command": null,
+      "method": "users.suggestBirthday",
+      "python_class": "telethon.tl.functions.users.SuggestBirthdayRequest",
+      "reason": null,
+      "risk": "unknown",
+      "status": "raw-only"
+    }
+  ],
+  "generated_at": "generated",
+  "schema_version": "0.1",
+  "telegram_layer": 227,
+  "telethon_version": "1.44.0"
+}

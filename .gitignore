@@ -1,0 +1,53 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.ty/
+
+# Virtual environments and local environment files
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Coverage and test artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Telegram credentials and runtime state
+*.session
+*.session-journal
+*.session-shm
+*.session-wal
+*.sqlite
+*.sqlite3
+.clitg/
+
+# Local exports and temporary files
+*.tmp
+*.bak
+*.log
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

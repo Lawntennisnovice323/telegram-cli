@@ -1,0 +1,23 @@
+name: Telegram Test DC
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    environment: telegram-test-dc
+    env:
+      CLITG_TEST_API_ID: ${{ secrets.CLITG_TEST_API_ID }}
+      CLITG_TEST_API_HASH: ${{ secrets.CLITG_TEST_API_HASH }}
+      CLITG_TEST_PHONE: ${{ secrets.CLITG_TEST_PHONE }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+      - run: uv sync --all-groups --locked
+      - run: uv run pytest -m telegram_test_dc

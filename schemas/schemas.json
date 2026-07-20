@@ -1,0 +1,694 @@
+{
+  "models": {
+    "Capability": {
+      "description": "Support and risk classification for one MTProto method.",
+      "properties": {
+        "command": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "python_class": {
+          "title": "Python Class",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "risk": {
+          "enum": [
+            "read",
+            "write",
+            "destructive",
+            "critical",
+            "unknown"
+          ],
+          "title": "Risk",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "high-level",
+            "raw-only",
+            "inapplicable-user",
+            "unsupported"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "python_class",
+        "status",
+        "risk"
+      ],
+      "title": "Capability",
+      "type": "object"
+    },
+    "CapabilityCatalog": {
+      "$defs": {
+        "Capability": {
+          "description": "Support and risk classification for one MTProto method.",
+          "properties": {
+            "command": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Command"
+            },
+            "method": {
+              "title": "Method",
+              "type": "string"
+            },
+            "python_class": {
+              "title": "Python Class",
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Reason"
+            },
+            "risk": {
+              "enum": [
+                "read",
+                "write",
+                "destructive",
+                "critical",
+                "unknown"
+              ],
+              "title": "Risk",
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "high-level",
+                "raw-only",
+                "inapplicable-user",
+                "unsupported"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "method",
+            "python_class",
+            "status",
+            "risk"
+          ],
+          "title": "Capability",
+          "type": "object"
+        }
+      },
+      "description": "Versioned MTProto capability manifest.",
+      "properties": {
+        "capabilities": {
+          "items": {
+            "$ref": "#/$defs/Capability"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "0.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "telegram_layer": {
+          "title": "Telegram Layer",
+          "type": "integer"
+        },
+        "telethon_version": {
+          "title": "Telethon Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "telethon_version",
+        "telegram_layer",
+        "generated_at",
+        "capabilities"
+      ],
+      "title": "CapabilityCatalog",
+      "type": "object"
+    },
+    "Confirmation": {
+      "description": "One-use authorization for a critical raw request.",
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        },
+        "payload_hash": {
+          "title": "Payload Hash",
+          "type": "string"
+        },
+        "profile": {
+          "title": "Profile",
+          "type": "string"
+        },
+        "token": {
+          "title": "Token",
+          "type": "string"
+        },
+        "used": {
+          "default": false,
+          "title": "Used",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "token",
+        "profile",
+        "action",
+        "payload_hash",
+        "expires_at"
+      ],
+      "title": "Confirmation",
+      "type": "object"
+    },
+    "Envelope": {
+      "$defs": {
+        "ErrorCode": {
+          "description": "Stable error codes paired with process exit codes.",
+          "enum": [
+            "invalid_input",
+            "auth_required",
+            "profile_error",
+            "not_found",
+            "ambiguous_peer",
+            "conflict",
+            "confirmation_required",
+            "permission_denied",
+            "rate_limited",
+            "telegram_rpc",
+            "network",
+            "internal"
+          ],
+          "title": "ErrorCode",
+          "type": "string"
+        },
+        "ErrorInfo": {
+          "description": "Structured command failure.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            "details": {
+              "additionalProperties": true,
+              "title": "Details",
+              "type": "object"
+            },
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Retry After Seconds"
+            },
+            "retryable": {
+              "default": false,
+              "title": "Retryable",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "title": "ErrorInfo",
+          "type": "object"
+        },
+        "Meta": {
+          "description": "Metadata shared by success and error responses.",
+          "properties": {
+            "command": {
+              "title": "Command",
+              "type": "string"
+            },
+            "next_cursor": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Next Cursor"
+            },
+            "profile": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Profile"
+            },
+            "request_id": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "command",
+            "request_id"
+          ],
+          "title": "Meta",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The JSON response envelope.",
+      "properties": {
+        "data": {
+          "default": null,
+          "title": "Data"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "meta": {
+          "$ref": "#/$defs/Meta"
+        },
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "schema_version": {
+          "default": "0.1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ok",
+        "meta"
+      ],
+      "title": "Envelope",
+      "type": "object"
+    },
+    "ErrorInfo": {
+      "$defs": {
+        "ErrorCode": {
+          "description": "Stable error codes paired with process exit codes.",
+          "enum": [
+            "invalid_input",
+            "auth_required",
+            "profile_error",
+            "not_found",
+            "ambiguous_peer",
+            "conflict",
+            "confirmation_required",
+            "permission_denied",
+            "rate_limited",
+            "telegram_rpc",
+            "network",
+            "internal"
+          ],
+          "title": "ErrorCode",
+          "type": "string"
+        }
+      },
+      "description": "Structured command failure.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retry_after_seconds": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry After Seconds"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ErrorInfo",
+      "type": "object"
+    },
+    "JsonlRecord": {
+      "$defs": {
+        "ErrorCode": {
+          "description": "Stable error codes paired with process exit codes.",
+          "enum": [
+            "invalid_input",
+            "auth_required",
+            "profile_error",
+            "not_found",
+            "ambiguous_peer",
+            "conflict",
+            "confirmation_required",
+            "permission_denied",
+            "rate_limited",
+            "telegram_rpc",
+            "network",
+            "internal"
+          ],
+          "title": "ErrorCode",
+          "type": "string"
+        },
+        "ErrorInfo": {
+          "description": "Structured command failure.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            "details": {
+              "additionalProperties": true,
+              "title": "Details",
+              "type": "object"
+            },
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Retry After Seconds"
+            },
+            "retryable": {
+              "default": false,
+              "title": "Retryable",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "title": "ErrorInfo",
+          "type": "object"
+        },
+        "Meta": {
+          "description": "Metadata shared by success and error responses.",
+          "properties": {
+            "command": {
+              "title": "Command",
+              "type": "string"
+            },
+            "next_cursor": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Next Cursor"
+            },
+            "profile": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Profile"
+            },
+            "request_id": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "command",
+            "request_id"
+          ],
+          "title": "Meta",
+          "type": "object"
+        }
+      },
+      "description": "One JSONL item, summary, or terminal error record.",
+      "properties": {
+        "data": {
+          "default": null,
+          "title": "Data"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "meta": {
+          "$ref": "#/$defs/Meta"
+        },
+        "record_type": {
+          "enum": [
+            "item",
+            "summary",
+            "error"
+          ],
+          "title": "Record Type",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "0.1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "record_type",
+        "meta"
+      ],
+      "title": "JsonlRecord",
+      "type": "object"
+    },
+    "LoginState": {
+      "description": "State needed to finish a non-interactive Telegram login.",
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        },
+        "login_id": {
+          "title": "Login Id",
+          "type": "string"
+        },
+        "phone": {
+          "title": "Phone",
+          "type": "string"
+        },
+        "phone_code_hash": {
+          "title": "Phone Code Hash",
+          "type": "string"
+        },
+        "profile": {
+          "title": "Profile",
+          "type": "string"
+        }
+      },
+      "required": [
+        "login_id",
+        "profile",
+        "phone",
+        "phone_code_hash",
+        "created_at",
+        "expires_at"
+      ],
+      "title": "LoginState",
+      "type": "object"
+    },
+    "Meta": {
+      "description": "Metadata shared by success and error responses.",
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Next Cursor"
+        },
+        "profile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command",
+        "request_id"
+      ],
+      "title": "Meta",
+      "type": "object"
+    },
+    "ProfileView": {
+      "description": "Safe profile representation.",
+      "properties": {
+        "api_id": {
+          "title": "Api Id",
+          "type": "integer"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "is_default": {
+          "title": "Is Default",
+          "type": "boolean"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "phone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Phone"
+        }
+      },
+      "required": [
+        "name",
+        "api_id",
+        "phone",
+        "created_at",
+        "is_default"
+      ],
+      "title": "ProfileView",
+      "type": "object"
+    }
+  },
+  "schema_version": "0.1"
+}

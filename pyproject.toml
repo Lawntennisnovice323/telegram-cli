@@ -1,0 +1,93 @@
+[project]
+name = "clitg"
+version = "0.1.0"
+description = "Agent-first Telegram CLI with structured JSON and skills for Claude Code, Codex, Copilot, Cursor, and more"
+readme = "readme.md"
+authors = [
+    { name = "Leynier Gutiérrez González", email = "leynier41@gmail.com" }
+]
+requires-python = ">=3.14,<3.15"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = [
+    "telegram",
+    "telegram-cli",
+    "ai-agents",
+    "agent-skills",
+    "claude-code",
+    "codex",
+    "antigravity",
+    "github-copilot",
+    "grok",
+    "cursor",
+    "amp",
+    "mtproto",
+    "telethon",
+    "typer",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Communications :: Chat",
+]
+
+dependencies = [
+    "filelock>=3.18,<4",
+    "platformdirs>=4.3,<5",
+    "pydantic>=2.11,<3",
+    "telethon>=1.44,<2",
+    "typer>=0.16,<1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4,<10",
+    "pytest-asyncio>=1,<2",
+    "pytest-cov>=6.2,<8",
+    "pyyaml>=6.0,<7",
+    "ruff>=0.12,<1",
+    "ty>=0.0.1a16,<1",
+]
+
+[project.scripts]
+clitg = "clitg.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/leynier/telegram-cli"
+Repository = "https://github.com/leynier/telegram-cli"
+Issues = "https://github.com/leynier/telegram-cli/issues"
+
+[build-system]
+requires = ["uv_build>=0.11.29,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["COM812"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/clitg/cli.py" = ["B008"]
+"tests/**" = ["ARG", "PLR2004", "S101"]
+
+[tool.ty.environment]
+python-version = "3.14"
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers"
+asyncio_mode = "auto"
+markers = ["telegram_test_dc: requires explicit Telegram test DC credentials"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["clitg"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+skip_covered = false

@@ -47,6 +47,10 @@ def test_registry_and_catalog() -> None:
     assert by_method["messages.getHistory"].status == "high-level"
     assert by_method["help.getConfig"].status == "raw-only"
     assert by_method["messages.requestEncryption"].status == "unsupported"
+    assert by_method["users.getFullUser"].command == "account.get"
+    assert by_method["users.getFullUser"].commands == ["account.get", "business.get"]
+    assert by_method["aicompose.createTone"].requirements == ["premium"]
+    assert by_method["messages.translateText"].quota_consuming is True
     assert set(HIGH_LEVEL_METHODS) <= set(by_method)
 
 

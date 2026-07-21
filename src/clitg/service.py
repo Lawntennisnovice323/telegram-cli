@@ -18,7 +18,21 @@ from clitg import SCHEMA_VERSION, __version__
 from clitg.catalog import capability_catalog, command_catalog, schema_catalog
 from clitg.credentials import CredentialStore
 from clitg.errors import ClitgError
-from clitg.models import BatchOperation, CommandResult, ErrorCode, PolicyDocument, Profile
+from clitg.features import (
+    FEATURE_BY_COMMAND,
+    OFFSET,
+    FeatureCommand,
+    build_feature_params,
+    normalize_feature_result,
+)
+from clitg.models import (
+    BatchOperation,
+    CommandResult,
+    ErrorCode,
+    FeatureResult,
+    PolicyDocument,
+    Profile,
+)
 from clitg.operations import OPERATION_BY_COMMAND, Operation, normalize_params
 from clitg.policy import evaluate_policy, load_policy, require_policy
 from clitg.serialization import decode_cursor, encode_cursor, json_dumps
@@ -26,6 +40,112 @@ from clitg.storage import Paths, ProfileStore, StateStore
 from clitg.telegram import TelegramAdapter
 
 T = TypeVar("T")
+
+REPEAT_PERIODS = {
+    "daily": 86_400,
+    "weekly": 604_800,
+    "biweekly": 1_209_600,
+    "monthly": 2_592_000,
+    "quarterly": 7_862_400,
+    "semiannual": 15_724_800,
+    "yearly": 31_536_000,
+}
+
+
+def repeat_period(value: str | None, schedule_at: datetime | None) -> int | None:
+    """Validate and resolve a named Telegram repeat interval."""
+
+    if value is None:
+        return None
+    if schedule_at is None:
+        raise ClitgError(ErrorCode.INVALID_INPUT, "--repeat requires --schedule-at")
+    try:
+        return REPEAT_PERIODS[value]
+    except KeyError as exc:
+        raise ClitgError(
+            ErrorCode.INVALID_INPUT,
+            "Unknown repeat interval",
+            details={"value": value, "allowed": list(REPEAT_PERIODS)},
+        ) from exc
+
+
+def feature_cursor_values(
+    feature: FeatureCommand,
+    command: str,
+    values: dict[str, Any],
+) -> dict[str, Any]:
+    """Decode a feature cursor without exposing Telegram offsets to callers."""
+
+    cursor = values.get("cursor")
+    if not feature.paginated or not cursor:
+        return values
+    try:
+        state = decode_cursor(str(cursor))
+    except ValueError as exc:
+        raise ClitgError(ErrorCode.INVALID_INPUT, "Invalid feature cursor") from exc
+    if (
+        state.get("feature") != command
+        or state.get("parameter") != feature.cursor_param
+        or "offset" not in state
+    ):
+        raise ClitgError(ErrorCode.INVALID_INPUT, "Feature cursor does not match this command")
+    return {**values, "cursor": state["offset"]}
+
+
+def _feature_result_items(value: Any) -> list[Any]:
+    if not isinstance(value, dict):
+        return []
+    categories = value.get("categories")
+    if isinstance(categories, list):
+        nested = [
+            peer
+            for category in categories
+            if isinstance(category, dict)
+            for peer in category.get("peers", [])
+        ]
+        if nested:
+            return nested
+    candidates = [
+        item
+        for key, item in value.items()
+        if key not in {"users", "chats", "categories"} and isinstance(item, list)
+    ]
+    return max(candidates, key=len, default=[])
+
+
+def feature_next_cursor(
+    feature: FeatureCommand,
+    command: str,
+    values: dict[str, Any],
+    result: Any,
+) -> str | None:
+    """Derive the next opaque cursor from a paginated Telegram result."""
+
+    if not feature.paginated or not isinstance(result, dict):
+        return None
+    next_offset = result.get("next_offset")
+    if next_offset in {None, ""}:
+        items = _feature_result_items(result)
+        limit = int(values.get("limit") or 100)
+        if not items or len(items) < limit:
+            return None
+        current = values.get("cursor") or 0
+        if feature.cursor_param == "offset_id":
+            last = items[-1]
+            if not isinstance(last, dict) or last.get("id") is None:
+                return None
+            next_offset = last["id"]
+        elif feature.cursor_param == "offset" and OFFSET not in feature.options:
+            next_offset = int(current) + len(items)
+        else:
+            return None
+    return encode_cursor(
+        {
+            "feature": command,
+            "parameter": feature.cursor_param,
+            "offset": next_offset,
+        }
+    )
 
 
 class ClitgService:
@@ -612,6 +732,7 @@ class ClitgService:
         parse_mode: str,
         media_kind: str,
         schedule_at: datetime | None,
+        repeat: str | None = None,
         idempotency_key: str | None,
         dry_run: bool,
     ) -> CommandResult:
@@ -624,6 +745,12 @@ class ClitgService:
             raise ClitgError(
                 ErrorCode.INVALID_INPUT, "Upload files do not exist", details={"files": missing}
             )
+        repeat_seconds = repeat_period(repeat, schedule_at)
+        if repeat_seconds is not None and len(files) > 1:
+            raise ClitgError(
+                ErrorCode.INVALID_INPUT,
+                "Repeating messages support at most one file",
+            )
         profile = self.profile(requested)
         self._authorize(profile, "messages.send", "write", peer)
         payload = {
@@ -635,6 +762,8 @@ class ClitgService:
             "parse_mode": parse_mode,
             "media_kind": media_kind,
             "schedule_at": schedule_at,
+            "repeat": repeat,
+            "repeat_seconds": repeat_seconds,
         }
         if dry_run:
             resolved = await self.telegram_call(
@@ -665,6 +794,7 @@ class ClitgService:
                 parse_mode=parse_mode,
                 media_kind=media_kind,
                 schedule_at=schedule_at,
+                repeat_period=repeat_seconds,
             )
         )
         if idempotency_key:
@@ -684,6 +814,8 @@ class ClitgService:
         target_peer: str,
         message_ids: list[int],
         *,
+        schedule_at: datetime | None = None,
+        repeat: str | None = None,
         idempotency_key: str | None,
         dry_run: bool,
     ) -> CommandResult:
@@ -691,12 +823,21 @@ class ClitgService:
 
         if not message_ids:
             raise ClitgError(ErrorCode.INVALID_INPUT, "At least one message ID is required")
+        repeat_seconds = repeat_period(repeat, schedule_at)
+        if repeat_seconds is not None and len(message_ids) != 1:
+            raise ClitgError(
+                ErrorCode.INVALID_INPUT,
+                "Repeating forwards require exactly one message ID",
+            )
         profile = self.profile(requested)
         self._authorize(profile, "messages.forward", "write", target_peer)
         payload = {
             "source_peer": source_peer,
             "target_peer": target_peer,
             "message_ids": message_ids,
+            "schedule_at": schedule_at,
+            "repeat": repeat,
+            "repeat_seconds": repeat_seconds,
         }
         if dry_run:
             source = await self.telegram_call(
@@ -721,7 +862,14 @@ class ClitgService:
             if existing is not None:
                 return CommandResult(data={"messages": existing, "idempotent_replay": True})
         result = await self.telegram_call(
-            self.telegram.forward(profile, source_peer, target_peer, message_ids)
+            self.telegram.forward(
+                profile,
+                source_peer,
+                target_peer,
+                message_ids,
+                schedule_at=schedule_at,
+                repeat_period=repeat_seconds,
+            )
         )
         if idempotency_key:
             self.state.save_idempotent(
@@ -737,6 +885,8 @@ class ClitgService:
         text: str,
         parse_mode: str,
         *,
+        schedule_at: datetime | None = None,
+        repeat: str | None = None,
         dry_run: bool,
         idempotency_key: str | None = None,
     ) -> CommandResult:
@@ -744,11 +894,15 @@ class ClitgService:
 
         profile = self.profile(requested)
         self._authorize(profile, "messages.edit", "write", peer)
+        repeat_seconds = repeat_period(repeat, schedule_at)
         payload = {
             "peer": peer,
             "message_id": message_id,
             "text": text,
             "parse_mode": parse_mode,
+            "schedule_at": schedule_at,
+            "repeat": repeat,
+            "repeat_seconds": repeat_seconds,
         }
         if dry_run:
             resolved = await self.telegram_call(
@@ -767,7 +921,15 @@ class ClitgService:
             "messages.edit",
             idempotency_key,
             payload,
-            lambda: self.telegram.edit(profile, peer, message_id, text, parse_mode),
+            lambda: self.telegram.edit(
+                profile,
+                peer,
+                message_id,
+                text,
+                parse_mode,
+                schedule_at=schedule_at,
+                repeat_period=repeat_seconds,
+            ),
         )
         return CommandResult(data=self._mutation_data(result, replay))
 
@@ -1182,6 +1344,121 @@ class ClitgService:
                 "result": result,
                 "idempotent_replay": False,
             }
+        )
+
+    async def execute_feature(
+        self,
+        requested: str | None,
+        command: str,
+        values: dict[str, Any],
+        structured: dict[str, Any] | list[Any] | None,
+        *,
+        dry_run: bool,
+        confirmation: str | None,
+        confirmation_token: str | None,
+        idempotency_key: str | None,
+        include_raw: bool,
+    ) -> CommandResult:
+        """Execute one stable high-level Telegram feature."""
+
+        feature = FEATURE_BY_COMMAND.get(command)
+        if feature is None:
+            raise ClitgError(ErrorCode.NOT_FOUND, f"Feature '{command}' was not found")
+        profile = self.profile(requested)
+        effective_values = feature_cursor_values(feature, command, values)
+        params = build_feature_params(feature, effective_values, structured)
+        await self.telegram.validate_feature(feature, params)
+        target = self._operation_target(values)
+        require_policy(
+            evaluate_policy(
+                self._policy(profile),
+                command,
+                risk=feature.risk,
+                peer=target,
+            )
+        )
+        payload = {
+            "command": command,
+            "method": feature.method,
+            "values": values,
+            "structured": structured,
+        }
+        if dry_run:
+            data: dict[str, Any] = {
+                "action": command,
+                "method": feature.method,
+                "risk": feature.risk,
+                "requirements": list(feature.requirements),
+                "quota_consuming": feature.quota_consuming,
+                "payload": payload,
+                "dry_run": True,
+            }
+            if feature.critical:
+                issued = self.state.issue_confirmation(profile.name, command, payload)
+                data["confirmation_token"] = issued.token
+                data["confirmation_expires_at"] = issued.expires_at
+            return CommandResult(data=data)
+        if not feature.mutation and idempotency_key:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Read features do not use idempotency keys")
+        raw_result: Any | None = None
+        replay = False
+        if feature.mutation and idempotency_key:
+            raw_result = self.state.get_idempotent(
+                profile.name,
+                command,
+                idempotency_key,
+                payload,
+            )
+            replay = raw_result is not None
+        if not replay:
+            if feature.critical:
+                self._require_confirmation(command, confirmation)
+                if not confirmation_token:
+                    raise ClitgError(
+                        ErrorCode.CONFIRMATION_REQUIRED,
+                        "A critical confirmation token is required",
+                    )
+                self.state.consume_confirmation(
+                    confirmation_token,
+                    profile.name,
+                    command,
+                    payload,
+                )
+            elif feature.risk == "destructive":
+                self._require_confirmation(command, confirmation)
+            raw_result = await self.telegram_call(
+                self.telegram.feature_invoke(profile, feature, params, values=effective_values)
+            )
+            if feature.mutation and idempotency_key:
+                self.state.save_idempotent(
+                    profile.name,
+                    command,
+                    idempotency_key,
+                    payload,
+                    raw_result,
+                )
+        result_type, normalized = normalize_feature_result(raw_result)
+        result = FeatureResult(
+            command=command,
+            method=feature.method,
+            risk=feature.risk,
+            result_type=result_type,
+            result=normalized,
+            requirements=list(feature.requirements),
+            quota_consuming=feature.quota_consuming,
+            idempotent_replay=replay,
+            raw=raw_result if include_raw else None,
+        ).model_dump(mode="python")
+        if not include_raw:
+            result.pop("raw")
+        return CommandResult(
+            data=result,
+            next_cursor=feature_next_cursor(
+                feature,
+                command,
+                effective_values,
+                raw_result,
+            ),
         )
 
     async def batch(

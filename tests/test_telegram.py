@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import gzip
+import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -13,6 +15,7 @@ from telethon import functions, types
 from telethon.errors import SessionPasswordNeededError
 
 from clitg.errors import ClitgError
+from clitg.features import FEATURE_BY_COMMAND, build_feature_params
 from clitg.models import Profile
 from clitg.storage import Paths
 from clitg.telegram import TelegramAdapter, dialog_view, entity_view, message_view, update_view
@@ -126,6 +129,17 @@ class FakeClient:
         self.dialog_archived = False
         self.event_handler: Any = None
         self.pending_updates: list[Any] = []
+        self.request_result: Any = None
+        self.upload_document: Any = types.Document(
+            id=1,
+            access_hash=2,
+            file_reference=b"ref",
+            date=datetime.now(UTC),
+            mime_type="image/webp",
+            size=10,
+            dc_id=1,
+            attributes=[],
+        )
 
     async def connect(self) -> None:
         self.connected = True
@@ -168,6 +182,18 @@ class FakeClient:
 
     async def upload_file(self, path: Path) -> Any:
         return ("upload", str(path))
+
+    async def _parse_message_text(self, text: str, mode: str | None) -> tuple[str, list[Any]]:
+        self.calls.append(("parse_message_text", text, mode))
+        return text, []
+
+    async def _file_to_media(self, *args: Any, **kwargs: Any) -> tuple[Any, Any, bool]:
+        self.calls.append(("file_to_media", args, kwargs))
+        return None, types.InputMediaEmpty(), False
+
+    def _get_response_message(self, request: Any, result: Any, peer: Any) -> Any:
+        self.calls.append(("get_response_message", request, result, peer))
+        return self.message_result
 
     async def iter_dialogs(self, limit: int | None = None) -> AsyncIterator[Any]:
         for entity in self.dialog_entities[:limit]:
@@ -245,8 +271,25 @@ class FakeClient:
 
     async def __call__(self, request: Any) -> Any:
         self.calls.append(("request", request))
+        if self.request_result is not None:
+            if self.event_handler and isinstance(
+                self.request_result, types.messages.TranscribedAudio
+            ):
+                for update in self.pending_updates:
+                    await self.event_handler(update)
+            return self.request_result
         if isinstance(request, functions.contacts.GetContactsRequest):
             return SimpleNamespace(users=[user()])
+        if isinstance(request, functions.messages.UploadMediaRequest):
+            return SimpleNamespace(document=self.upload_document)
+        if isinstance(
+            request,
+            (
+                functions.stickers.CreateStickerSetRequest,
+                functions.stickers.AddStickerToSetRequest,
+            ),
+        ):
+            return types.UpdatesTooLong()
         if isinstance(request, functions.messages.GetScheduledHistoryRequest):
             return SimpleNamespace(messages=[message()])
         if isinstance(request, functions.messages.GetForumTopicsRequest):
@@ -439,6 +482,92 @@ async def test_send_and_mutations(
 
 
 @pytest.mark.asyncio
+async def test_repeating_scheduled_message_paths(
+    adapter: StubAdapter, profile: Profile, fake_client: FakeClient, tmp_path: Path
+) -> None:
+    scheduled = datetime(2026, 8, 1, tzinfo=UTC)
+    assert await adapter.send(
+        profile,
+        "me",
+        text="repeat",
+        files=[],
+        reply_to=1,
+        topic_id=None,
+        parse_mode="markdown",
+        media_kind="auto",
+        schedule_at=scheduled,
+        repeat_period=86_400,
+    )
+    file = tmp_path / "document.txt"
+    file.write_text("content")
+    assert await adapter.send(
+        profile,
+        "me",
+        text="caption",
+        files=[file],
+        reply_to=None,
+        topic_id=2,
+        parse_mode="html",
+        media_kind="document",
+        schedule_at=scheduled,
+        repeat_period=604_800,
+    )
+    assert await adapter.forward(
+        profile,
+        "me",
+        "@alice",
+        [1],
+        schedule_at=scheduled,
+        repeat_period=86_400,
+    )
+    assert (
+        await adapter.edit(
+            profile,
+            "me",
+            1,
+            "changed",
+            "markdown",
+            schedule_at=scheduled,
+            repeat_period=86_400,
+        )
+    )["id"] == "1"
+
+    fake_client.message_result = None
+    with pytest.raises(ClitgError, match="repeating scheduled"):
+        await adapter.send(
+            profile,
+            "me",
+            text="repeat",
+            files=[],
+            reply_to=None,
+            topic_id=None,
+            parse_mode="plain",
+            media_kind="auto",
+            schedule_at=scheduled,
+            repeat_period=86_400,
+        )
+    with pytest.raises(ClitgError, match="every forwarded"):
+        await adapter.forward(
+            profile,
+            "me",
+            "@alice",
+            [1],
+            schedule_at=scheduled,
+            repeat_period=86_400,
+        )
+    with pytest.raises(ClitgError, match="edited scheduled"):
+        await adapter.edit(
+            profile,
+            "me",
+            1,
+            "changed",
+            "plain",
+            schedule_at=scheduled,
+            repeat_period=86_400,
+        )
+
+
+@pytest.mark.asyncio
 async def test_scheduled_topics_polls_raw_and_download(
     adapter: StubAdapter,
     profile: Profile,
@@ -546,6 +675,227 @@ def test_update_normalization() -> None:
     assert channel_read["peer_id"] == "5"
     assert update_view(types.UpdateConfig())["peer_id"] is None
     assert update_view(SimpleNamespace(peer=SimpleNamespace()))["peer_id"] is None
+
+
+def test_sticker_file_validation(tmp_path: Path) -> None:
+    missing = tmp_path / "missing.webp"
+    with pytest.raises(ClitgError, match="does not exist"):
+        TelegramAdapter._validate_sticker_file(missing)
+    unsupported = tmp_path / "sticker.gif"
+    unsupported.write_bytes(b"GIF89a")
+    with pytest.raises(ClitgError, match="must be PNG"):
+        TelegramAdapter._validate_sticker_file(unsupported)
+    too_large = tmp_path / "large.tgs"
+    too_large.write_bytes(b"\x1f\x8b" + b"x" * 64_000)
+    with pytest.raises(ClitgError, match="too large"):
+        TelegramAdapter._validate_sticker_file(too_large)
+
+    invalid = tmp_path / "invalid.webp"
+    invalid.write_bytes(b"not-webp")
+    with pytest.raises(ClitgError, match="signature"):
+        TelegramAdapter._validate_sticker_file(invalid)
+    png = tmp_path / "valid.png"
+    png.write_bytes(b"\x89PNG\r\n\x1a\n")
+    assert TelegramAdapter._validate_sticker_file(png) == "image/png"
+    webp = tmp_path / "valid.webp"
+    webp.write_bytes(b"RIFF\x00\x00\x00\x00WEBP")
+    assert TelegramAdapter._validate_sticker_file(webp) == "image/webp"
+    webm = tmp_path / "valid.webm"
+    webm.write_bytes(b"\x1a\x45\xdf\xa3")
+    assert TelegramAdapter._validate_sticker_file(webm) == "video/webm"
+
+    valid_tgs = tmp_path / "valid.tgs"
+    valid_tgs.write_bytes(
+        gzip.compress(json.dumps({"w": 512, "h": 512, "ip": 0, "op": 60, "fr": 30}).encode())
+    )
+    assert TelegramAdapter._validate_sticker_file(valid_tgs) == "application/x-tgsticker"
+    broken_tgs = tmp_path / "broken.tgs"
+    broken_tgs.write_bytes(b"\x1f\x8bnot-gzip")
+    with pytest.raises(ClitgError, match="TGS file is invalid"):
+        TelegramAdapter._validate_sticker_file(broken_tgs)
+    invalid_shape = tmp_path / "shape.tgs"
+    invalid_shape.write_bytes(
+        gzip.compress(json.dumps({"w": 256, "h": 512, "ip": 0, "op": 120, "fr": 30}).encode())
+    )
+    with pytest.raises(ClitgError, match="dimensions or duration"):
+        TelegramAdapter._validate_sticker_file(invalid_shape)
+
+
+@pytest.mark.asyncio
+async def test_feature_validation_sticker_upload_and_invocation(
+    adapter: StubAdapter,
+    profile: Profile,
+    fake_client: FakeClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    webp = tmp_path / "valid.webp"
+    webp.write_bytes(b"RIFF\x00\x00\x00\x00WEBP")
+    create = FEATURE_BY_COMMAND["stickers.create-set"]
+    add = FEATURE_BY_COMMAND["stickers.add"]
+    await adapter.validate_feature(create, {"_feature_files": [str(webp)]})
+    await adapter.validate_feature(add, {"_feature_files": str(webp)})
+    await adapter.validate_feature(FEATURE_BY_COMMAND["ai-tones.list"], {"hash": 0})
+
+    uploaded = await adapter._upload_sticker(fake_client, webp)
+    assert isinstance(uploaded, types.InputDocument)
+    fake_client.upload_document = None
+    with pytest.raises(ClitgError, match="sticker document"):
+        await adapter._upload_sticker(fake_client, webp)
+    fake_client.upload_document = types.Document(
+        id=1,
+        access_hash=2,
+        file_reference=b"ref",
+        date=datetime.now(UTC),
+        mime_type="image/webp",
+        size=10,
+        dc_id=1,
+        attributes=[],
+    )
+
+    with pytest.raises(ClitgError, match="one emoji"):
+        await adapter.feature_invoke(
+            profile,
+            create,
+            {
+                "title": "Set",
+                "short_name": "set_by_clitg_bot",
+                "emoji": ["🙂", "🚀"],
+                "_feature_files": [str(webp)],
+            },
+            values={},
+        )
+    created = await adapter.feature_invoke(
+        profile,
+        create,
+        {
+            "title": "Set",
+            "short_name": "set_by_clitg_bot",
+            "emoji": ["🙂"],
+            "masks": False,
+            "emojis": False,
+            "text_color": False,
+            "_feature_files": [str(webp)],
+            "_feature_input": None,
+        },
+        values={},
+    )
+    assert created["_"] == "UpdatesTooLong"
+    with pytest.raises(ClitgError, match="Exactly one"):
+        await adapter.feature_invoke(
+            profile,
+            add,
+            {
+                "short_name": "set_by_clitg_bot",
+                "emoji": "🙂",
+                "_feature_files": [],
+            },
+            values={},
+        )
+    added = await adapter.feature_invoke(
+        profile,
+        add,
+        {
+            "short_name": "set_by_clitg_bot",
+            "emoji": "🙂",
+            "keywords": "happy",
+            "file": str(webp),
+            "_feature_files": str(webp),
+        },
+        values={},
+    )
+    assert added["_"] == "UpdatesTooLong"
+    regular = await adapter.feature_invoke(
+        profile,
+        FEATURE_BY_COMMAND["ai-tones.list"],
+        {"hash": 0},
+        values={},
+    )
+    assert regular["_"] == "InputPeerSelf"
+    todo = FEATURE_BY_COMMAND["todos.create"]
+    todo_params = build_feature_params(
+        todo,
+        {"peer": "me", "title": "Smoke", "item": ["Done"]},
+    )
+    sent_todo = await adapter.feature_invoke(profile, todo, todo_params, values={})
+    assert sent_todo["_"] == "InputPeerSelf"
+    todo_request = next(
+        call[1]
+        for call in fake_client.calls
+        if call[0] == "request" and isinstance(call[1], functions.messages.SendMediaRequest)
+    )
+    assert todo_request.random_id is not None
+
+    async def build_without_random_id(*args: Any, **kwargs: Any) -> Any:
+        return SimpleNamespace(random_id=None)
+
+    monkeypatch.setattr(adapter.codec, "build", build_without_random_id)
+    await adapter.feature_invoke(profile, FEATURE_BY_COMMAND["ai-tones.list"], {}, values={})
+    assert fake_client.calls[-1][1].random_id is not None
+
+
+@pytest.mark.asyncio
+async def test_transcription_wait_paths(
+    adapter: StubAdapter,
+    profile: Profile,
+    fake_client: FakeClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from telethon.tl.types import messages as message_types
+
+    feature = FEATURE_BY_COMMAND["messages.transcribe"]
+    params = {"peer": {"$peer": "me"}, "msg_id": 1}
+    fake_client.request_result = message_types.TranscribedAudio(
+        transcription_id=7, text="done", pending=False
+    )
+    immediate = await adapter.feature_invoke(profile, feature, params, values={"wait_seconds": 1})
+    assert immediate["text"] == "done"
+
+    fake_client.request_result = message_types.TranscribedAudio(
+        transcription_id=7, text="", pending=True
+    )
+    fake_client.pending_updates = [
+        types.UpdateConfig(),
+        types.UpdateTranscribedAudio(
+            peer=types.PeerUser(1),
+            msg_id=1,
+            transcription_id=8,
+            text="other",
+            pending=False,
+        ),
+        types.UpdateTranscribedAudio(
+            peer=types.PeerUser(1),
+            msg_id=1,
+            transcription_id=7,
+            text="final",
+            pending=False,
+        ),
+    ]
+    completed = await adapter.feature_invoke(profile, feature, params, values={"wait_seconds": 1})
+    assert completed["text"] == "final"
+
+    async def timeout(awaitable: Any, *, timeout: float) -> Any:
+        del timeout
+        awaitable.close()
+        raise TimeoutError
+
+    fake_client.pending_updates = []
+    monkeypatch.setattr("clitg.telegram.asyncio.wait_for", timeout)
+    timed_out = await adapter.feature_invoke(profile, feature, params, values={"wait_seconds": 1})
+    assert timed_out["wait_timed_out"] is True
+
+    times = iter((0.0, 2.0))
+    monkeypatch.undo()
+    monkeypatch.setattr(
+        "clitg.telegram.asyncio.get_running_loop",
+        lambda: SimpleNamespace(time=lambda: next(times)),
+    )
+    expired = await adapter.feature_invoke(profile, feature, params, values={"wait_seconds": 1})
+    assert expired["wait_timed_out"] is True
+
+    fake_client.request_result = None
+    no_wait = await adapter.feature_invoke(profile, feature, params, values={"wait_seconds": 0})
+    assert no_wait["_"] == "InputPeerSelf"
 
 
 @pytest.mark.asyncio

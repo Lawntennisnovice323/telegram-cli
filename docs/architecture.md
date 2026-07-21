@@ -9,8 +9,11 @@
    and content-free functional metadata.
 4. `TelegramAdapter` owns Telethon clients, peer resolution, normalization, friendly operations,
    exports, and live updates.
-5. `Operation` maps stable dedicated commands to generated Telegram requests.
-6. `RawCodec` reflects Telethon's generated TL registry for methods without dedicated commands.
+5. `Operation` maps the original stable dedicated commands to generated Telegram requests.
+6. `FeatureCommand` defines reviewed explicit options, requirements, quotas, builders, and result
+   normalization for the 0.3 high-level catalog.
+7. `RawCodec` reflects Telethon's generated TL registry for methods without dedicated commands and
+   validates complex JSON constructors used by high-level commands.
 
 The offline test suite replaces the adapter and never opens a Telegram connection. Telethon values
 are normalized before they cross the service boundary unless `--include-raw` or `raw invoke` is
@@ -35,6 +38,28 @@ Batch operation and target limits are also policy controlled.
 Mutations have a reviewed risk: write, destructive, or critical. All support dry-run. Destructive
 operations require an exact confirmation. Critical operations additionally require a short-lived,
 one-use, payload-bound token. Compatible mutations use the same 30-day idempotency contract.
+
+Repeating scheduled messages use reviewed named intervals which map to Telegram's permitted repeat
+periods. A repeat requires a scheduled timestamp and exactly one message or media item. Albums and
+multi-message forwards are rejected before Telegram access.
+
+## High-level feature boundary
+
+The feature catalog is declarative. Typer signatures are generated from explicit reviewed options,
+while application builders convert stable agent inputs into Telegram constructors. Dedicated
+builders cover AI transforms, transcription waiting, collaborative checklists, Business recipients
+and schedules, shared folders, profile values, contacts, live stories, and sticker uploads.
+
+Generated TL objects never cross the application boundary directly. High-level feature results use
+the stable `FeatureResult` wrapper and recursively remove generated type discriminators. Agents can
+request the serialized source value with `--include-raw` when the normalized result is insufficient.
+Capabilities expose feature requirements such as Premium, Business, or administrator access and
+identify quota-consuming AI calls.
+
+Sticker files are validated locally and uploaded only at execution time. The adapter accepts
+Telegram-ready PNG, WebP, TGS, and WebM assets and deliberately performs no conversion. A bounded
+transcription wait listens for the matching completion update and returns a timeout marker without
+turning a pending Telegram transcription into an operational error.
 
 ## State
 

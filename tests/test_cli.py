@@ -12,6 +12,7 @@ from typer.testing import CliRunner
 
 import clitg.cli as cli
 from clitg.errors import ClitgError
+from clitg.features import FEATURE_COMMANDS
 from clitg.models import CommandResult, ErrorCode, OutputFormat
 from clitg.service import ClitgService
 from clitg.storage import Paths
@@ -188,6 +189,25 @@ def test_every_cli_command(arguments: list[str]) -> None:
     assert parsed["ok"] is True
 
 
+@pytest.mark.parametrize("feature", FEATURE_COMMANDS, ids=lambda feature: feature.command)
+def test_every_generated_feature_command(feature: Any) -> None:
+    group, command = feature.command.split(".", maxsplit=1)
+    arguments = ["--profile", "personal", group, command]
+    values = {
+        "str": "value",
+        "int": "1",
+        "float": "1.0",
+        "str_list": "value",
+        "int_list": "1",
+    }
+    for option in feature.options:
+        if option.required:
+            arguments.extend([option.flag, values[option.kind]])
+    result = runner.invoke(cli.app, arguments)
+    assert result.exit_code == 0, result.output
+    assert json.loads(result.stdout)["ok"] is True
+
+
 def test_help_version_and_jsonl() -> None:
     help_result = runner.invoke(cli.app, [])
     assert help_result.exit_code == 0
@@ -201,7 +221,7 @@ def test_help_version_and_jsonl() -> None:
     version_option = runner.invoke(cli.app, ["--version"])
     version = runner.invoke(cli.app, ["version"])
     assert version.exit_code == version_option.exit_code == 0
-    assert json.loads(version_option.stdout)["data"]["cli_version"] == "0.2.0"
+    assert json.loads(version_option.stdout)["data"]["cli_version"] == "0.3.0"
     assert json.loads(version.stdout)["data"] == json.loads(version_option.stdout)["data"]
     assert json.loads(version.stdout)["data"]["schema_version"] == "0.2"
     jsonl = runner.invoke(cli.app, ["--output", "jsonl", "profiles", "list"])
@@ -239,6 +259,61 @@ def test_input_helpers(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         cli._read_json("{", None, False)
     with pytest.raises(ClitgError, match="object"):
         cli._read_json("[]", None, False)
+
+
+def test_feature_input_helpers(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    assert cli._read_feature_input(None, False) is None
+    source = tmp_path / "input.json"
+    source.write_text('{"value":1}')
+    assert cli._read_feature_input(source, False) == {"value": 1}
+    monkeypatch.setattr(sys, "stdin", SimpleNamespace(read=lambda: '{"id":1}\n{"id":2}\n'))
+    assert cli._read_feature_input(None, True) == [{"id": 1}, {"id": 2}]
+    source.write_text("not-json")
+    with pytest.raises(ClitgError, match="invalid JSON or JSONL"):
+        cli._read_feature_input(source, False)
+    source.write_text("1")
+    with pytest.raises(ClitgError, match="object or array"):
+        cli._read_feature_input(source, False)
+
+
+def test_generated_feature_handler_forwards_common_options(tmp_path: Path) -> None:
+    source = tmp_path / "input.json"
+    source.write_text('{"extra":1}')
+    result = runner.invoke(
+        cli.app,
+        [
+            "--profile",
+            "personal",
+            "messages",
+            "translate",
+            "--to-lang",
+            "en",
+            "--text",
+            "hola",
+            "--input",
+            str(source),
+            "--dry-run",
+            "--confirm",
+            "messages.translate",
+            "--confirmation-token",
+            "token",
+            "--idempotency-key",
+            "key",
+            "--include-raw",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    call = FakeService.instances[-1].calls[-1]
+    assert call[0] == "execute_feature"
+    assert call[1][2] == {"to_lang": "en", "text": "hola"}
+    assert call[1][3] == {"extra": 1}
+    assert call[2] == {
+        "dry_run": True,
+        "confirmation": "messages.translate",
+        "confirmation_token": "token",
+        "idempotency_key": "key",
+        "include_raw": True,
+    }
 
 
 def test_datetime_and_parse_mode() -> None:

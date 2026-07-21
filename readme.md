@@ -1,8 +1,9 @@
 # clitg: Telegram CLI for AI agents
 
 Give an AI agent a deterministic interface to a real Telegram user account. `clitg` reads inboxes,
-searches conversations, sends and manages messages, works with groups, channels, contacts, stories,
-polls, topics, folders, bots, and media, and exposes the wider MTProto API through structured JSON.
+searches conversations, sends and manages messages, uses Telegram AI, automates Business features,
+works with groups, channels, contacts, collaborative checklists, stories, polls, topics, folders,
+stickers, GIFs, and media, and exposes the wider MTProto API through structured JSON.
 
 `clitg` is designed for workflows powered by **Claude Code**, **OpenAI Codex**, **Google
 Antigravity**, **GitHub Copilot**, **xAI Grok**, **Cursor**, **Amp**, and every other AI agent that can
@@ -15,8 +16,8 @@ powered by Telethon. It is not a Bot API wrapper and does not use a BotFather to
   selected stdin.
 - **Structured contracts:** successes and failures use versioned JSON envelopes. Lists and live
   updates support JSONL.
-- **Broad Telegram coverage:** dedicated commands cover common user actions, while the generated
-  MTProto gateway provides a conservative escape hatch.
+- **Broad Telegram coverage:** 153 agent-friendly commands added in 0.3 cover 133 Telegram methods,
+  while the generated MTProto gateway provides a conservative escape hatch for the rest.
 - **Safety for real accounts:** dry-run previews, exact destructive confirmations, one-use critical
   tokens, local policies, idempotency keys, and content-free audit metadata.
 - **Automation primitives:** filtered inboxes, account-wide search, resumable exports, update
@@ -24,9 +25,10 @@ powered by Telethon. It is not a Bot API wrapper and does not use a BotFather to
 - **Agent discovery:** machine-readable command, schema, capability, error, cursor, risk, and skill
   metadata are part of the product.
 
-Build inbox assistants, Telegram research agents, personal knowledge capture, follow-up workflows,
-scheduled delivery, moderation tools, media pipelines, or your own account automation without
-inventing another protocol.
+Build inbox assistants, Telegram research agents, translation and summarization workflows,
+Business automations, personal knowledge capture, collaborative follow-up systems, recurring
+delivery, moderation tools, story workflows, sticker pipelines, or your own account automation
+without inventing another protocol.
 
 > [!IMPORTANT]
 > A Telethon session grants access to its Telegram account. Never commit, upload, or share session
@@ -42,7 +44,8 @@ uv tool install clitg
 clitg version
 ```
 
-`clitg` 0.2 requires Python 3.14. uv can install the compatible interpreter automatically.
+`clitg` 0.3 requires Python 3.14. uv can install the compatible interpreter automatically. The
+public JSON contract remains on schema 0.2 for compatibility with existing agents.
 
 For local development:
 
@@ -254,7 +257,20 @@ clitg --profile personal messages send \
 
 Text and JSON accept a literal value, a file, or explicitly selected stdin as mutually exclusive
 sources. Repeat `--file` for albums. Use `--media-kind voice`, `sticker`, or `document` when needed.
-`--schedule-at` requires RFC 3339 with an offset.
+`--schedule-at` requires RFC 3339 with an offset. Add `--repeat daily`, `weekly`, `biweekly`,
+`monthly`, `quarterly`, `semiannual`, or `yearly` to create a repeating scheduled text, single-file
+message, single-message forward, or scheduled edit. Repetition always requires `--schedule-at` and
+albums cannot repeat.
+
+```bash
+clitg --profile personal messages send \
+  --peer me \
+  --text 'Weekly review' \
+  --schedule-at 2026-08-03T09:00:00-06:00 \
+  --repeat weekly \
+  --idempotency-key weekly-review \
+  --dry-run
+```
 
 Every compatible mutation accepts `--idempotency-key`. Reusing the same key and payload returns the
 stored result with `idempotent_replay: true`. Changing the payload under an existing key is a
@@ -280,9 +296,107 @@ clitg --profile personal messages delete \
 Critical operations also require the payload-bound token returned by dry-run. Tokens are single
 use and expire after five minutes.
 
+## Telegram AI and collaborative work
+
+Translate messages or supplied text, request Telegram transcription with an optional bounded wait,
+rate transcriptions, summarize a message, or transform supplied text with Telegram AI. AI commands
+return Telegram's result only. They never send or edit the transformed text automatically.
+
+```bash
+clitg --profile personal messages translate --text 'Hola mundo' --to-lang en
+clitg --profile personal messages transcribe --peer @example --message-id 42 --wait-seconds 30
+clitg --profile personal messages summarize --peer @example --message-id 42 --to-lang en
+clitg --profile personal messages compose --text 'ship it today' --proofread
+```
+
+Manage saved AI tones with `ai-tones`, and create or update collaborative checklists with `todos`:
+
+```bash
+clitg --profile personal todos create \
+  --peer me \
+  --title 'Release 0.3' \
+  --item 'Run quality gates' \
+  --item 'Publish the release' \
+  --dry-run
+```
+
+Telegram may require Premium for AI tones and collaborative checklists, and may meter AI features.
+The command manifest exposes `requirements` and `quota_consuming` so agents can reason about those
+constraints before execution.
+
+## Business automation and focused inboxes
+
+Telegram Business accounts can manage quick replies, chat links, greeting and away messages,
+working hours, location, introduction, and connected bots. Each mutation supports dry-run and the
+same confirmation and idempotency model as the rest of the CLI. Business hours use
+`DAY:HH:MM-HH:MM`, where day 0 is Monday and day 6 is Sunday.
+
+```bash
+clitg --profile personal quick-replies create --name welcome --text 'Thanks for writing' --dry-run
+clitg --profile personal business hours-set \
+  --timezone America/Mexico_City \
+  --open '0:09:00-17:00' \
+  --open '1:09:00-17:00' \
+  --dry-run
+clitg --profile personal business links
+```
+
+Focused inbox commands list unread mentions, reactions, and poll votes without marking messages
+read. Search-calendar and search-counter commands expose Telegram's media-oriented search views.
+
+```bash
+clitg --profile personal inbox mentions --peer @example --limit 50
+clitg --profile personal inbox reactions --peer @example --limit 50
+clitg --profile personal messages search-calendar \
+  --peer @example \
+  --filter InputMessagesFilterPhotos
+```
+
+## Statistics, moderation, folders, and stories
+
+Admin workflows can inspect channel, group, message, story, poll, public-forward, and graph
+statistics. Reviewed critical commands cover anti-spam, slow mode, default permissions, and member
+ranks. Reporting commands, join-request bulk actions, participant-reaction cleanup, and spam reports
+are explicit mutations and retain the normal safety checks.
+
+Shared-folder commands create, inspect, edit, revoke, join, update, dismiss, and leave Telegram chat
+list invitations. Story commands cover archive and pinned views, viewers, reactions, albums, links,
+visibility, stealth mode, read acknowledgement, and live-story state control.
+
+```bash
+clitg --profile personal stats channel --channel @example
+clitg --profile personal folders shared-links --folder-id 2
+clitg --profile personal stories viewers --peer @example --story-id 7 --limit 100
+```
+
+## Profile, contacts, stickers, and GIFs
+
+Profile commands edit names and bio, upload or delete profile photos, manage birthdays, colors,
+emoji status, personal channels, and profile music. Contact commands support batch import, birthdays,
+top peers, private notes, username resolution, and phone resolution.
+
+Sticker workflows list, inspect, install, favorite, create, add, edit, move, replace, remove, rename,
+set thumbnails, delete, search by emoji, and inspect available reactions. Uploads accept
+Telegram-ready PNG, WebP, TGS, or WebM files. `clitg` validates signatures, sizes, and TGS dimensions
+and duration, but does not convert source assets. PNG and WebP are limited to 512 KB, TGS to 64 KB,
+512 by 512 pixels, and three seconds, and WebM to 256 KB.
+
+Complex Telegram constructors can be supplied through exactly one `--input` JSON or `--stdin` JSON
+or JSONL source. Dedicated scalar fields remain explicit flags, and duplicate fields are rejected.
+
+```bash
+clitg --profile personal stickers create-set \
+  --title 'Agent Pack' \
+  --short-name agent_pack_by_example \
+  --file ./agent.webp \
+  --emoji '🤖' \
+  --dry-run
+```
+
 ## Dedicated Telegram actions
 
-The 0.2 command registry adds stable actions for:
+The 0.3 command registry retains all 0.2 actions and adds the high-level families above. Existing
+stable actions also cover:
 
 - account details, privacy rules, and active authorization sessions;
 - bot starts, callbacks, and inline queries;
@@ -307,8 +421,8 @@ clitg --profile personal chats create-channel \
 Friendly strings in peer, channel, and user fields are resolved safely. TL constructors still use
 the `_` discriminator when a nested generated type is required.
 
-Calls, secret chats, payments, account-security mutations, session revocation, and mutation batches
-are intentionally excluded from dedicated 0.2 commands.
+Nearby contacts, takeout export, secret chats, payments, account-security mutations, session
+revocation, and mutation batches are intentionally excluded from dedicated 0.3 commands.
 
 ## Live updates with JSONL
 

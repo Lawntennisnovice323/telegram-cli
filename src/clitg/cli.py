@@ -19,6 +19,7 @@ from typer import _click as click
 
 from clitg.catalog import command_catalog
 from clitg.errors import ClitgError
+from clitg.features import FEATURE_COMMANDS, FeatureCommand, FeatureOption
 from clitg.models import (
     BatchOperation,
     CommandResult,
@@ -72,6 +73,11 @@ saved_app = typer.Typer(help="Work with Saved Messages.")
 stickers_app = typer.Typer(help="Discover and send Telegram stickers.")
 stories_app = typer.Typer(help="Read and publish Telegram Stories.")
 updates_app = typer.Typer(help="Stream Telegram updates as JSONL.")
+ai_tones_app = typer.Typer(help="Manage Telegram AI composition tones.")
+business_app = typer.Typer(help="Manage Telegram Business automation.")
+stats_app = typer.Typer(help="Inspect Telegram channel and content statistics.")
+todos_app = typer.Typer(help="Manage collaborative Telegram checklists.")
+quick_replies_app = typer.Typer(help="Manage Telegram Business quick replies.")
 
 for name, subapp in (
     ("profiles", profiles_app),
@@ -104,6 +110,11 @@ for name, subapp in (
     ("stickers", stickers_app),
     ("stories", stories_app),
     ("updates", updates_app),
+    ("ai-tones", ai_tones_app),
+    ("business", business_app),
+    ("stats", stats_app),
+    ("todos", todos_app),
+    ("quick-replies", quick_replies_app),
 ):
     app.add_typer(subapp, name=name)
 
@@ -903,6 +914,7 @@ def _send_command(
     parse_mode: str,
     media_kind: str,
     schedule_at: str | None,
+    repeat: str | None,
     idempotency_key: str | None,
     dry_run: bool,
 ) -> None:
@@ -918,6 +930,7 @@ def _send_command(
             parse_mode=_validate_parse_mode(parse_mode),
             media_kind=media_kind,
             schedule_at=_parse_datetime(schedule_at),
+            repeat=repeat,
             idempotency_key=idempotency_key,
             dry_run=dry_run,
         )
@@ -937,6 +950,7 @@ def messages_send(
     parse_mode: str = typer.Option("plain", "--parse-mode"),
     media_kind: str = typer.Option("auto", "--media-kind"),
     schedule_at: str | None = typer.Option(None, "--schedule-at"),
+    repeat: str | None = typer.Option(None, "--repeat"),
     idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -955,6 +969,7 @@ def messages_send(
         parse_mode,
         media_kind,
         schedule_at,
+        repeat,
         idempotency_key,
         dry_run,
     )
@@ -989,6 +1004,7 @@ def messages_reply(
         parse_mode,
         media_kind,
         None,
+        None,
         idempotency_key,
         dry_run,
     )
@@ -1000,6 +1016,8 @@ def messages_forward(
     source_peer: str = typer.Option(..., "--source-peer"),
     target_peer: str = typer.Option(..., "--target-peer"),
     message_id: list[int] | None = typer.Option(None, "--message-id"),
+    schedule_at: str | None = typer.Option(None, "--schedule-at"),
+    repeat: str | None = typer.Option(None, "--repeat"),
     idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -1013,6 +1031,8 @@ def messages_forward(
             source_peer,
             target_peer,
             message_id or [],
+            schedule_at=_parse_datetime(schedule_at),
+            repeat=repeat,
             idempotency_key=idempotency_key,
             dry_run=dry_run,
         ),
@@ -1028,6 +1048,8 @@ def messages_edit(
     text_file: Path | None = typer.Option(None, "--text-file"),
     text_stdin: bool = typer.Option(False, "--text-stdin"),
     parse_mode: str = typer.Option("plain", "--parse-mode"),
+    schedule_at: str | None = typer.Option(None, "--schedule-at"),
+    repeat: str | None = typer.Option(None, "--repeat"),
     idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -1041,6 +1063,8 @@ def messages_edit(
             message_id,
             selected,
             _validate_parse_mode(parse_mode),
+            schedule_at=_parse_datetime(schedule_at),
+            repeat=repeat,
             dry_run=dry_run,
             idempotency_key=idempotency_key,
         )
@@ -1481,28 +1505,146 @@ def _operation_handler(command: str) -> Callable[..., None]:
 
 _OPERATION_APPS = {
     "account": account_app,
+    "ai-tones": ai_tones_app,
     "auth": auth_app,
     "bots": bots_app,
+    "business": business_app,
     "chats": chats_app,
     "contacts": contacts_app,
     "dialogs": dialogs_app,
     "drafts": drafts_app,
     "folders": folders_app,
     "gifs": gifs_app,
+    "inbox": inbox_app,
     "invite-links": invite_links_app,
     "join-requests": join_requests_app,
     "messages": messages_app,
     "polls": polls_app,
+    "quick-replies": quick_replies_app,
     "saved": saved_app,
     "scheduled": scheduled_app,
     "stickers": stickers_app,
     "stories": stories_app,
+    "stats": stats_app,
+    "todos": todos_app,
     "topics": topics_app,
 }
 
 for _operation in OPERATIONS:
     _group, _leaf = _operation.command.split(".", maxsplit=1)
     _OPERATION_APPS[_group].command(_leaf)(_operation_handler(_operation.command))
+
+
+def _read_feature_input(path: Path | None, stdin: bool) -> dict[str, Any] | list[Any] | None:
+    """Read optional JSON or JSONL feature input."""
+
+    if path is None and not stdin:
+        return None
+    raw = _read_text(None, path, stdin, label="feature input", required=True)
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        try:
+            parsed = [json.loads(line) for line in raw.splitlines() if line.strip()]
+        except json.JSONDecodeError as exc:
+            raise ClitgError(
+                ErrorCode.INVALID_INPUT, "Feature input is invalid JSON or JSONL"
+            ) from exc
+    if not isinstance(parsed, dict | list):
+        raise ClitgError(ErrorCode.INVALID_INPUT, "Feature input must be an object or array")
+    return parsed
+
+
+def _feature_annotation(option: FeatureOption) -> Any:
+    """Return the runtime annotation used for one generated Typer option."""
+
+    if option.kind == "str":
+        return str if option.required else str | None
+    if option.kind == "int":
+        return int if option.required else int | None
+    if option.kind == "float":
+        return float if option.required else float | None
+    if option.kind == "bool":
+        return bool
+    if option.kind == "str_list":
+        return list[str] if option.required else list[str] | None
+    return list[int] if option.required else list[int] | None
+
+
+def _feature_handler(feature: FeatureCommand) -> Callable[..., None]:
+    """Build a Typer handler with explicit flags from a reviewed feature spec."""
+
+    def handler(**kwargs: Any) -> None:
+        ctx = kwargs.pop("ctx")
+        input_file = kwargs.pop("input_file")
+        input_stdin = kwargs.pop("input_stdin")
+        dry_run = kwargs.pop("dry_run")
+        confirmation = kwargs.pop("confirmation")
+        confirmation_token = kwargs.pop("confirmation_token")
+        idempotency_key = kwargs.pop("idempotency_key")
+        include_raw = kwargs.pop("include_raw")
+        values = {key: value for key, value in kwargs.items() if value is not None}
+        _execute(
+            ctx,
+            feature.command,
+            lambda: _service(_context(ctx)).execute_feature(
+                _context(ctx).profile,
+                feature.command,
+                values,
+                _read_feature_input(input_file, input_stdin),
+                dry_run=dry_run,
+                confirmation=confirmation,
+                confirmation_token=confirmation_token,
+                idempotency_key=idempotency_key,
+                include_raw=include_raw,
+            ),
+        )
+
+    parameters: list[inspect.Parameter] = [
+        inspect.Parameter(
+            "ctx",
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            annotation=typer.Context,
+        )
+    ]
+    for option in feature.options:
+        default = ... if option.required else option.default
+        parameters.append(
+            inspect.Parameter(
+                option.name,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                annotation=_feature_annotation(option),
+                default=typer.Option(default, option.flag, help=option.help or None),
+            )
+        )
+    common = (
+        ("input_file", Path | None, typer.Option(None, "--input")),
+        ("input_stdin", bool, typer.Option(False, "--stdin")),
+        ("dry_run", bool, typer.Option(False, "--dry-run")),
+        ("confirmation", str | None, typer.Option(None, "--confirm")),
+        ("confirmation_token", str | None, typer.Option(None, "--confirmation-token")),
+        ("idempotency_key", str | None, typer.Option(None, "--idempotency-key")),
+        ("include_raw", bool, typer.Option(False, "--include-raw")),
+    )
+    for name, annotation, default in common:
+        parameters.append(
+            inspect.Parameter(
+                name,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                annotation=annotation,
+                default=default,
+            )
+        )
+    handler.__name__ = feature.command.replace(".", "_").replace("-", "_")
+    handler.__doc__ = feature.summary
+    dynamic_handler: Any = handler
+    dynamic_handler.__signature__ = inspect.Signature(parameters)
+    return handler
+
+
+for _feature in FEATURE_COMMANDS:
+    _group, _leaf = _feature.command.split(".", maxsplit=1)
+    _OPERATION_APPS[_group].command(_leaf)(_feature_handler(_feature))
 
 
 @commands_app.command("list")

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import gzip
+import json
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -12,14 +14,21 @@ from typing import Any
 
 import qrcode
 from filelock import Timeout as FileLockTimeout
-from telethon import TelegramClient, events, functions, types
+from telethon import TelegramClient, events, functions, types, utils
 from telethon.errors import SessionPasswordNeededError
 
 from clitg.errors import ClitgError
+from clitg.features import FeatureCommand
 from clitg.models import ErrorCode, Profile
 from clitg.raw import RawCodec
 from clitg.serialization import payload_hash, to_jsonable
 from clitg.storage import Paths
+
+
+def _random_id() -> int:
+    """Return a signed 64-bit random identifier for Telegram send requests."""
+
+    return int.from_bytes(uuid.uuid4().bytes[:8], byteorder="big", signed=True)
 
 
 def entity_view(entity: Any) -> dict[str, Any]:
@@ -632,6 +641,7 @@ class TelegramAdapter:
         parse_mode: str,
         media_kind: str,
         schedule_at: datetime | None,
+        repeat_period: int | None = None,
     ) -> list[dict[str, Any]]:
         """Send text or local media."""
 
@@ -639,7 +649,46 @@ class TelegramAdapter:
             entity = await self.resolve_peer(client, peer)
             mode = None if parse_mode == "plain" else {"markdown": "md", "html": "html"}[parse_mode]
             reply = topic_id or reply_to
-            if files:
+            if repeat_period is not None:
+                input_peer = await client.get_input_entity(entity)
+                message, entities = await client._parse_message_text(text, mode)
+                reply_header = (
+                    types.InputReplyToMessage(reply_to_msg_id=reply) if reply is not None else None
+                )
+                if files:
+                    _, media, _ = await client._file_to_media(
+                        files[0],
+                        force_document=media_kind in {"document", "sticker"},
+                        voice_note=media_kind == "voice",
+                    )
+                    request = functions.messages.SendMediaRequest(
+                        peer=input_peer,
+                        media=media,
+                        message=message,
+                        random_id=_random_id(),
+                        entities=entities,
+                        reply_to=reply_header,
+                        schedule_date=schedule_at,
+                        schedule_repeat_period=repeat_period,
+                    )
+                else:
+                    request = functions.messages.SendMessageRequest(
+                        peer=input_peer,
+                        message=message,
+                        random_id=_random_id(),
+                        entities=entities,
+                        reply_to=reply_header,
+                        schedule_date=schedule_at,
+                        schedule_repeat_period=repeat_period,
+                    )
+                updates = await client(request)
+                result = client._get_response_message(request, updates, input_peer)
+                if result is None:
+                    raise ClitgError(
+                        ErrorCode.TELEGRAM_RPC,
+                        "Telegram did not return the repeating scheduled message",
+                    )
+            elif files:
                 result = await client.send_file(
                     entity,
                     files if len(files) > 1 else files[0],
@@ -667,14 +716,41 @@ class TelegramAdapter:
         source_peer: str,
         target_peer: str,
         message_ids: list[int],
+        *,
+        schedule_at: datetime | None = None,
+        repeat_period: int | None = None,
     ) -> list[dict[str, Any]]:
         """Forward messages between peers."""
 
         async with self.client(profile) as client:
             source = await self.resolve_peer(client, source_peer)
             target = await self.resolve_peer(client, target_peer)
-            result = await client.forward_messages(target, message_ids, from_peer=source)
+            if repeat_period is not None:
+                input_source = await client.get_input_entity(source)
+                input_target = await client.get_input_entity(target)
+                request = functions.messages.ForwardMessagesRequest(
+                    from_peer=input_source,
+                    id=message_ids,
+                    to_peer=input_target,
+                    random_id=[_random_id() for _ in message_ids],
+                    schedule_date=schedule_at,
+                    schedule_repeat_period=repeat_period,
+                )
+                updates = await client(request)
+                result = client._get_response_message(request, updates, input_target)
+            else:
+                result = await client.forward_messages(
+                    target,
+                    message_ids,
+                    from_peer=source,
+                    schedule=schedule_at,
+                )
             messages = result if isinstance(result, list) else [result]
+            if any(message is None for message in messages):
+                raise ClitgError(
+                    ErrorCode.TELEGRAM_RPC,
+                    "Telegram did not return every forwarded message",
+                )
             return [message_view(message) for message in messages]
 
     async def edit(
@@ -684,13 +760,41 @@ class TelegramAdapter:
         message_id: int,
         text: str,
         parse_mode: str,
+        *,
+        schedule_at: datetime | None = None,
+        repeat_period: int | None = None,
     ) -> dict[str, Any]:
         """Edit a message."""
 
         async with self.client(profile) as client:
             entity = await self.resolve_peer(client, peer)
             mode = None if parse_mode == "plain" else {"markdown": "md", "html": "html"}[parse_mode]
-            result = await client.edit_message(entity, message_id, text, parse_mode=mode)
+            if repeat_period is not None:
+                input_peer = await client.get_input_entity(entity)
+                message, entities = await client._parse_message_text(text, mode)
+                request = functions.messages.EditMessageRequest(
+                    peer=input_peer,
+                    id=message_id,
+                    message=message,
+                    entities=entities,
+                    schedule_date=schedule_at,
+                    schedule_repeat_period=repeat_period,
+                )
+                updates = await client(request)
+                result = client._get_response_message(request, updates, input_peer)
+                if result is None:
+                    raise ClitgError(
+                        ErrorCode.TELEGRAM_RPC,
+                        "Telegram did not return the edited scheduled message",
+                    )
+            else:
+                result = await client.edit_message(
+                    entity,
+                    message_id,
+                    text,
+                    parse_mode=mode,
+                    schedule=schedule_at,
+                )
             return message_view(result)
 
     async def delete(
@@ -913,3 +1017,176 @@ class TelegramAdapter:
         async with self.client(profile) as client:
             request = await self.codec.build(method, params, client, resolve=True)
             return self.codec.serialize(await client(request))
+
+    async def validate_feature(
+        self,
+        feature: FeatureCommand,
+        params: dict[str, Any],
+    ) -> None:
+        """Validate a stable feature without opening Telegram."""
+
+        files = params.get("_feature_files")
+        if files:
+            for path in files if isinstance(files, list) else [files]:
+                self._validate_sticker_file(Path(path))
+            return
+        await self.codec.build(feature.method, params, resolve=False)
+
+    @staticmethod
+    def _validate_sticker_file(path: Path) -> str:
+        """Validate a Telegram-ready sticker file without converting it."""
+
+        if not path.is_file():
+            raise ClitgError(ErrorCode.INVALID_INPUT, f"Sticker file does not exist: {path}")
+        suffix = path.suffix.lower()
+        limits = {".png": 512_000, ".webp": 512_000, ".tgs": 64_000, ".webm": 256_000}
+        if suffix not in limits:
+            raise ClitgError(
+                ErrorCode.INVALID_INPUT,
+                "Sticker files must be PNG, WebP, TGS, or WebM",
+            )
+        data = path.read_bytes()
+        if len(data) > limits[suffix]:
+            raise ClitgError(ErrorCode.INVALID_INPUT, f"Sticker file is too large: {path}")
+        magic_ok = {
+            ".png": data.startswith(b"\x89PNG\r\n\x1a\n"),
+            ".webp": data.startswith(b"RIFF") and data[8:12] == b"WEBP",
+            ".tgs": data.startswith(b"\x1f\x8b"),
+            ".webm": data.startswith(b"\x1a\x45\xdf\xa3"),
+        }[suffix]
+        if not magic_ok:
+            raise ClitgError(ErrorCode.INVALID_INPUT, f"Sticker file signature is invalid: {path}")
+        if suffix == ".tgs":
+            try:
+                body = json.loads(gzip.decompress(data))
+                duration = (float(body["op"]) - float(body["ip"])) / float(body["fr"])
+            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
+                raise ClitgError(ErrorCode.INVALID_INPUT, f"TGS file is invalid: {path}") from exc
+            if body.get("w") != 512 or body.get("h") != 512 or duration > 3:
+                raise ClitgError(
+                    ErrorCode.INVALID_INPUT, f"TGS dimensions or duration are invalid: {path}"
+                )
+        return {
+            ".png": "image/png",
+            ".webp": "image/webp",
+            ".tgs": "application/x-tgsticker",
+            ".webm": "video/webm",
+        }[suffix]
+
+    async def _upload_sticker(self, client: Any, path: Path) -> Any:
+        mime_type = self._validate_sticker_file(path)
+        uploaded = await client.upload_file(path)
+        media = await client(
+            functions.messages.UploadMediaRequest(
+                peer=types.InputPeerSelf(),
+                media=types.InputMediaUploadedDocument(
+                    file=uploaded,
+                    mime_type=mime_type,
+                    attributes=[types.DocumentAttributeFilename(file_name=path.name)],
+                    force_file=True,
+                ),
+            )
+        )
+        document = getattr(media, "document", None)
+        if document is None:
+            raise ClitgError(ErrorCode.TELEGRAM_RPC, "Telegram did not return a sticker document")
+        return utils.get_input_document(document)
+
+    async def _invoke_sticker_feature(
+        self,
+        client: Any,
+        feature: FeatureCommand,
+        params: dict[str, Any],
+    ) -> Any:
+        raw_files = params.pop("_feature_files", [])
+        files = [Path(item) for item in raw_files if isinstance(raw_files, list)]
+        if isinstance(raw_files, str):
+            files = [Path(raw_files)]
+        params.pop("_feature_input", None)
+        params.pop("file", None)
+        if feature.builder == "sticker-create":
+            emojis = params.pop("emoji", [])
+            if len(emojis) not in {1, len(files)}:
+                raise ClitgError(
+                    ErrorCode.INVALID_INPUT,
+                    "Provide one emoji for all stickers or one emoji per sticker",
+                )
+            documents = [await self._upload_sticker(client, path) for path in files]
+            stickers = [
+                types.InputStickerSetItem(
+                    document=document,
+                    emoji=emojis[0] if len(emojis) == 1 else emojis[index],
+                )
+                for index, document in enumerate(documents)
+            ]
+            request = functions.stickers.CreateStickerSetRequest(
+                user_id=types.InputUserSelf(),
+                title=params["title"],
+                short_name=params["short_name"],
+                stickers=stickers,
+                masks=params.get("masks") or None,
+                emojis=params.get("emojis") or None,
+                text_color=params.get("text_color") or None,
+            )
+        else:
+            if len(files) != 1:
+                raise ClitgError(ErrorCode.INVALID_INPUT, "Exactly one sticker file is required")
+            document = await self._upload_sticker(client, files[0])
+            request = functions.stickers.AddStickerToSetRequest(
+                stickerset=types.InputStickerSetShortName(params["short_name"]),
+                sticker=types.InputStickerSetItem(
+                    document=document,
+                    emoji=params["emoji"],
+                    keywords=params.get("keywords"),
+                ),
+            )
+        return self.codec.serialize(await client(request))
+
+    async def feature_invoke(
+        self,
+        profile: Profile,
+        feature: FeatureCommand,
+        params: dict[str, Any],
+        *,
+        values: dict[str, Any],
+    ) -> Any:
+        """Invoke a reviewed high-level feature and normalize its TL result."""
+
+        async with self.client(profile) as client:
+            if feature.builder in {"sticker-create", "sticker-item"}:
+                return await self._invoke_sticker_feature(client, feature, dict(params))
+            request = await self.codec.build(feature.method, params, client, resolve=True)
+            if hasattr(request, "random_id") and request.random_id is None:
+                dynamic_request: Any = request
+                dynamic_request.random_id = _random_id()
+            wait_seconds = int(values.get("wait_seconds") or 0)
+            if feature.command != "messages.transcribe" or wait_seconds <= 0:
+                return self.codec.serialize(await client(request))
+
+            updates: asyncio.Queue[types.UpdateTranscribedAudio] = asyncio.Queue()
+
+            async def receive(update: Any) -> None:
+                if isinstance(update, types.UpdateTranscribedAudio):
+                    await updates.put(update)
+
+            client.add_event_handler(receive, events.Raw)
+            try:
+                result = await client(request)
+                serialized = self.codec.serialize(result)
+                if not getattr(result, "pending", False):
+                    return serialized
+                transcription_id = getattr(result, "transcription_id", None)
+                deadline = asyncio.get_running_loop().time() + wait_seconds
+                while True:
+                    remaining = deadline - asyncio.get_running_loop().time()
+                    if remaining <= 0:
+                        break
+                    try:
+                        update = await asyncio.wait_for(updates.get(), timeout=remaining)
+                    except TimeoutError:
+                        break
+                    if update.transcription_id == transcription_id and not update.pending:
+                        return self.codec.serialize(update)
+                return {**serialized, "wait_timed_out": True}
+            finally:
+                client.remove_event_handler(receive, events.Raw)

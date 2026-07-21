@@ -138,7 +138,24 @@ class Capability(BaseModel):
     status: Literal["high-level", "raw-only", "inapplicable-user", "unsupported"]
     risk: Literal["read", "write", "destructive", "critical", "unknown"]
     command: str | None = None
+    commands: list[str] = Field(default_factory=list)
     reason: str | None = None
+    requirements: list[str] = Field(default_factory=list)
+    quota_consuming: bool = False
+
+
+class FeatureResult(BaseModel):
+    """Stable wrapper for one dedicated Telegram feature result."""
+
+    command: str
+    method: str
+    risk: Literal["read", "write", "destructive", "critical"]
+    result_type: str
+    result: Any
+    requirements: list[str] = Field(default_factory=list)
+    quota_consuming: bool = False
+    idempotent_replay: bool = False
+    raw: Any | None = None
 
 
 class CapabilityCatalog(BaseModel):

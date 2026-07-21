@@ -22,6 +22,7 @@ from clitg.models import (
     Confirmation,
     Envelope,
     ErrorInfo,
+    FeatureResult,
     JsonlRecord,
     LoginState,
     Meta,
@@ -151,6 +152,7 @@ SCHEMA_MODELS = {
         Confirmation,
         Envelope,
         ErrorInfo,
+        FeatureResult,
         JsonlRecord,
         LoginState,
         Meta,
@@ -198,10 +200,18 @@ def request_registry() -> dict[str, type[TLRequest]]:
 def capability_catalog() -> CapabilityCatalog:
     """Generate the capability manifest from the live Telethon registry."""
 
+    from clitg.features import FEATURE_COMMANDS
     from clitg.operations import OPERATIONS
 
     dedicated = {operation.method: operation.command for operation in OPERATIONS}
-    high_level = {**HIGH_LEVEL_METHODS, **dedicated}
+    features: dict[str, list[Any]] = {}
+    for feature in FEATURE_COMMANDS:
+        features.setdefault(feature.method, []).append(feature)
+    high_level = {
+        **{method: values[0].command for method, values in features.items()},
+        **HIGH_LEVEL_METHODS,
+        **dedicated,
+    }
     capabilities: list[Capability] = []
     for method, request_class in request_registry().items():
         reason = UNSUPPORTED_METHODS.get(method)
@@ -211,6 +221,15 @@ def capability_catalog() -> CapabilityCatalog:
             status = "high-level"
         else:
             status = "raw-only"
+        commands = list(
+            dict.fromkeys(
+                [
+                    *([high_level[method]] if method in high_level else []),
+                    *(feature.command for feature in features.get(method, [])),
+                ]
+            )
+        )
+        feature_values = features.get(method, [])
         capabilities.append(
             Capability(
                 method=method,
@@ -218,7 +237,16 @@ def capability_catalog() -> CapabilityCatalog:
                 status=status,
                 risk=risk_for(method),
                 command=high_level.get(method),
+                commands=commands,
                 reason=reason,
+                requirements=sorted(
+                    {
+                        requirement
+                        for feature in feature_values
+                        for requirement in feature.requirements
+                    }
+                ),
+                quota_consuming=any(feature.quota_consuming for feature in feature_values),
             )
         )
     return CapabilityCatalog(
@@ -232,9 +260,11 @@ def capability_catalog() -> CapabilityCatalog:
 def command_catalog() -> dict[str, Any]:
     """Return the machine-readable top-level command catalog."""
 
+    from clitg.features import feature_catalog
     from clitg.operations import operation_catalog
 
     operations = operation_catalog()
+    operations.update(feature_catalog())
     groups = {name: dict(value) for name, value in COMMAND_CATALOG.items()}
     for command in operations:
         group, leaf = command.split(".", maxsplit=1)

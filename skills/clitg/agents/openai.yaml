@@ -1,4 +1,4 @@
 interface:
   display_name: "clitg"
-  short_description: "Operate Telegram safely with structured output"
+  short_description: "Operate Telegram AI, Business, messages, and media safely"
   default_prompt: "Use $clitg to complete this Telegram task with structured output and the required safety controls."

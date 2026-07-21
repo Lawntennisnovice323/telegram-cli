@@ -1,6 +1,6 @@
 ---
 name: clitg
-description: Operate a Telegram user account through the structured clitg CLI. Use when an agent needs to inspect dialogs, inboxes, contacts, groups, channels, messages, stories, or sessions; send, reply, edit, forward, react, schedule, export, or delete content; transfer media; watch live updates; run safe read batches; or invoke Telegram MTProto methods under local policy, dry-run, confirmation, idempotency, and machine-readable output requirements.
+description: Operate a Telegram user account through the structured clitg CLI. Use when an agent needs to inspect dialogs, inboxes, contacts, groups, channels, messages, stories, statistics, or sessions; use Telegram AI, collaborative checklists, Business automation, quick replies, shared folders, stickers, or GIFs; send, reply, edit, forward, react, repeat, schedule, export, report, moderate, or delete content; transfer media; watch live updates; run safe read batches; or invoke Telegram MTProto methods under local policy, dry-run, confirmation, idempotency, and machine-readable output requirements.
 ---
 
 # Use clitg
@@ -12,7 +12,7 @@ and local sessions as private.
 
 1. Run `command -v clitg`.
 2. If missing, stop and tell the user to run `uv tool install clitg`. Do not install it yourself.
-3. Run `clitg version` and require CLI and schema `>=0.2,<0.3`.
+3. Run `clitg version` and require CLI `>=0.3,<0.4` and schema `>=0.2,<0.3`.
 4. Use an explicit `--profile`. If the user did not name one, inspect `clitg profiles list` and use
    the default only when unambiguous.
 5. Discover unfamiliar contracts with `clitg --help-json`, `clitg commands get --command
@@ -33,6 +33,8 @@ invent or modify a cursor.
 
 - Prefer `inbox`, `dialogs`, `contacts`, `messages`, `account`, and other dedicated commands over
   `raw invoke`.
+- Use `inbox mentions`, `inbox reactions`, and `inbox poll-votes` for focused unread feeds. These
+  reads do not acknowledge messages.
 - Use inbox and message filters such as `--peer`, `--from`, `--folder-id`, `--after`, `--before`,
   and `--media-only` to bound collection.
 - Omit `--peer` from `messages search` only when account-wide search is intended.
@@ -55,6 +57,19 @@ invent or modify a cursor.
 Use plain text unless formatting was requested. Select `--parse-mode markdown` or `html`
 explicitly. Prefer file or stdin payload sources for long content and sensitive login values.
 
+For repeating delivery, use a named `--repeat` value with `--schedule-at`. Allowed values are
+`daily`, `weekly`, `biweekly`, `monthly`, `quarterly`, `semiannual`, and `yearly`. Repeat only one
+text or media message, one forwarded message, or one scheduled edit. Do not attempt repeating
+albums. The timestamp must be RFC 3339 with an offset, such as `2026-07-21T15:00:00Z`. Preview and
+execute the same payload and idempotency key:
+
+```bash
+clitg --profile personal messages send --peer me --text 'Review' \
+  --schedule-at 2026-07-21T15:00:00Z --repeat weekly --idempotency-key review --dry-run
+clitg --profile personal messages send --peer me --text 'Review' \
+  --schedule-at 2026-07-21T15:00:00Z --repeat weekly --idempotency-key review
+```
+
 For destructive actions, provide the exact `--confirm` value required by the command. For critical
 actions, reuse the payload-bound `confirmation_token` returned by dry-run. Tokens expire after five
 minutes and one use. An idempotent replay can return its stored result without consuming another
@@ -62,11 +77,48 @@ token.
 
 Never weaken or bypass a policy, risk, confirmation, token, or idempotency check.
 
-## Use registered actions
+## Use high-level 0.3 actions
 
-Use `clitg commands list` to discover stable account, bot, chat, contact, dialog, draft, folder, GIF,
-invite, join-request, message, poll, Saved Messages, scheduled, sticker, story, and topic actions.
-Inspect the exact generated parameter signature first:
+Prefer explicit high-level flags for Telegram AI, collaborative checklists, Business, focused inbox,
+statistics, moderation, shared folders, stories, profile management, contacts, stickers, GIFs, and
+scheduled-message controls. Inspect exact flags before use:
+
+```bash
+clitg messages translate --help
+clitg business hours-set --help
+clitg stickers create-set --help
+```
+
+AI transform commands return a result only. Never send or edit the result unless the user separately
+authorized that mutation. Treat `quota_consuming: true` as a potentially metered Telegram action.
+Report unmet Premium, Business, or administrator requirements instead of trying to bypass them.
+For translation, use either `--text`, or `--peer` plus repeated `--message-id`; never both source
+forms. Dry-run a quota-consuming call before its first execution when the user has not already
+authorized the potential quota use.
+
+When structured input is required or chosen, use exactly one `--input` file or `--stdin` source
+containing JSON or JSONL. Keep ordinary values in their explicit flags. Never duplicate a field
+between flags and structured input.
+
+Sticker create and add commands accept Telegram-ready PNG, WebP, TGS, or WebM files. Do not assume
+the CLI converts assets. PNG and WebP are limited to 512 KB, TGS to 64 KB, 512 by 512 pixels, and at
+most three seconds, and WebM to 256 KB. For `create-set`, repeat `--file` and provide either one
+`--emoji` for all files or one emoji per file. `stickers add` accepts exactly one file. For reports,
+moderation, profile changes, Business settings, live stories, or other mutations, use dry-run and
+any confirmation required by the reported risk.
+
+Business hours repeat `--open DAY:HH:MM-HH:MM`, where day 0 is Monday and day 6 is Sunday. Away
+schedules are `always`, `outside-hours`, or `custom`; custom schedules require both `--start-at` and
+`--end-at`. Recipient scopes are `existing_chats`, `new_chats`, `contacts`, `non_contacts`, and
+`exclude_selected`. Inspect `commands get` for the current allowed Business bot rights. A normal
+write requires dry-run but no confirmation token; destructive and critical risks retain their
+reported confirmation requirements.
+
+## Use legacy registered actions
+
+Use `clitg commands list` to discover the entire stable command catalog. Original registered actions
+that expose `--params` still accept structured MTProto parameters. Inspect their exact signature
+first:
 
 ```bash
 clitg commands get --command chats.create-channel

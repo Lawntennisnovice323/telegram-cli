@@ -110,6 +110,13 @@
           "default": null,
           "title": "Command"
         },
+        "commands": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Commands",
+          "type": "array"
+        },
         "method": {
           "title": "Method",
           "type": "string"
@@ -117,6 +124,11 @@
         "python_class": {
           "title": "Python Class",
           "type": "string"
+        },
+        "quota_consuming": {
+          "default": false,
+          "title": "Quota Consuming",
+          "type": "boolean"
         },
         "reason": {
           "anyOf": [
@@ -129,6 +141,13 @@
           ],
           "default": null,
           "title": "Reason"
+        },
+        "requirements": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Requirements",
+          "type": "array"
         },
         "risk": {
           "enum": [
@@ -178,6 +197,13 @@
               "default": null,
               "title": "Command"
             },
+            "commands": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Commands",
+              "type": "array"
+            },
             "method": {
               "title": "Method",
               "type": "string"
@@ -185,6 +211,11 @@
             "python_class": {
               "title": "Python Class",
               "type": "string"
+            },
+            "quota_consuming": {
+              "default": false,
+              "title": "Quota Consuming",
+              "type": "boolean"
             },
             "reason": {
               "anyOf": [
@@ -197,6 +228,13 @@
               ],
               "default": null,
               "title": "Reason"
+            },
+            "requirements": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Requirements",
+              "type": "array"
             },
             "risk": {
               "enum": [
@@ -509,6 +547,72 @@
         "message"
       ],
       "title": "ErrorInfo",
+      "type": "object"
+    },
+    "FeatureResult": {
+      "description": "Stable wrapper for one dedicated Telegram feature result.",
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "idempotent_replay": {
+          "default": false,
+          "title": "Idempotent Replay",
+          "type": "boolean"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "quota_consuming": {
+          "default": false,
+          "title": "Quota Consuming",
+          "type": "boolean"
+        },
+        "raw": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw"
+        },
+        "requirements": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Requirements",
+          "type": "array"
+        },
+        "result": {
+          "title": "Result"
+        },
+        "result_type": {
+          "title": "Result Type",
+          "type": "string"
+        },
+        "risk": {
+          "enum": [
+            "read",
+            "write",
+            "destructive",
+            "critical"
+          ],
+          "title": "Risk",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command",
+        "method",
+        "risk",
+        "result_type",
+        "result"
+      ],
+      "title": "FeatureResult",
       "type": "object"
     },
     "JsonlRecord": {

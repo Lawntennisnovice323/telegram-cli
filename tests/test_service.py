@@ -9,9 +9,17 @@ import pytest
 from telethon.errors import FloodWaitError, RPCError
 
 from clitg.errors import ClitgError
+from clitg.features import FEATURE_BY_COMMAND
 from clitg.models import BatchOperation, ErrorCode, Profile
-from clitg.serialization import encode_cursor
-from clitg.service import ClitgService
+from clitg.serialization import decode_cursor, encode_cursor
+from clitg.service import (
+    REPEAT_PERIODS,
+    ClitgService,
+    _feature_result_items,
+    feature_cursor_values,
+    feature_next_cursor,
+    repeat_period,
+)
 from clitg.storage import Paths
 
 
@@ -138,11 +146,11 @@ class FakeTelegram:
     async def send(self, *args: Any, **kwargs: Any) -> list[dict[str, Any]]:
         return await self._call("send", *args, result=[{"id": 10}], **kwargs)
 
-    async def forward(self, *args: Any) -> list[dict[str, Any]]:
-        return await self._call("forward", *args, result=[{"id": 11}])
+    async def forward(self, *args: Any, **kwargs: Any) -> list[dict[str, Any]]:
+        return await self._call("forward", *args, result=[{"id": 11}], **kwargs)
 
-    async def edit(self, *args: Any) -> dict[str, Any]:
-        return await self._call("edit", *args, result={"id": 1, "text": "edited"})
+    async def edit(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        return await self._call("edit", *args, result={"id": 1, "text": "edited"}, **kwargs)
 
     async def delete(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return await self._call("delete", *args, result={"deleted": True}, **kwargs)
@@ -181,6 +189,17 @@ class FakeTelegram:
 
     async def raw_invoke(self, *args: Any) -> dict[str, Any]:
         return await self._call("raw_invoke", *args, result={"_": "Config"})
+
+    async def validate_feature(self, *args: Any) -> None:
+        await self._call("validate_feature", *args)
+
+    async def feature_invoke(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        return await self._call(
+            "feature_invoke",
+            *args,
+            result={"_": "FeatureValue", "items": [{"_": "Item", "id": 1}]},
+            **kwargs,
+        )
 
 
 @pytest.fixture
@@ -1367,3 +1386,307 @@ async def test_batch_policy_and_audit(service: ClitgService, tmp_path: Path) -> 
     with pytest.raises(ClitgError, match="exists"):
         service.export_audit(output, overwrite=False)
     assert service.export_audit(output, overwrite=True).data["path"]
+
+
+@pytest.mark.asyncio
+async def test_repeat_scheduling(service: ClitgService, tmp_path: Path) -> None:
+    scheduled = datetime(2026, 8, 1, tzinfo=UTC)
+    assert repeat_period("daily", scheduled) == REPEAT_PERIODS["daily"]
+    assert repeat_period(None, None) is None
+    with pytest.raises(ClitgError, match="requires --schedule-at"):
+        repeat_period("daily", None)
+    with pytest.raises(ClitgError, match="Unknown repeat") as error:
+        repeat_period("hourly", scheduled)
+    assert error.value.info.details["allowed"] == list(REPEAT_PERIODS)
+
+    first = tmp_path / "one.txt"
+    second = tmp_path / "two.txt"
+    first.write_text("one")
+    second.write_text("two")
+    with pytest.raises(ClitgError, match="at most one file"):
+        await service.send(
+            None,
+            "me",
+            text="caption",
+            files=[first, second],
+            reply_to=None,
+            topic_id=None,
+            parse_mode="plain",
+            media_kind="document",
+            schedule_at=scheduled,
+            repeat="weekly",
+            idempotency_key=None,
+            dry_run=False,
+        )
+    sent = await service.send(
+        None,
+        "me",
+        text="repeat",
+        files=[],
+        reply_to=None,
+        topic_id=None,
+        parse_mode="plain",
+        media_kind="auto",
+        schedule_at=scheduled,
+        repeat="monthly",
+        idempotency_key=None,
+        dry_run=False,
+    )
+    assert sent.data["messages"]
+    with pytest.raises(ClitgError, match="exactly one"):
+        await service.forward(
+            None,
+            "me",
+            "@a",
+            [1, 2],
+            schedule_at=scheduled,
+            repeat="daily",
+            idempotency_key=None,
+            dry_run=False,
+        )
+    assert (
+        await service.forward(
+            None,
+            "me",
+            "@a",
+            [1],
+            schedule_at=scheduled,
+            repeat="daily",
+            idempotency_key=None,
+            dry_run=False,
+        )
+    ).data["messages"]
+    assert (
+        await service.edit_message(
+            None,
+            "me",
+            1,
+            "updated",
+            "plain",
+            schedule_at=scheduled,
+            repeat="yearly",
+            dry_run=False,
+        )
+    ).data
+
+
+@pytest.mark.asyncio
+async def test_high_level_feature_execution(service: ClitgService) -> None:
+    with pytest.raises(ClitgError, match="was not found"):
+        await service.execute_feature(
+            None,
+            "missing.command",
+            {},
+            None,
+            dry_run=False,
+            confirmation=None,
+            confirmation_token=None,
+            idempotency_key=None,
+            include_raw=False,
+        )
+
+    read = await service.execute_feature(
+        None,
+        "messages.compose",
+        {"text": "hello", "proofread": True},
+        None,
+        dry_run=False,
+        confirmation=None,
+        confirmation_token=None,
+        idempotency_key=None,
+        include_raw=True,
+    )
+    assert read.data["result_type"] == "FeatureValue"
+    assert read.data["result"] == {"items": [{"id": 1}]}
+    assert read.data["raw"]["_"] == "FeatureValue"
+    with pytest.raises(ClitgError, match="Read features"):
+        await service.execute_feature(
+            None,
+            "messages.compose",
+            {"text": "hello", "emojify": True},
+            None,
+            dry_run=False,
+            confirmation=None,
+            confirmation_token=None,
+            idempotency_key="read-key",
+            include_raw=False,
+        )
+
+    preview = await service.execute_feature(
+        None,
+        "ai-tones.save",
+        {"tone": "formal"},
+        None,
+        dry_run=True,
+        confirmation=None,
+        confirmation_token=None,
+        idempotency_key="tone",
+        include_raw=False,
+    )
+    assert preview.data["dry_run"] is True
+    first = await service.execute_feature(
+        None,
+        "ai-tones.save",
+        {"tone": "formal"},
+        None,
+        dry_run=False,
+        confirmation=None,
+        confirmation_token=None,
+        idempotency_key="tone",
+        include_raw=False,
+    )
+    replay = await service.execute_feature(
+        None,
+        "ai-tones.save",
+        {"tone": "formal"},
+        None,
+        dry_run=False,
+        confirmation=None,
+        confirmation_token=None,
+        idempotency_key="tone",
+        include_raw=False,
+    )
+    assert first.data["idempotent_replay"] is False
+    assert replay.data["idempotent_replay"] is True
+
+    with pytest.raises(ClitgError, match="--confirm"):
+        await service.execute_feature(
+            None,
+            "ai-tones.delete",
+            {"tone": "formal"},
+            None,
+            dry_run=False,
+            confirmation=None,
+            confirmation_token=None,
+            idempotency_key=None,
+            include_raw=False,
+        )
+    deleted = await service.execute_feature(
+        None,
+        "ai-tones.delete",
+        {"tone": "formal"},
+        None,
+        dry_run=False,
+        confirmation="ai-tones.delete",
+        confirmation_token=None,
+        idempotency_key=None,
+        include_raw=False,
+    )
+    assert deleted.data["risk"] == "destructive"
+
+    critical_preview = await service.execute_feature(
+        None,
+        "chats.set-anti-spam",
+        {"channel": "@group", "enabled": False},
+        None,
+        dry_run=True,
+        confirmation=None,
+        confirmation_token=None,
+        idempotency_key=None,
+        include_raw=False,
+    )
+    token = critical_preview.data["confirmation_token"]
+    with pytest.raises(ClitgError, match="token"):
+        await service.execute_feature(
+            None,
+            "chats.set-anti-spam",
+            {"channel": "@group", "enabled": False},
+            None,
+            dry_run=False,
+            confirmation="chats.set-anti-spam",
+            confirmation_token=None,
+            idempotency_key=None,
+            include_raw=False,
+        )
+    changed = await service.execute_feature(
+        None,
+        "chats.set-anti-spam",
+        {"channel": "@group", "enabled": False},
+        None,
+        dry_run=False,
+        confirmation="chats.set-anti-spam",
+        confirmation_token=token,
+        idempotency_key=None,
+        include_raw=False,
+    )
+    assert changed.data["risk"] == "critical"
+
+    page = await service.execute_feature(
+        None,
+        "inbox.mentions",
+        {"peer": "me", "limit": 1},
+        None,
+        dry_run=False,
+        confirmation=None,
+        confirmation_token=None,
+        idempotency_key=None,
+        include_raw=False,
+    )
+    assert page.next_cursor
+    next_page = await service.execute_feature(
+        None,
+        "inbox.mentions",
+        {"peer": "me", "limit": 1, "cursor": page.next_cursor},
+        None,
+        dry_run=False,
+        confirmation=None,
+        confirmation_token=None,
+        idempotency_key=None,
+        include_raw=False,
+    )
+    assert next_page.data["result"]["items"][0]["id"] == 1
+
+
+def test_high_level_feature_cursors() -> None:
+    inbox = FEATURE_BY_COMMAND["inbox.mentions"]
+    compose = FEATURE_BY_COMMAND["messages.compose"]
+    values = {"peer": "me", "limit": 1}
+    assert feature_cursor_values(compose, compose.command, values) is values
+    assert feature_cursor_values(inbox, inbox.command, values) is values
+    with pytest.raises(ClitgError, match="Invalid feature cursor"):
+        feature_cursor_values(inbox, inbox.command, {**values, "cursor": "bad"})
+    mismatch = encode_cursor({"feature": "inbox.reactions", "parameter": "offset_id", "offset": 1})
+    with pytest.raises(ClitgError, match="does not match"):
+        feature_cursor_values(inbox, inbox.command, {**values, "cursor": mismatch})
+    cursor = encode_cursor({"feature": inbox.command, "parameter": "offset_id", "offset": 4})
+    decoded_values = feature_cursor_values(inbox, inbox.command, {**values, "cursor": cursor})
+    assert decoded_values["cursor"] == 4
+
+    assert _feature_result_items([]) == []
+    assert _feature_result_items({"categories": "none", "items": [1]}) == [1]
+    assert _feature_result_items({"categories": ["bad"], "items": [1]}) == [1]
+    assert _feature_result_items({"categories": [{"peers": [1, 2]}]}) == [1, 2]
+    assert _feature_result_items({"users": [1], "messages": [1, 2], "stories": [1]}) == [1, 2]
+    assert feature_next_cursor(compose, compose.command, {}, {}) is None
+    assert feature_next_cursor(inbox, inbox.command, values, []) is None
+    assert (
+        feature_next_cursor(inbox, inbox.command, {**values, "limit": 2}, {"items": [{"id": 1}]})
+        is None
+    )
+    assert feature_next_cursor(inbox, inbox.command, values, {"items": ["bad"]}) is None
+    next_cursor = feature_next_cursor(
+        inbox,
+        inbox.command,
+        decoded_values,
+        {"items": [{"id": 9}]},
+    )
+    assert next_cursor is not None and decode_cursor(next_cursor)["offset"] == 9
+
+    stats = FEATURE_BY_COMMAND["stats.message-forwards"]
+    direct = feature_next_cursor(
+        stats,
+        stats.command,
+        {"limit": 1},
+        {"next_offset": "next"},
+    )
+    assert direct is not None and decode_cursor(direct)["offset"] == "next"
+    assert feature_next_cursor(stats, stats.command, {"limit": 1}, {"items": [{"id": 1}]}) is None
+
+    music = FEATURE_BY_COMMAND["account.music"]
+    numeric = feature_next_cursor(
+        music,
+        music.command,
+        {"cursor": 2, "limit": 1},
+        {"documents": [{"id": 10}]},
+    )
+    assert numeric is not None and decode_cursor(numeric)["offset"] == 3

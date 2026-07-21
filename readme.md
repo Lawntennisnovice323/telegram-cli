@@ -1,90 +1,71 @@
 # clitg: Telegram CLI for AI agents
 
-Give your AI agent a real, scriptable interface to your Telegram user account. `clitg` can read
-conversations, find contacts, send and edit messages, transfer files, manage polls and scheduled
-messages, inspect forum topics, and reach the wider MTProto API, all through deterministic commands
-and structured JSON.
+Give an AI agent a deterministic interface to a real Telegram user account. `clitg` reads inboxes,
+searches conversations, sends and manages messages, works with groups, channels, contacts, stories,
+polls, topics, folders, bots, and media, and exposes the wider MTProto API through structured JSON.
 
-`clitg` is built for agent workflows powered by **Claude Code**, **OpenAI Codex**, **Google
-Antigravity**, **GitHub Copilot**, **xAI Grok**, **Cursor**, **Amp**, and any other AI agent that can
-execute shell commands and consume JSON or JSONL. It is an unofficial Telegram client for user
-accounts, powered by Telethon; it is not a Bot API wrapper and does not require a BotFather token.
+`clitg` is designed for workflows powered by **Claude Code**, **OpenAI Codex**, **Google
+Antigravity**, **GitHub Copilot**, **xAI Grok**, **Cursor**, **Amp**, and every other AI agent that can
+run a command and consume JSON or JSONL. It is an unofficial Telegram client for user accounts,
+powered by Telethon. It is not a Bot API wrapper and does not use a BotFather token.
 
-## Turn Telegram into an agent tool
+## Why agents use clitg
 
-- **Agent-native I/O:** explicit arguments in, versioned JSON or streaming JSONL out, with no interactive
-  prompts to block an automation.
-- **Your full user account:** work with private chats, Saved Messages, groups, channels, contacts,
-  media, reactions, polls, scheduled messages, and forum topics wherever Telegram permits it.
-- **A large escape hatch:** use the schema-aware raw MTProto gateway when a dedicated command does
-  not exist, backed by a generated capability catalog.
-- **Guardrails for real accounts:** preview mutations with dry-run, require explicit confirmation
-  for destructive actions, protect critical raw calls with short-lived tokens, and avoid duplicate
-  sends with idempotency keys.
-- **Discoverable by agents:** ship `clitg` together with an installable Agent Skill and
-  machine-readable help, schemas, errors, cursors, and capability metadata.
+- **No prompts:** every value comes from an option, environment variable, file, or explicitly
+  selected stdin.
+- **Structured contracts:** successes and failures use versioned JSON envelopes. Lists and live
+  updates support JSONL.
+- **Broad Telegram coverage:** dedicated commands cover common user actions, while the generated
+  MTProto gateway provides a conservative escape hatch.
+- **Safety for real accounts:** dry-run previews, exact destructive confirmations, one-use critical
+  tokens, local policies, idempotency keys, and content-free audit metadata.
+- **Automation primitives:** filtered inboxes, account-wide search, resumable exports, update
+  checkpoints, and bounded read-only batches.
+- **Agent discovery:** machine-readable command, schema, capability, error, cursor, risk, and skill
+  metadata are part of the product.
 
-Use it to build inbox assistants, Telegram research agents, notification and follow-up workflows,
-message triage, personal knowledge capture, scheduled delivery, media pipelines, or your own
-Telegram automation layer without designing another integration protocol.
+Build inbox assistants, Telegram research agents, personal knowledge capture, follow-up workflows,
+scheduled delivery, moderation tools, media pipelines, or your own account automation without
+inventing another protocol.
 
 > [!IMPORTANT]
-> A Telethon session grants access to the associated Telegram account. Never commit, upload, or
-> share session files. `clitg` stores them outside the repository using platform-specific user data
-> directories and restrictive permissions.
+> A Telethon session grants access to its Telegram account. Never commit, upload, or share session
+> files. `clitg` stores sessions and credentials outside the repository with restrictive
+> permissions.
 
-## What you get
+## Install
 
-- Multiple isolated user-account profiles.
-- Phone, login-code, and optional 2FA authentication without prompts.
-- Dialog, contact, group, channel, and message discovery.
-- Text, replies, forwarding, editing, deletion, read acknowledgements, reactions, pins, files,
-  albums, voice notes, stickers, polls, scheduled messages, and forum topics.
-- A schema-aware raw MTProto gateway for methods without dedicated commands.
-- JSON Schema and capability catalogs designed for AI agents.
-- Dry-run, explicit destructive confirmation, critical one-use tokens, and local idempotency.
-
-Bots, QR/passkey login, live update streaming, calls, and secret-chat encryption are not supported
-in v0.1.
-
-## Quick start
-
-Install [uv](https://docs.astral.sh/uv/) and then install the published tool:
+Install [uv](https://docs.astral.sh/uv/) and then install the published CLI:
 
 ```bash
 uv tool install clitg
-clitg --version
+clitg version
 ```
 
-`clitg` requires Python 3.14. uv downloads a compatible interpreter automatically unless managed
-Python downloads have been disabled.
+`clitg` 0.2 requires Python 3.14. uv can install the compatible interpreter automatically.
 
-For development:
+For local development:
 
 ```bash
 git clone https://github.com/leynier/telegram-cli.git
 cd telegram-cli
 uv sync --all-groups
-uv run clitg --version
+uv run clitg version
 ```
 
-The project itself, dependencies, and lockfile are managed with `uv init`, `uv add`, `uv remove`,
-and `uv lock`. Do not edit dependency arrays manually.
+The project metadata and lockfile are managed with `uv init`, `uv add`, `uv remove`, and `uv lock`.
 
 ## Install the Agent Skill
 
-The repository includes a `clitg` skill for the open Agent Skills ecosystem. Install it with either
-the npm or Bun runner:
+The repository ships an Agent Skill that teaches compatible agents how to operate `clitg` safely.
+Install it with the npm or Bun runner:
 
 ```bash
-# npm / Node.js
 npx skills add leynier/telegram-cli --skill clitg
-
-# Bun
 bunx skills add leynier/telegram-cli --skill clitg
 ```
 
-You can also target a specific supported agent and install globally without prompts:
+Target an agent and install globally without prompts when desired:
 
 ```bash
 npx skills add leynier/telegram-cli --skill clitg --agent claude-code -g -y
@@ -92,27 +73,21 @@ bunx skills add leynier/telegram-cli --skill clitg --agent codex -g -y
 ```
 
 The open [`skills` CLI](https://github.com/vercel-labs/skills) supports Claude Code, Codex,
-Antigravity, GitHub Copilot, Cursor, Amp, and many other agents. `clitg` itself remains
-agent-agnostic, so Grok and other shell-capable agents can call the same structured CLI even when
-they use a different skill-loading mechanism.
+Antigravity, GitHub Copilot, Cursor, Amp, and other agents. Grok and any shell-capable agent can use
+the same CLI contract even if it loads skills through another mechanism. The skill does not install
+the executable. If `clitg` is missing, it tells the operator to run `uv tool install clitg`.
 
-The skill teaches an agent the command contract and safety rules, but deliberately does not install
-the executable. If `clitg` is missing, it reports `uv tool install clitg` and stops.
-
-## Get your Telegram App ID and API hash
+## Get a Telegram App ID and API hash
 
 Telegram user-account clients need an application identity. This is different from a Telegram bot
-token. Obtain it from Telegram's official developer portal:
+token.
 
-1. Open [my.telegram.org/apps](https://my.telegram.org/apps).
-2. Enter your phone number in international format and select **Next**.
-3. Enter the confirmation code Telegram sends inside the Telegram app, not by SMS.
+1. Open Telegram's official portal at [my.telegram.org/apps](https://my.telegram.org/apps).
+2. Enter the account phone number in international format.
+3. Enter the confirmation code delivered inside the Telegram app.
 4. Open **API development tools**.
-5. Complete the application form with an app title, short name, and platform.
-6. Copy **App api_id** into `CLITG_API_ID` and **App api_hash** into `CLITG_API_HASH`.
-
-Treat the API hash like a password: never publish it, paste it into an issue, or commit it to Git.
-Set the credentials locally:
+5. Create an application with a title, short name, and platform.
+6. Copy **App api_id** and **App api_hash** into local environment variables.
 
 ```bash
 export CLITG_API_ID='12345678'
@@ -120,44 +95,56 @@ export CLITG_API_HASH='your-private-api-hash'
 export CLITG_PHONE='+15551234567'
 ```
 
-Create a local profile without exposing the hash in shell arguments:
+Treat the API hash as a secret. Never paste it into an issue, log it, or commit it. Create a profile
+without placing the hash in the process arguments:
 
 ```bash
-clitg profiles create \
-  --name personal \
-  --default
+clitg profiles create --name personal --default
 ```
 
-Credential values can come from explicit options, secret files, or `CLITG_API_ID`,
-`CLITG_API_HASH`, `CLITG_PHONE`, `CLITG_CODE`, and `CLITG_PASSWORD`. Direct options take
-precedence. Login codes and 2FA passwords are never persisted.
+The API hash is stored in the operating-system keyring when a usable non-interactive backend is
+available. Otherwise, `clitg` uses a private file with mode `0600`. Existing 0.1 profiles containing
+an inline API hash are migrated automatically and atomically the next time they are used.
+`profiles list` and `profiles get` expose only the storage classification, never the secret.
 
-Request the login code and finish the resumable login flow. Telegram delivers the code inside your
-Telegram app. Accounts with two-step verification also need `--password-file`:
+Values can come from explicit options, secret files, or `CLITG_API_ID`, `CLITG_API_HASH`,
+`CLITG_PHONE`, `CLITG_CODE`, and `CLITG_PASSWORD`. Explicit options take precedence. Login codes and
+2FA passwords are never persisted.
+
+## Authenticate without prompts
+
+Use the resumable phone-code flow:
 
 ```bash
 clitg --profile personal auth request-code --phone +15551234567
 clitg --profile personal auth verify \
-  --login-id '<login-id-from-the-first-command>' \
+  --login-id '<login-id>' \
   --code-file ./telegram-code.txt \
   --password-file ./telegram-2fa.txt
 clitg --profile personal auth status
 ```
 
-After authentication, try a read-only command or send a controlled message to Saved Messages:
+Telegram normally delivers the code inside its app. The password file is needed only when the
+account has two-step verification enabled. Delete temporary secret files after use.
+
+Alternatively, create a QR image and wait for the Telegram mobile app to scan it:
 
 ```bash
-clitg --profile personal dialogs list --limit 10
-clitg --profile personal messages send --peer me --text 'Hello from my AI agent' --dry-run
+clitg --profile personal auth qr-login \
+  --qr-output ./telegram-login.png \
+  --timeout 120
 ```
 
-## Structured output
+Open Telegram on the phone, go to **Settings**, **Devices**, **Link Desktop Device**, then scan the
+generated image before the timeout. The command remains non-interactive.
 
-Every operational command writes one envelope to stdout:
+## Structured output contract
+
+Every normal operation writes one envelope to stdout:
 
 ```json
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "ok": true,
   "data": {},
   "error": null,
@@ -171,22 +158,30 @@ Every operational command writes one envelope to stdout:
 ```
 
 Failures use the same envelope and a nonzero exit code. `--output jsonl` emits `item` records and
-always ends with `summary` or `error`. Human help remains available with `--help`; agents can use
-`--help-json`, `schema`, and `capabilities`.
+ends with `summary` or `error`. Operational errors stay on stdout. Redacted diagnostics use stderr
+only when `--verbose` is explicit.
 
-`clitg help` is equivalent to `clitg --help`, and `clitg version` is equivalent to
-`clitg --version`.
+`clitg help` and `clitg --help` are equivalent. `clitg version` and `clitg --version` are also
+equivalent. Agents can discover contracts with:
 
-Global options must precede the command group:
+```bash
+clitg --help-json
+clitg commands list
+clitg commands get --command stories.publish
+clitg schema list
+clitg capabilities get --method stories.sendStory
+```
+
+Global options precede the command group:
 
 ```bash
 clitg --profile personal --output jsonl messages list --peer @example --limit 25
 ```
 
-Opaque cursors are returned in `meta.next_cursor` and can be passed back with `--cursor`. Listing or
-searching messages never marks them read; use `messages read` explicitly.
+Opaque cursors can be returned in `meta.next_cursor`. Pass them back unchanged with `--cursor`.
+Listing, searching, exporting, and inspecting context never mark messages read.
 
-Exit codes are stable within schema `0.1`:
+Exit codes are stable within schema 0.2:
 
 | Code | Meaning |
 | ---: | --- |
@@ -200,39 +195,72 @@ Exit codes are stable within schema `0.1`:
 | 7 | Telegram rate limit |
 | 8 | Telegram RPC or network failure |
 
-## Messaging
+## Inbox, search, context, and export
 
-Read and search without changing read state:
+Read a filtered unread inbox as messages or dialog summaries:
 
 ```bash
-clitg --profile personal dialogs list --limit 50
-clitg --profile personal messages list --peer @example --limit 50
-clitg --profile personal messages search --peer @example --query invoice
-clitg --profile personal messages get --peer @example --message-id 123
+clitg --profile personal inbox list \
+  --view messages \
+  --peer @example \
+  --from @alice \
+  --folder-id 0 \
+  --after 2026-07-01T00:00:00Z \
+  --before 2026-08-01T00:00:00Z \
+  --media-only
 ```
+
+Search one conversation or the entire account. Omit `--peer` for global search:
+
+```bash
+clitg --profile personal messages search --peer @example --query invoice
+clitg --profile personal messages search \
+  --query invoice \
+  --from @alice \
+  --after 2026-01-01T00:00:00Z \
+  --media-only
+```
+
+Recover surrounding context, replies, or a resumable export:
+
+```bash
+clitg --profile personal messages context --peer @example --message-id 123 --before 10 --after 10
+clitg --profile personal messages replies --peer @example --message-id 123
+clitg --profile personal messages export --peer @example --output ./exports/example
+clitg --profile personal messages export --peer @example --output ./exports/example --resume
+```
+
+Add `--download-media` to export media into the export directory. Existing exports require
+`--resume`; an accidental overwrite is rejected.
+
+## Send and mutate safely
 
 Plain text is the default. Markdown or HTML must be explicit:
 
 ```bash
 clitg --profile personal messages send \
-  --peer @example \
+  --peer me \
   --text '**Status:** complete' \
   --parse-mode markdown \
   --idempotency-key job-42 \
   --dry-run
 
 clitg --profile personal messages send \
-  --peer @example \
+  --peer me \
   --text '**Status:** complete' \
   --parse-mode markdown \
   --idempotency-key job-42
 ```
 
-Text and raw JSON accept a literal option, a file, or stdin as mutually exclusive sources. Repeat
-`--file` to send an album. Use `--media-kind voice`, `sticker`, or `document` when inference is not
-appropriate. `--schedule-at` requires RFC 3339 with an offset.
+Text and JSON accept a literal value, a file, or explicitly selected stdin as mutually exclusive
+sources. Repeat `--file` for albums. Use `--media-kind voice`, `sticker`, or `document` when needed.
+`--schedule-at` requires RFC 3339 with an offset.
 
-Destructive operations require an exact intention:
+Every compatible mutation accepts `--idempotency-key`. Reusing the same key and payload returns the
+stored result with `idempotent_replay: true`. Changing the payload under an existing key is a
+conflict. Records expire after 30 days.
+
+Destructive operations require the exact confirmation:
 
 ```bash
 clitg --profile personal messages delete \
@@ -245,25 +273,129 @@ clitg --profile personal messages delete \
   --peer @example \
   --message-id 123 \
   --scope everyone \
-  --confirm messages.delete
+  --confirm messages.delete \
+  --idempotency-key delete-123
 ```
 
-Downloads require an explicit destination and never overwrite implicitly:
+Critical operations also require the payload-bound token returned by dry-run. Tokens are single
+use and expire after five minutes.
+
+## Dedicated Telegram actions
+
+The 0.2 command registry adds stable actions for:
+
+- account details, privacy rules, and active authorization sessions;
+- bot starts, callbacks, and inline queries;
+- group and channel creation, editing, descriptions, photos, usernames, membership, administration,
+  restrictions, invites, joins, leaves, participants, and admin logs;
+- contact creation, deletion, blocking, and unblocking;
+- dialog archive, pin, mute, unread, draft, and folder organization;
+- GIFs, stickers, contact cards, locations, venues, and live locations;
+- invite links and join request moderation;
+- reactions, polls, Saved Messages, scheduled messages, stories, and forum topics.
+
+Registered actions use a stable command name and structured MTProto parameters. Inspect the exact
+signature, risk, and method before constructing a payload:
 
 ```bash
-clitg --profile personal media download \
+clitg commands get --command chats.create-channel
+clitg --profile personal chats create-channel \
+  --params '{"title":"Agent Updates","about":"Generated by clitg","broadcast":true,"megagroup":false}' \
+  --dry-run
+```
+
+Friendly strings in peer, channel, and user fields are resolved safely. TL constructors still use
+the `_` discriminator when a nested generated type is required.
+
+Calls, secret chats, payments, account-security mutations, session revocation, and mutation batches
+are intentionally excluded from dedicated 0.2 commands.
+
+## Live updates with JSONL
+
+Stream normalized message events and preserve a checkpoint by consumer ID:
+
+```bash
+clitg --profile personal --output jsonl updates watch \
+  --event message.new \
+  --event message.edited \
   --peer @example \
-  --message-id 123 \
-  --output ./downloads/document.pdf \
-  --create-dirs
+  --consumer-id inbox-agent \
+  --max-events 100 \
+  --idle-timeout 30 \
+  --timeout 300 \
+  --heartbeat 15
+```
+
+Known updates use stable event types. Other Telegram updates are retained as
+`telegram.raw_update`. Each item carries an opaque cursor. A consumer checkpoint is updated only
+after an item is emitted.
+
+## Local authorization policy
+
+Attach a versioned JSON policy to a profile to constrain agents locally. Deny rules always take
+precedence over allow rules.
+
+```json
+{
+  "policy_version": "0.1",
+  "allow_commands": ["dialogs.*", "inbox.*", "messages.*", "account.get"],
+  "deny_commands": ["messages.delete"],
+  "allow_peers": ["me", "@trusted_*"],
+  "deny_peers": ["@blocked"],
+  "allow_mutation_risks": ["write"],
+  "allow_raw_methods": ["help.*"],
+  "deny_raw_methods": [],
+  "allow_raw_risks": ["read"],
+  "max_operations": 100,
+  "max_targets": 25
+}
+```
+
+```bash
+clitg policy validate --file examples/policy.json
+clitg policy set --name personal --file examples/policy.json
+clitg --profile personal policy get
+clitg --profile personal policy explain --command messages.send --risk write --peer me
+```
+
+Clear the attached policy with `clitg policy set --name personal`.
+
+## Read-only batch execution
+
+Batch input is JSONL. Only registered read operations are accepted, concurrency is bounded from 1
+to 10, and output order matches input order.
+
+```jsonl
+{"id":"account","command":"account.get","params":{"id":{"_":"InputUserSelf"}}}
+{"id":"sessions","command":"auth.sessions","params":{}}
+```
+
+```bash
+clitg --profile personal batch run --input examples/read-batch.jsonl --concurrency 2
+```
+
+Use `--fail-fast` for sequential stop-on-error behavior. Policies can cap operation and target
+counts. Mutation batches are rejected.
+
+## Content-free audit metadata
+
+Operational commands record timestamp, profile name, command, request ID, optional target, success,
+and error code. Message text, raw parameters, API hashes, codes, passwords, auth keys, and session
+material are never recorded.
+
+```bash
+clitg audit list --limit 100
+clitg audit export --output ./audit.jsonl
+clitg audit prune --before 2026-07-01T00:00:00Z --dry-run
+clitg audit prune --before 2026-07-01T00:00:00Z --confirm audit.prune
 ```
 
 ## Raw MTProto gateway
 
-Inspect support first:
+Prefer a dedicated command. When one does not exist, inspect the method first:
 
 ```bash
-clitg capabilities get --method messages.getHistory
+clitg capabilities get --method help.getConfig
 clitg --profile personal raw invoke \
   --method help.getConfig \
   --params '{}' \
@@ -271,8 +403,7 @@ clitg --profile personal raw invoke \
   --dry-run
 ```
 
-Nested TL constructors use an `_` discriminator. Special values include `$peer`, `$bytes`,
-`$datetime`, and `$upload`:
+Special JSON values include `$peer`, `$channel`, `$user`, `$bytes`, `$datetime`, and `$upload`:
 
 ```json
 {
@@ -287,25 +418,12 @@ Nested TL constructors use an `_` discriminator. Special values include `$peer`,
 }
 ```
 
-All raw calls require `--allow-raw`. Destructive calls additionally require
-`--confirm <method>`. Critical or unclassified methods require a dry-run-generated
-`--confirmation-token`; the token is payload-bound, single-use, and valid for five minutes.
+All raw calls require `--allow-raw`. Destructive calls also require `--confirm <method>`. Critical
+or unclassified calls require a dry-run token bound to the profile, method, and payload. Unknown raw
+methods remain critical until reviewed.
 
-The checked-in `schemas/capabilities.json` classifies every request in the installed Telethon
-layer. `schemas/schemas.json` contains the public Pydantic schemas. CI rejects drift after a
-Telethon or model update.
-
-## Local state
-
-`clitg state get` reports counts only. No message-content audit log is created. Idempotency state is
-retained until explicitly pruned:
-
-```bash
-clitg state prune --kind idempotency --dry-run
-clitg state prune --kind idempotency --confirm state.prune
-```
-
-Pending logins expire with Telegram. Critical confirmation tokens expire after five minutes.
+The generated `schemas/capabilities.json` classifies every request in the installed Telethon layer.
+`schemas/schemas.json` contains public JSON Schemas and the command manifest.
 
 ## Development quality gates
 
@@ -315,20 +433,21 @@ uv run ruff format --check .
 uv run ruff check .
 uv run ty check
 uv run pytest --cov=clitg --cov-branch --cov-fail-under=100
+uv run python scripts/check_skill.py
 uv run python -m clitg.catalog
-git diff --exit-code -- schemas
 uv build --no-sources
 ```
 
-The normal suite uses fakes and never needs personal Telegram credentials. A separate manual,
-secret-gated workflow targets Telegram Test DC.
+`make check` runs Ruff formatting, Ruff lint, and ty. `make tests` runs those checks plus the full
+coverage gate. The normal suite is offline and deterministic. A separate protected workflow runs a
+minimal send, edit, and delete lifecycle against Telegram Test DC when its credentials are present.
 
 ## Terms and privacy
 
 `clitg` is an unofficial third-party client and is not affiliated with Telegram. Operators are
-responsible for complying with the [Telegram API Terms of Service](https://core.telegram.org/api/terms),
-including privacy, consent, branding, automation, and content/AI restrictions. The CLI does not
-attempt to bypass read receipts, rate limits, permissions, or other platform behavior.
+responsible for the [Telegram API Terms of Service](https://core.telegram.org/api/terms), including
+privacy, consent, branding, automation, and content or AI restrictions. The CLI does not bypass
+read receipts, rate limits, permissions, or Telegram behavior.
 
 ## License
 

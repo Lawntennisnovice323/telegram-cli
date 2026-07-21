@@ -20,6 +20,7 @@ from typer import _click as click
 from clitg.catalog import command_catalog
 from clitg.errors import ClitgError
 from clitg.models import (
+    BatchOperation,
     CommandResult,
     Envelope,
     ErrorCode,
@@ -28,6 +29,7 @@ from clitg.models import (
     Meta,
     OutputFormat,
 )
+from clitg.operations import OPERATIONS
 from clitg.serialization import json_dumps
 from clitg.service import ClitgService
 
@@ -53,6 +55,23 @@ raw_app = typer.Typer(help="Invoke generated MTProto requests.")
 capabilities_app = typer.Typer(help="Inspect MTProto support and risk.")
 schema_app = typer.Typer(help="Inspect public JSON Schemas.")
 state_app = typer.Typer(help="Inspect and prune auxiliary local state.")
+account_app = typer.Typer(help="Inspect the current Telegram account.")
+audit_app = typer.Typer(help="Inspect content-free local command audit records.")
+batch_app = typer.Typer(help="Execute structured read-only operation batches.")
+bots_app = typer.Typer(help="Interact with Telegram bots as a user.")
+chats_app = typer.Typer(help="Administer groups and channels.")
+commands_app = typer.Typer(help="Inspect the structured command manifest.")
+drafts_app = typer.Typer(help="Manage cloud message drafts.")
+folders_app = typer.Typer(help="Manage Telegram chat folders.")
+gifs_app = typer.Typer(help="Inspect saved GIFs.")
+inbox_app = typer.Typer(help="Inspect unread messages and dialog summaries.")
+invite_links_app = typer.Typer(help="Manage group and channel invite links.")
+join_requests_app = typer.Typer(help="Manage pending chat join requests.")
+policy_app = typer.Typer(help="Validate and inspect local agent policies.")
+saved_app = typer.Typer(help="Work with Saved Messages.")
+stickers_app = typer.Typer(help="Discover and send Telegram stickers.")
+stories_app = typer.Typer(help="Read and publish Telegram Stories.")
+updates_app = typer.Typer(help="Stream Telegram updates as JSONL.")
 
 for name, subapp in (
     ("profiles", profiles_app),
@@ -68,6 +87,23 @@ for name, subapp in (
     ("capabilities", capabilities_app),
     ("schema", schema_app),
     ("state", state_app),
+    ("account", account_app),
+    ("audit", audit_app),
+    ("batch", batch_app),
+    ("bots", bots_app),
+    ("chats", chats_app),
+    ("commands", commands_app),
+    ("drafts", drafts_app),
+    ("folders", folders_app),
+    ("gifs", gifs_app),
+    ("inbox", inbox_app),
+    ("invite-links", invite_links_app),
+    ("join-requests", join_requests_app),
+    ("policy", policy_app),
+    ("saved", saved_app),
+    ("stickers", stickers_app),
+    ("stories", stories_app),
+    ("updates", updates_app),
 ):
     app.add_typer(subapp, name=name)
 
@@ -189,8 +225,18 @@ def _execute(ctx: typer.Context, command: str, factory: Callable[[], Any]) -> No
         if not isinstance(result, CommandResult):
             raise TypeError("Command did not return CommandResult")
         _emit_success(context, command, result, request_id)
+        if isinstance(context.service, ClitgService):
+            context.service.record_audit(context.profile, command, request_id, ok=True)
     except ClitgError as exc:
         _emit_error(context, command, exc.info, request_id)
+        if isinstance(context.service, ClitgService):
+            context.service.record_audit(
+                context.profile,
+                command,
+                request_id,
+                ok=False,
+                error_code=exc.info.code,
+            )
         raise typer.Exit(exc.exit_code) from exc
     except Exception as exc:
         error = ErrorInfo(
@@ -199,9 +245,86 @@ def _execute(ctx: typer.Context, command: str, factory: Callable[[], Any]) -> No
             details={"exception": exc.__class__.__name__},
         )
         _emit_error(context, command, error, request_id)
+        if isinstance(context.service, ClitgService):
+            context.service.record_audit(
+                context.profile,
+                command,
+                request_id,
+                ok=False,
+                error_code=error.code,
+            )
         if context.verbose:
             typer.echo(json_dumps({"event": "exception", "type": exc.__class__.__name__}), err=True)
         raise typer.Exit(1) from exc
+
+
+def _execute_stream(ctx: typer.Context, command: str, stream_factory: Callable[[], Any]) -> None:
+    """Emit one asynchronous stream as JSONL with a terminal summary."""
+
+    context = _context(ctx)
+    request_id = str(uuid.uuid4())
+    if context.output != OutputFormat.JSONL:
+        error = ClitgError(ErrorCode.INVALID_INPUT, "Streaming commands require --output jsonl")
+        _emit_error(context, command, error.info, request_id)
+        raise typer.Exit(error.exit_code)
+
+    async def consume() -> None:
+        count = 0
+        last_cursor: str | None = None
+        try:
+            async for item in stream_factory():
+                count += 1
+                last_cursor = item.get("cursor")
+                meta = _meta(context, command, request_id, last_cursor)
+                typer.echo(json_dumps(JsonlRecord(record_type="item", data=item, meta=meta)))
+            meta = _meta(context, command, request_id, last_cursor)
+            typer.echo(
+                json_dumps(
+                    JsonlRecord(
+                        record_type="summary",
+                        data={"count": count, "next_cursor": last_cursor},
+                        meta=meta,
+                    )
+                )
+            )
+            service = _service(context)
+            if isinstance(service, ClitgService):
+                service.record_audit(context.profile, command, request_id, ok=True)
+        except ClitgError as exc:
+            _emit_error(context, command, exc.info, request_id)
+            service = _service(context)
+            if isinstance(service, ClitgService):
+                service.record_audit(
+                    context.profile,
+                    command,
+                    request_id,
+                    ok=False,
+                    error_code=exc.info.code,
+                )
+            raise typer.Exit(exc.exit_code) from exc
+        except Exception as exc:
+            error = ErrorInfo(
+                code=ErrorCode.INTERNAL,
+                message="Unexpected internal error",
+                details={"exception": exc.__class__.__name__},
+            )
+            _emit_error(context, command, error, request_id)
+            service = _service(context)
+            if isinstance(service, ClitgService):
+                service.record_audit(
+                    context.profile,
+                    command,
+                    request_id,
+                    ok=False,
+                    error_code=error.code,
+                )
+            if context.verbose:
+                typer.echo(
+                    json_dumps({"event": "exception", "type": exc.__class__.__name__}), err=True
+                )
+            raise typer.Exit(1) from exc
+
+    asyncio.run(consume())
 
 
 def _read_text(
@@ -405,6 +528,25 @@ def auth_status(ctx: typer.Context) -> None:
     )
 
 
+@auth_app.command("qr-login")
+def auth_qr_login(
+    ctx: typer.Context,
+    qr_output: Path = typer.Option(..., "--qr-output"),
+    timeout: int = typer.Option(120, "--timeout"),
+) -> None:
+    """Write a login QR image and wait for authorization."""
+
+    _execute(
+        ctx,
+        "auth.qr-login",
+        lambda: _service(_context(ctx)).qr_login(
+            _context(ctx).profile,
+            qr_output,
+            timeout,
+        ),
+    )
+
+
 @auth_app.command("logout")
 def auth_logout(
     ctx: typer.Context,
@@ -524,12 +666,16 @@ def contacts_resolve(ctx: typer.Context, peer: str = typer.Option(..., "--peer")
 def _message_page(
     ctx: typer.Context,
     command: str,
-    peer: str,
+    peer: str | None,
     query: str | None,
     cursor: str | None,
     limit: int,
     topic_id: int | None,
     include_raw: bool,
+    sender: str | None,
+    after: str | None,
+    before: str | None,
+    media_only: bool,
 ) -> None:
     _execute(
         ctx,
@@ -542,6 +688,10 @@ def _message_page(
             limit=limit,
             topic_id=topic_id,
             include_raw=include_raw,
+            sender=sender,
+            after=_parse_datetime(after),
+            before=_parse_datetime(before),
+            media_only=media_only,
         ),
     )
 
@@ -554,25 +704,169 @@ def messages_list(
     limit: int = typer.Option(50, "--limit"),
     topic_id: int | None = typer.Option(None, "--topic-id"),
     include_raw: bool = typer.Option(False, "--include-raw"),
+    sender: str | None = typer.Option(None, "--from"),
+    after: str | None = typer.Option(None, "--after"),
+    before: str | None = typer.Option(None, "--before"),
+    media_only: bool = typer.Option(False, "--media-only"),
 ) -> None:
     """List messages without marking them read."""
 
-    _message_page(ctx, "messages.list", peer, None, cursor, limit, topic_id, include_raw)
+    _message_page(
+        ctx,
+        "messages.list",
+        peer,
+        None,
+        cursor,
+        limit,
+        topic_id,
+        include_raw,
+        sender,
+        after,
+        before,
+        media_only,
+    )
 
 
 @messages_app.command("search")
 def messages_search(
     ctx: typer.Context,
-    peer: str = typer.Option(..., "--peer"),
+    peer: str | None = typer.Option(None, "--peer"),
     query: str = typer.Option(..., "--query"),
     cursor: str | None = typer.Option(None, "--cursor"),
     limit: int = typer.Option(50, "--limit"),
     topic_id: int | None = typer.Option(None, "--topic-id"),
     include_raw: bool = typer.Option(False, "--include-raw"),
+    sender: str | None = typer.Option(None, "--from"),
+    after: str | None = typer.Option(None, "--after"),
+    before: str | None = typer.Option(None, "--before"),
+    media_only: bool = typer.Option(False, "--media-only"),
 ) -> None:
-    """Search a peer's message history."""
+    """Search one peer or the entire account."""
 
-    _message_page(ctx, "messages.search", peer, query, cursor, limit, topic_id, include_raw)
+    _message_page(
+        ctx,
+        "messages.search",
+        peer,
+        query,
+        cursor,
+        limit,
+        topic_id,
+        include_raw,
+        sender,
+        after,
+        before,
+        media_only,
+    )
+
+
+@inbox_app.command("list")
+def inbox_list(
+    ctx: typer.Context,
+    view: str = typer.Option("messages", "--view"),
+    include_archived: bool = typer.Option(False, "--include-archived"),
+    peer: str | None = typer.Option(None, "--peer"),
+    sender: str | None = typer.Option(None, "--from"),
+    folder_id: int | None = typer.Option(None, "--folder-id"),
+    after: str | None = typer.Option(None, "--after"),
+    before: str | None = typer.Option(None, "--before"),
+    media_only: bool = typer.Option(False, "--media-only"),
+    cursor: str | None = typer.Option(None, "--cursor"),
+    limit: int = typer.Option(50, "--limit"),
+) -> None:
+    """List unread messages or unread dialog summaries."""
+
+    _execute(
+        ctx,
+        "inbox.list",
+        lambda: _service(_context(ctx)).inbox(
+            _context(ctx).profile,
+            view=view,
+            include_archived=include_archived,
+            peer=peer,
+            sender=sender,
+            folder_id=folder_id,
+            after=_parse_datetime(after),
+            before=_parse_datetime(before),
+            media_only=media_only,
+            cursor=cursor,
+            limit=limit,
+        ),
+    )
+
+
+@messages_app.command("context")
+def messages_context(
+    ctx: typer.Context,
+    peer: str = typer.Option(..., "--peer"),
+    message_id: int = typer.Option(..., "--message-id"),
+    before: int = typer.Option(10, "--before"),
+    after: int = typer.Option(10, "--after"),
+    include_raw: bool = typer.Option(False, "--include-raw"),
+) -> None:
+    """Get a bounded context window around one message."""
+
+    _execute(
+        ctx,
+        "messages.context",
+        lambda: _service(_context(ctx)).message_context(
+            _context(ctx).profile,
+            peer,
+            message_id,
+            before=before,
+            after=after,
+            include_raw=include_raw,
+        ),
+    )
+
+
+@messages_app.command("replies")
+def messages_replies(
+    ctx: typer.Context,
+    peer: str = typer.Option(..., "--peer"),
+    message_id: int = typer.Option(..., "--message-id"),
+    cursor: str | None = typer.Option(None, "--cursor"),
+    limit: int = typer.Option(50, "--limit"),
+    include_raw: bool = typer.Option(False, "--include-raw"),
+) -> None:
+    """List replies or comments attached to one message."""
+
+    _execute(
+        ctx,
+        "messages.replies",
+        lambda: _service(_context(ctx)).message_replies(
+            _context(ctx).profile,
+            peer,
+            message_id,
+            cursor=cursor,
+            limit=limit,
+            include_raw=include_raw,
+        ),
+    )
+
+
+@messages_app.command("export")
+def messages_export(
+    ctx: typer.Context,
+    peer: str = typer.Option(..., "--peer"),
+    output: Path = typer.Option(..., "--output"),
+    limit: int = typer.Option(500, "--limit"),
+    resume: bool = typer.Option(False, "--resume"),
+    download_media: bool = typer.Option(False, "--download-media"),
+) -> None:
+    """Export one resumable conversation page to JSONL."""
+
+    _execute(
+        ctx,
+        "messages.export",
+        lambda: _service(_context(ctx)).export_conversation(
+            _context(ctx).profile,
+            peer,
+            output,
+            limit=limit,
+            resume=resume,
+            download_media=download_media,
+        ),
+    )
 
 
 @messages_app.command("get")
@@ -734,6 +1028,7 @@ def messages_edit(
     text_file: Path | None = typer.Option(None, "--text-file"),
     text_stdin: bool = typer.Option(False, "--text-stdin"),
     parse_mode: str = typer.Option("plain", "--parse-mode"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
     """Edit an existing message."""
@@ -747,6 +1042,7 @@ def messages_edit(
             selected,
             _validate_parse_mode(parse_mode),
             dry_run=dry_run,
+            idempotency_key=idempotency_key,
         )
 
     _execute(ctx, "messages.edit", invoke)
@@ -760,6 +1056,7 @@ def messages_delete(
     scope: str = typer.Option(..., "--scope"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     confirm: str | None = typer.Option(None, "--confirm"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
 ) -> None:
     """Delete messages with an explicit self/everyone scope."""
 
@@ -773,6 +1070,7 @@ def messages_delete(
             scope,
             dry_run=dry_run,
             confirmation=confirm,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -782,6 +1080,7 @@ def messages_read(
     ctx: typer.Context,
     peer: str = typer.Option(..., "--peer"),
     max_id: int | None = typer.Option(None, "--max-id"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
     """Explicitly mark messages read."""
@@ -794,6 +1093,7 @@ def messages_read(
             peer,
             max_id,
             dry_run=dry_run,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -804,6 +1104,7 @@ def messages_react(
     peer: str = typer.Option(..., "--peer"),
     message_id: int = typer.Option(..., "--message-id"),
     reaction: str | None = typer.Option(None, "--reaction"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
     """Set or clear one reaction."""
@@ -817,6 +1118,7 @@ def messages_react(
             message_id,
             reaction,
             dry_run=dry_run,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -826,6 +1128,7 @@ def _pin_command(
     peer: str,
     message_id: int,
     dry_run: bool,
+    idempotency_key: str | None,
     *,
     unpin: bool,
 ) -> None:
@@ -839,6 +1142,7 @@ def _pin_command(
             message_id,
             unpin=unpin,
             dry_run=dry_run,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -848,11 +1152,12 @@ def messages_pin(
     ctx: typer.Context,
     peer: str = typer.Option(..., "--peer"),
     message_id: int = typer.Option(..., "--message-id"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
     """Pin a message."""
 
-    _pin_command(ctx, peer, message_id, dry_run, unpin=False)
+    _pin_command(ctx, peer, message_id, dry_run, idempotency_key, unpin=False)
 
 
 @messages_app.command("unpin")
@@ -860,11 +1165,12 @@ def messages_unpin(
     ctx: typer.Context,
     peer: str = typer.Option(..., "--peer"),
     message_id: int = typer.Option(..., "--message-id"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
     """Unpin a message."""
 
-    _pin_command(ctx, peer, message_id, dry_run, unpin=True)
+    _pin_command(ctx, peer, message_id, dry_run, idempotency_key, unpin=True)
 
 
 @media_app.command("download")
@@ -903,6 +1209,7 @@ def polls_create(
     multiple_choice: bool = typer.Option(False, "--multiple-choice"),
     anonymous: bool = typer.Option(True, "--anonymous/--public-voters"),
     quiz: bool = typer.Option(False, "--quiz"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
     """Create and send a poll."""
@@ -919,6 +1226,7 @@ def polls_create(
             anonymous=anonymous,
             quiz=quiz,
             dry_run=dry_run,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -929,6 +1237,7 @@ def polls_vote(
     peer: str = typer.Option(..., "--peer"),
     message_id: int = typer.Option(..., "--message-id"),
     option: list[int] | None = typer.Option(None, "--option"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
     """Vote by zero-based answer index."""
@@ -942,6 +1251,7 @@ def polls_vote(
             message_id,
             option or [],
             dry_run=dry_run,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -953,6 +1263,7 @@ def polls_close(
     message_id: int = typer.Option(..., "--message-id"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     confirm: str | None = typer.Option(None, "--confirm"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
 ) -> None:
     """Close an existing poll."""
 
@@ -965,6 +1276,7 @@ def polls_close(
             message_id,
             dry_run=dry_run,
             confirmation=confirm,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -987,6 +1299,7 @@ def scheduled_cancel(
     message_id: list[int] | None = typer.Option(None, "--message-id"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     confirm: str | None = typer.Option(None, "--confirm"),
+    idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
 ) -> None:
     """Cancel scheduled messages."""
 
@@ -999,6 +1312,7 @@ def scheduled_cancel(
             message_id or [],
             dry_run=dry_run,
             confirmation=confirm,
+            idempotency_key=idempotency_key,
         ),
     )
 
@@ -1126,6 +1440,257 @@ def state_prune(
             _parse_datetime(before),
             dry_run=dry_run,
             confirmation=confirm,
+        ),
+    )
+
+
+def _operation_handler(command: str) -> Callable[..., None]:
+    """Build one uniform Typer handler for a registered operation."""
+
+    def handler(
+        ctx: typer.Context,
+        params: str = typer.Option("{}", "--params"),
+        params_file: Path | None = typer.Option(None, "--params-file"),
+        params_stdin: bool = typer.Option(False, "--params-stdin"),
+        dry_run: bool = typer.Option(False, "--dry-run"),
+        confirm: str | None = typer.Option(None, "--confirm"),
+        confirmation_token: str | None = typer.Option(None, "--confirmation-token"),
+        idempotency_key: str | None = typer.Option(None, "--idempotency-key"),
+    ) -> None:
+        parsed = _read_json(
+            None if params_file or params_stdin else params, params_file, params_stdin
+        )
+        _execute(
+            ctx,
+            command,
+            lambda: _service(_context(ctx)).execute_operation(
+                _context(ctx).profile,
+                command,
+                parsed,
+                dry_run=dry_run,
+                confirmation=confirm,
+                confirmation_token=confirmation_token,
+                idempotency_key=idempotency_key,
+            ),
+        )
+
+    handler.__name__ = command.replace(".", "_").replace("-", "_")
+    handler.__doc__ = next(item.summary for item in OPERATIONS if item.command == command)
+    return handler
+
+
+_OPERATION_APPS = {
+    "account": account_app,
+    "auth": auth_app,
+    "bots": bots_app,
+    "chats": chats_app,
+    "contacts": contacts_app,
+    "dialogs": dialogs_app,
+    "drafts": drafts_app,
+    "folders": folders_app,
+    "gifs": gifs_app,
+    "invite-links": invite_links_app,
+    "join-requests": join_requests_app,
+    "messages": messages_app,
+    "polls": polls_app,
+    "saved": saved_app,
+    "scheduled": scheduled_app,
+    "stickers": stickers_app,
+    "stories": stories_app,
+    "topics": topics_app,
+}
+
+for _operation in OPERATIONS:
+    _group, _leaf = _operation.command.split(".", maxsplit=1)
+    _OPERATION_APPS[_group].command(_leaf)(_operation_handler(_operation.command))
+
+
+@commands_app.command("list")
+def commands_list(ctx: typer.Context) -> None:
+    """List the full structured command manifest."""
+
+    _execute(ctx, "commands.list", lambda: CommandResult(data=command_catalog()))
+
+
+@commands_app.command("get")
+def commands_get(ctx: typer.Context, command: str = typer.Option(..., "--command")) -> None:
+    """Get one structured registered operation."""
+
+    def invoke() -> CommandResult:
+        operations = command_catalog()["operations"]
+        if command not in operations:
+            raise ClitgError(ErrorCode.NOT_FOUND, f"Command '{command}' was not found")
+        return CommandResult(data={"command": command, **operations[command]})
+
+    _execute(ctx, "commands.get", invoke)
+
+
+@policy_app.command("validate")
+def policy_validate(ctx: typer.Context, file: Path = typer.Option(..., "--file")) -> None:
+    """Validate a policy file without attaching it."""
+
+    _execute(ctx, "policy.validate", lambda: _service(_context(ctx)).validate_policy(file))
+
+
+@policy_app.command("set")
+def policy_set(
+    ctx: typer.Context,
+    name: str = typer.Option(..., "--name"),
+    file: Path | None = typer.Option(None, "--file"),
+) -> None:
+    """Attach or clear a policy file for one profile."""
+
+    _execute(ctx, "policy.set", lambda: _service(_context(ctx)).set_policy(name, file))
+
+
+@policy_app.command("get")
+def policy_get(ctx: typer.Context) -> None:
+    """Inspect the selected profile policy."""
+
+    _execute(
+        ctx,
+        "policy.get",
+        lambda: _service(_context(ctx)).inspect_policy(_context(ctx).profile),
+    )
+
+
+@policy_app.command("explain")
+def policy_explain(
+    ctx: typer.Context,
+    command: str = typer.Option(..., "--command"),
+    risk: str = typer.Option("read", "--risk"),
+    peer: str | None = typer.Option(None, "--peer"),
+    raw_method: str | None = typer.Option(None, "--raw-method"),
+) -> None:
+    """Explain one local policy decision."""
+
+    _execute(
+        ctx,
+        "policy.explain",
+        lambda: _service(_context(ctx)).explain_policy(
+            _context(ctx).profile,
+            command,
+            risk,
+            peer,
+            raw_method,
+        ),
+    )
+
+
+@audit_app.command("list")
+def audit_list(ctx: typer.Context, limit: int = typer.Option(100, "--limit")) -> None:
+    """List recent content-free audit records."""
+
+    _execute(ctx, "audit.list", lambda: _service(_context(ctx)).audit_records(limit))
+
+
+@audit_app.command("export")
+def audit_export(
+    ctx: typer.Context,
+    output: Path = typer.Option(..., "--output"),
+    overwrite: bool = typer.Option(False, "--overwrite"),
+) -> None:
+    """Export content-free audit records as JSONL."""
+
+    _execute(
+        ctx,
+        "audit.export",
+        lambda: _service(_context(ctx)).export_audit(output, overwrite=overwrite),
+    )
+
+
+@audit_app.command("prune")
+def audit_prune(
+    ctx: typer.Context,
+    before: str | None = typer.Option(None, "--before"),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+    confirm: str | None = typer.Option(None, "--confirm"),
+) -> None:
+    """Prune local audit metadata."""
+
+    _execute(
+        ctx,
+        "audit.prune",
+        lambda: _service(_context(ctx)).prune_state(
+            "audit",
+            _parse_datetime(before),
+            dry_run=dry_run,
+            confirmation=confirm,
+            action="audit.prune",
+        ),
+    )
+
+
+def _read_batch(path: Path | None, stdin: bool) -> list[BatchOperation]:
+    raw = _read_text(None, path, stdin, label="batch JSONL", required=True)
+    operations: list[BatchOperation] = []
+    try:
+        for line in raw.splitlines():
+            if line.strip():
+                operations.append(BatchOperation.model_validate_json(line))
+    except (ValueError, TypeError) as exc:
+        raise ClitgError(ErrorCode.INVALID_INPUT, "Batch JSONL is invalid") from exc
+    if not operations:
+        raise ClitgError(ErrorCode.INVALID_INPUT, "Batch JSONL is empty")
+    return operations
+
+
+@batch_app.command("run")
+def batch_run(
+    ctx: typer.Context,
+    input_file: Path | None = typer.Option(None, "--input"),
+    stdin: bool = typer.Option(False, "--stdin"),
+    concurrency: int = typer.Option(1, "--concurrency"),
+    fail_fast: bool = typer.Option(False, "--fail-fast"),
+) -> None:
+    """Execute structured read-only operations from JSONL."""
+
+    _execute(
+        ctx,
+        "batch.run",
+        lambda: _service(_context(ctx)).batch(
+            _context(ctx).profile,
+            _read_batch(input_file, stdin),
+            concurrency=concurrency,
+            fail_fast=fail_fast,
+        ),
+    )
+
+
+@updates_app.command("watch")
+def updates_watch(
+    ctx: typer.Context,
+    event: list[str] | None = typer.Option(None, "--event"),
+    peer: list[str] | None = typer.Option(None, "--peer"),
+    cursor: str | None = typer.Option(None, "--cursor"),
+    consumer_id: str | None = typer.Option(None, "--consumer-id"),
+    max_events: int | None = typer.Option(None, "--max-events"),
+    idle_timeout: float | None = typer.Option(None, "--idle-timeout"),
+    total_timeout: float | None = typer.Option(None, "--timeout"),
+    heartbeat: float | None = typer.Option(None, "--heartbeat"),
+) -> None:
+    """Stream Telegram updates with resumable JSONL checkpoints."""
+
+    defaults = {
+        "message.new",
+        "message.edited",
+        "message.deleted",
+        "message.read",
+        "message.reaction",
+    }
+    _execute_stream(
+        ctx,
+        "updates.watch",
+        lambda: _service(_context(ctx)).watch_updates(
+            _context(ctx).profile,
+            event_types=set(event) if event else defaults,
+            peers=set(peer or []),
+            cursor=cursor,
+            consumer_id=consumer_id,
+            max_events=max_events,
+            idle_timeout=idle_timeout,
+            total_timeout=total_timeout,
+            heartbeat=heartbeat,
         ),
     )
 

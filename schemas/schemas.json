@@ -1,5 +1,100 @@
 {
   "models": {
+    "AuditRecord": {
+      "description": "Content-free local command audit record.",
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error Code"
+        },
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "title": "Occurred At",
+          "type": "string"
+        },
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "profile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Profile"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        }
+      },
+      "required": [
+        "id",
+        "occurred_at",
+        "profile",
+        "command",
+        "request_id",
+        "ok"
+      ],
+      "title": "AuditRecord",
+      "type": "object"
+    },
+    "BatchOperation": {
+      "description": "One structured read-only batch operation.",
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "command"
+      ],
+      "title": "BatchOperation",
+      "type": "object"
+    },
     "Capability": {
       "description": "Support and risk classification for one MTProto method.",
       "properties": {
@@ -150,7 +245,7 @@
           "type": "string"
         },
         "schema_version": {
-          "default": "0.1",
+          "default": "0.2",
           "title": "Schema Version",
           "type": "string"
         },
@@ -343,7 +438,7 @@
           "type": "boolean"
         },
         "schema_version": {
-          "default": "0.1",
+          "default": "0.2",
           "title": "Schema Version",
           "type": "string"
         }
@@ -551,7 +646,7 @@
           "type": "string"
         },
         "schema_version": {
-          "default": "0.1",
+          "default": "0.2",
           "title": "Schema Version",
           "type": "string"
         }
@@ -647,6 +742,102 @@
       "title": "Meta",
       "type": "object"
     },
+    "PolicyDocument": {
+      "additionalProperties": false,
+      "description": "Versioned local authorization policy.",
+      "properties": {
+        "allow_commands": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allow Commands",
+          "type": "array"
+        },
+        "allow_mutation_risks": {
+          "items": {
+            "enum": [
+              "write",
+              "destructive",
+              "critical"
+            ],
+            "type": "string"
+          },
+          "title": "Allow Mutation Risks",
+          "type": "array"
+        },
+        "allow_peers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allow Peers",
+          "type": "array"
+        },
+        "allow_raw_methods": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allow Raw Methods",
+          "type": "array"
+        },
+        "allow_raw_risks": {
+          "items": {
+            "enum": [
+              "read",
+              "write",
+              "destructive",
+              "critical",
+              "unknown"
+            ],
+            "type": "string"
+          },
+          "title": "Allow Raw Risks",
+          "type": "array"
+        },
+        "deny_commands": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Deny Commands",
+          "type": "array"
+        },
+        "deny_peers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Deny Peers",
+          "type": "array"
+        },
+        "deny_raw_methods": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Deny Raw Methods",
+          "type": "array"
+        },
+        "max_operations": {
+          "default": 100,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Operations",
+          "type": "integer"
+        },
+        "max_targets": {
+          "default": 25,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Targets",
+          "type": "integer"
+        },
+        "policy_version": {
+          "const": "0.1",
+          "default": "0.1",
+          "title": "Policy Version",
+          "type": "string"
+        }
+      },
+      "title": "PolicyDocument",
+      "type": "object"
+    },
     "ProfileView": {
       "description": "Safe profile representation.",
       "properties": {
@@ -677,18 +868,101 @@
             }
           ],
           "title": "Phone"
+        },
+        "policy_file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Policy File"
+        },
+        "secret_storage": {
+          "enum": [
+            "environment",
+            "keyring",
+            "file",
+            "legacy",
+            "missing"
+          ],
+          "title": "Secret Storage",
+          "type": "string"
         }
       },
       "required": [
         "name",
         "api_id",
         "phone",
+        "secret_storage",
+        "policy_file",
         "created_at",
         "is_default"
       ],
       "title": "ProfileView",
       "type": "object"
+    },
+    "UpdateRecord": {
+      "description": "One normalized or raw Telegram update.",
+      "properties": {
+        "cursor": {
+          "title": "Cursor",
+          "type": "string"
+        },
+        "data": {
+          "additionalProperties": true,
+          "title": "Data",
+          "type": "object"
+        },
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "title": "Event Type",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "title": "Occurred At",
+          "type": "string"
+        },
+        "peer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peer Id"
+        },
+        "raw_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Type"
+        }
+      },
+      "required": [
+        "event_id",
+        "event_type",
+        "occurred_at",
+        "cursor"
+      ],
+      "title": "UpdateRecord",
+      "type": "object"
     }
   },
-  "schema_version": "0.1"
+  "schema_version": "0.2"
 }

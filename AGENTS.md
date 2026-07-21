@@ -34,7 +34,7 @@ its stdout JSON, schemas, exit codes, safety checks, and capability manifest as 
 - Prefer the friendly Telethon API for dedicated commands and the generated TL registry for raw
   coverage.
 - Update generated schemas and capabilities whenever public models or Telethon change.
-- Preserve schema `0.1` across patch releases. A breaking contract requires a new minor schema and
+- Preserve schema `0.2` across patch releases. A breaking contract requires a new minor schema and
   a coordinated skill update.
 
 ## Testing and completion

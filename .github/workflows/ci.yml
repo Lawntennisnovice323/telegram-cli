@@ -44,4 +44,7 @@ jobs:
       - run: uv run pytest
       - run: uv build --no-sources
       - shell: bash
-        run: uvx --from dist/clitg-0.1.0-py3-none-any.whl clitg version
+        run: |
+          wheel="$(find dist -name 'clitg-*.whl' -print -quit)"
+          test -n "${wheel}"
+          uvx --from "${wheel}" clitg version

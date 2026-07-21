@@ -13,6 +13,8 @@ from typer.testing import CliRunner
 import clitg.cli as cli
 from clitg.errors import ClitgError
 from clitg.models import CommandResult, ErrorCode, OutputFormat
+from clitg.service import ClitgService
+from clitg.storage import Paths
 
 runner = CliRunner()
 
@@ -39,6 +41,14 @@ class FakeService:
 
         return call
 
+    async def watch_updates(self, *args: Any, **kwargs: Any) -> Any:
+        self.calls.append(("watch_updates", args, kwargs))
+        if self.failure == "domain":
+            raise ClitgError(ErrorCode.NETWORK, "stream failed")
+        if self.failure == "internal":
+            raise RuntimeError("stream failed")
+        yield {"event_type": "message.new", "cursor": "cursor", "data": {}}
+
 
 @pytest.fixture(autouse=True)
 def fake_service(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -56,16 +66,21 @@ COMMANDS = [
     ["auth", "request-code", "--phone", "+1"],
     ["auth", "verify", "--login-id", "id", "--code", "123"],
     ["auth", "status"],
+    ["auth", "qr-login", "--qr-output", "qr.png"],
     ["auth", "logout", "--dry-run"],
     ["dialogs", "list"],
     ["dialogs", "search", "--query", "group"],
     ["dialogs", "get", "--peer", "me"],
+    ["inbox", "list"],
     ["contacts", "list"],
     ["contacts", "search", "--query", "alice"],
     ["contacts", "resolve", "--peer", "@alice"],
     ["messages", "list", "--peer", "me"],
     ["messages", "search", "--peer", "me", "--query", "hello"],
     ["messages", "get", "--peer", "me", "--message-id", "1"],
+    ["messages", "context", "--peer", "me", "--message-id", "1"],
+    ["messages", "replies", "--peer", "me", "--message-id", "1"],
+    ["messages", "export", "--peer", "me", "--output", "export"],
     ["messages", "send", "--peer", "me", "--text", "hello", "--dry-run"],
     [
         "messages",
@@ -152,6 +167,16 @@ COMMANDS = [
     ["schema", "export", "--output", "schema.json"],
     ["state", "get"],
     ["state", "prune", "--kind", "all", "--dry-run"],
+    ["account", "get", "--params", '{"id":{"_":"InputUserSelf"}}'],
+    ["commands", "list"],
+    ["commands", "get", "--command", "stories.publish"],
+    ["policy", "validate", "--file", "policy.json"],
+    ["policy", "set", "--name", "personal", "--file", "policy.json"],
+    ["policy", "get"],
+    ["policy", "explain", "--command", "messages.send"],
+    ["audit", "list"],
+    ["audit", "export", "--output", "audit.jsonl"],
+    ["audit", "prune", "--dry-run"],
 ]
 
 
@@ -176,9 +201,9 @@ def test_help_version_and_jsonl() -> None:
     version_option = runner.invoke(cli.app, ["--version"])
     version = runner.invoke(cli.app, ["version"])
     assert version.exit_code == version_option.exit_code == 0
-    assert json.loads(version_option.stdout)["data"]["cli_version"] == "0.1.0"
+    assert json.loads(version_option.stdout)["data"]["cli_version"] == "0.2.0"
     assert json.loads(version.stdout)["data"] == json.loads(version_option.stdout)["data"]
-    assert json.loads(version.stdout)["data"]["schema_version"] == "0.1"
+    assert json.loads(version.stdout)["data"]["schema_version"] == "0.2"
     jsonl = runner.invoke(cli.app, ["--output", "jsonl", "profiles", "list"])
     lines = [json.loads(line) for line in jsonl.stdout.splitlines()]
     assert [line["record_type"] for line in lines] == ["item", "summary"]
@@ -324,6 +349,80 @@ def test_jsonl_error() -> None:
     assert json.loads(result.stdout)["record_type"] == "error"
 
 
+def test_new_cli_structured_inputs_and_stream(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    params = tmp_path / "params.json"
+    params.write_text('{"id":{"_":"InputUserSelf"}}')
+    action = runner.invoke(cli.app, ["account", "get", "--params-file", str(params)])
+    assert action.exit_code == 0
+    assert (
+        runner.invoke(
+            cli.app,
+            ["account", "get", "--params-stdin"],
+            input=params.read_text(),
+        ).exit_code
+        == 0
+    )
+    stream = runner.invoke(
+        cli.app,
+        [
+            "--output",
+            "jsonl",
+            "updates",
+            "watch",
+            "--event",
+            "message.new",
+            "--peer",
+            "me",
+            "--max-events",
+            "1",
+        ],
+    )
+    lines = [json.loads(line) for line in stream.stdout.splitlines()]
+    assert [line["record_type"] for line in lines] == ["item", "summary"]
+    wrong_output = runner.invoke(cli.app, ["updates", "watch", "--max-events", "1"])
+    assert wrong_output.exit_code == 2
+    FakeService.failure = "domain"
+    failed = runner.invoke(
+        cli.app,
+        ["--output", "jsonl", "updates", "watch", "--max-events", "1"],
+    )
+    assert failed.exit_code == 8
+    FakeService.failure = "internal"
+    failed = runner.invoke(
+        cli.app,
+        ["--verbose", "--output", "jsonl", "updates", "watch", "--max-events", "1"],
+    )
+    assert failed.exit_code == 1
+    assert json.loads(failed.stdout)["error"]["code"] == "internal"
+    assert "exception" in failed.stderr
+
+
+def test_batch_cli_and_manifest_errors(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    batch = tmp_path / "batch.jsonl"
+    batch.write_text(
+        '\n{"id":"one","command":"account.get","params":{"id":{"_":"InputUserSelf"}}}\n'
+    )
+    assert runner.invoke(cli.app, ["batch", "run", "--input", str(batch)]).exit_code == 0
+    assert (
+        runner.invoke(
+            cli.app,
+            ["batch", "run", "--stdin"],
+            input='{"id":"one","command":"auth.sessions"}\n',
+        ).exit_code
+        == 0
+    )
+    batch.write_text("bad")
+    invalid = runner.invoke(cli.app, ["batch", "run", "--input", str(batch)])
+    assert invalid.exit_code == 2
+    batch.write_text("\n")
+    empty = runner.invoke(cli.app, ["batch", "run", "--input", str(batch)])
+    assert empty.exit_code == 2
+    missing = runner.invoke(cli.app, ["commands", "get", "--command", "missing"])
+    assert missing.exit_code == 4
+
+
 def test_main_and_usage_error(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -354,3 +453,48 @@ def test_main_returns_click_exit_code(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(cli, "app", raise_exit)
     assert cli.main() == 7
+
+
+def test_real_service_audit_paths(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    service = ClitgService(Paths(tmp_path / "config", tmp_path / "data"))
+    context = cli.CliContext(None, OutputFormat.JSON, 30, False, service=service)
+    typer_context = SimpleNamespace(find_root=lambda: SimpleNamespace(obj=context))
+    cli._execute(cast(Any, typer_context), "ok", lambda: CommandResult(data={}))
+    with pytest.raises(cli.typer.Exit):
+        cli._execute(
+            cast(Any, typer_context),
+            "domain",
+            lambda: (_ for _ in ()).throw(ClitgError(ErrorCode.NOT_FOUND, "missing")),
+        )
+    with pytest.raises(cli.typer.Exit):
+        cli._execute(
+            cast(Any, typer_context),
+            "internal",
+            lambda: (_ for _ in ()).throw(RuntimeError("boom")),
+        )
+    assert len(service.state.list_audit()) == 3
+    capsys.readouterr()
+
+    context.output = OutputFormat.JSONL
+
+    async def stream() -> Any:
+        yield {"cursor": "one"}
+
+    cli._execute_stream(cast(Any, typer_context), "stream", stream)
+
+    async def failed_stream() -> Any:
+        if False:
+            yield {}
+        raise ClitgError(ErrorCode.NETWORK, "failed")
+
+    with pytest.raises(cli.typer.Exit):
+        cli._execute_stream(cast(Any, typer_context), "failed-stream", failed_stream)
+
+    async def internal_stream() -> Any:
+        if False:
+            yield {}
+        raise RuntimeError("failed")
+
+    with pytest.raises(cli.typer.Exit):
+        cli._execute_stream(cast(Any, typer_context), "internal-stream", internal_stream)
+    assert len(service.state.list_audit()) == 6

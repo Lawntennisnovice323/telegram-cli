@@ -38,9 +38,9 @@ def test_version_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(importlib.metadata, "version", missing)
     reloaded = importlib.reload(clitg)
-    assert reloaded.__version__ == "0.1.0"
+    assert reloaded.__version__ == "0.2.0"
     monkeypatch.undo()
-    assert importlib.reload(clitg).__version__ == "0.1.0"
+    assert importlib.reload(clitg).__version__ == "0.2.0"
 
 
 def test_error_contract_and_exit_codes() -> None:

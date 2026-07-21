@@ -15,7 +15,7 @@ from telethon.errors import SessionPasswordNeededError
 from clitg.errors import ClitgError
 from clitg.models import Profile
 from clitg.storage import Paths
-from clitg.telegram import TelegramAdapter, dialog_view, entity_view, message_view
+from clitg.telegram import TelegramAdapter, dialog_view, entity_view, message_view, update_view
 
 
 def user(user_id: int = 1, name: str = "Alice") -> types.User:
@@ -89,8 +89,10 @@ def test_entity_message_and_dialog_views() -> None:
         unread_mentions_count=1,
         pinned=True,
         archived=False,
+        folder_id=0,
         message=message(),
     )
+    assert dialog_view(dialog)["folder_id"] == 0
     assert dialog_view(dialog, include_raw=True)["last_message"]["id"] == "1"
     dialog.message = None
     assert dialog_view(dialog)["last_message"] is None
@@ -120,6 +122,10 @@ class FakeClient:
         self.message_result: Any = message()
         self.download_result: str | None = None
         self.calls: list[Any] = []
+        self.dialog_unread_count = 0
+        self.dialog_archived = False
+        self.event_handler: Any = None
+        self.pending_updates: list[Any] = []
 
     async def connect(self) -> None:
         self.connected = True
@@ -145,6 +151,12 @@ class FakeClient:
     async def log_out(self) -> bool:
         return True
 
+    async def qr_login(self) -> Any:
+        return SimpleNamespace(url="tg://login?token=test", wait=self._qr_wait)
+
+    async def _qr_wait(self, timeout: int) -> None:
+        self.calls.append(("qr_wait", timeout))
+
     async def get_entity(self, reference: Any) -> Any:
         self.calls.append(("get_entity", reference))
         if self.entity_error:
@@ -161,16 +173,22 @@ class FakeClient:
         for entity in self.dialog_entities[:limit]:
             yield SimpleNamespace(
                 entity=entity,
-                unread_count=0,
+                unread_count=self.dialog_unread_count,
                 unread_mentions_count=0,
                 pinned=False,
-                archived=False,
+                archived=self.dialog_archived,
                 message=message(),
+                dialog=SimpleNamespace(read_inbox_max_id=0),
             )
 
     async def iter_messages(self, *args: Any, **kwargs: Any) -> AsyncIterator[types.Message]:
         self.calls.append(("iter_messages", args, kwargs))
-        yield message()
+        values = (
+            self.message_result if isinstance(self.message_result, list) else [self.message_result]
+        )
+        for value in values:
+            if value is not None:
+                yield value
 
     async def get_messages(self, *args: Any, **kwargs: Any) -> Any:
         self.calls.append(("get_messages", args, kwargs))
@@ -211,6 +229,19 @@ class FakeClient:
     async def download_media(self, *args: Any, **kwargs: Any) -> str | None:
         self.calls.append(("download", args, kwargs))
         return self.download_result
+
+    def add_event_handler(self, handler: Any, event: Any) -> None:
+        self.event_handler = handler
+        self.calls.append(("add_event_handler", event))
+
+    def remove_event_handler(self, handler: Any, event: Any) -> None:
+        assert handler is self.event_handler
+        self.calls.append(("remove_event_handler", event))
+
+    async def catch_up(self) -> None:
+        if self.event_handler:
+            for update in self.pending_updates:
+                await self.event_handler(update)
 
     async def __call__(self, request: Any) -> Any:
         self.calls.append(("request", request))
@@ -283,6 +314,8 @@ async def test_real_client_context(
     assert client.flood_sleep_threshold == 0
     assert client.session is not None
     client.session.close()
+    with pytest.raises(ClitgError, match="API hash"):
+        TelegramAdapter._new_client(adapter, Profile(name="empty", api_id=1))
 
 
 @pytest.mark.asyncio
@@ -467,3 +500,310 @@ async def test_scheduled_topics_polls_raw_and_download(
     with pytest.raises(ClitgError, match="not found"):
         await adapter.download(profile, "me", 1, output)
     assert (await adapter.raw_invoke(profile, "help.getConfig", {}))["_"] == "InputPeerSelf"
+
+
+def test_update_normalization() -> None:
+    created = update_view(types.UpdateNewMessage(message=message(), pts=1, pts_count=1))
+    assert created["event_type"] == "message.new" and created["peer_id"] == "1"
+    edited = update_view(types.UpdateEditMessage(message=message(), pts=1, pts_count=1))
+    assert edited["event_type"] == "message.edited"
+    deleted = update_view(types.UpdateDeleteMessages(messages=[1], pts=1, pts_count=1))
+    assert deleted["event_type"] == "message.deleted"
+    read = update_view(
+        types.UpdateReadHistoryInbox(
+            peer=types.PeerUser(2),
+            max_id=1,
+            still_unread_count=0,
+            pts=1,
+            pts_count=1,
+        )
+    )
+    assert read["event_type"] == "message.read" and read["peer_id"] == "2"
+    fallback = update_view(
+        types.UpdateUserStatus(user_id=3, status=types.UserStatusOnline(datetime.now(UTC)))
+    )
+    assert fallback["event_type"] == "telegram.raw_update"
+    assert fallback["raw_type"] == "UpdateUserStatus" and fallback["peer_id"] == "3"
+    chat_read = update_view(
+        types.UpdateReadHistoryInbox(
+            peer=types.PeerChat(4),
+            max_id=1,
+            still_unread_count=0,
+            pts=1,
+            pts_count=1,
+        )
+    )
+    assert chat_read["peer_id"] == "4"
+    channel_read = update_view(
+        types.UpdateReadHistoryInbox(
+            peer=types.PeerChannel(5),
+            max_id=1,
+            still_unread_count=0,
+            pts=1,
+            pts_count=1,
+        )
+    )
+    assert channel_read["peer_id"] == "5"
+    assert update_view(types.UpdateConfig())["peer_id"] is None
+    assert update_view(SimpleNamespace(peer=SimpleNamespace()))["peer_id"] is None
+
+
+@pytest.mark.asyncio
+async def test_qr_and_new_read_operations(
+    adapter: StubAdapter,
+    profile: Profile,
+    fake_client: FakeClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Image:
+        def save(self, output: Path) -> None:
+            output.write_bytes(b"png")
+
+    monkeypatch.setattr("clitg.telegram.qrcode.make", lambda _: Image())
+    fake_client.authorized = False
+    qr = await adapter.qr_login(profile, tmp_path / "qr.png", 12)
+    assert qr["authorized"] and qr["qr_path"]
+    fake_client.authorized = True
+    assert (await adapter.qr_login(profile, tmp_path / "unused.png", 12))["already_authorized"]
+    fake_client.message_result = message()
+    assert await adapter.global_search(
+        profile,
+        query="hello",
+        limit=1,
+        offset_id=0,
+        include_raw=True,
+    )
+    threshold = datetime(2026, 1, 2, tzinfo=UTC)
+    media = types.MessageMediaDocument(document=types.DocumentEmpty(id=1))
+    fake_client.message_result = [
+        message(1),
+        message(2, media=media),
+        message(3, media=media),
+    ]
+    fake_client.message_result[2].date = datetime(2026, 1, 3, tzinfo=UTC)
+    filtered = await adapter.global_search(
+        profile,
+        query="hello",
+        limit=2,
+        offset_id=0,
+        sender="me",
+        after=threshold,
+        before=datetime(2026, 1, 4, tzinfo=UTC),
+        media_only=True,
+        include_raw=False,
+    )
+    assert [item["id"] for item in filtered] == ["3"]
+    fake_client.message_result = []
+    assert not await adapter.global_search(
+        profile,
+        query="missing",
+        limit=2,
+        offset_id=0,
+        include_raw=False,
+    )
+    fake_client.message_result = [message(1), message(2)]
+    assert not await adapter.messages(
+        profile,
+        "me",
+        limit=3,
+        offset_id=0,
+        query=None,
+        topic_id=None,
+        sender="me",
+        media_only=True,
+        include_raw=False,
+    )
+    fake_client.message_result = [message(1, media=media), message(2, media=media)]
+    assert (
+        len(
+            await adapter.messages(
+                profile,
+                "me",
+                limit=3,
+                offset_id=0,
+                query=None,
+                topic_id=None,
+                include_raw=False,
+            )
+        )
+        == 2
+    )
+    fake_client.dialog_unread_count = 1
+    incoming = message()
+    incoming.out = False
+    fake_client.message_result = incoming
+    assert await adapter.inbox(
+        profile,
+        view="messages",
+        include_archived=False,
+        limit=10,
+        offset=0,
+    )
+    assert not await adapter.inbox(
+        profile,
+        view="messages",
+        include_archived=False,
+        limit=10,
+        offset=0,
+        sender="me",
+    )
+    fake_client.message_result = message()
+    assert not await adapter.inbox(
+        profile,
+        view="messages",
+        include_archived=True,
+        limit=10,
+        offset=0,
+    )
+    assert await adapter.inbox(
+        profile,
+        view="dialogs",
+        include_archived=False,
+        limit=10,
+        offset=0,
+    )
+    fake_client.dialog_archived = True
+    assert not await adapter.inbox(
+        profile,
+        view="dialogs",
+        include_archived=False,
+        limit=10,
+        offset=0,
+    )
+    assert await adapter.inbox(
+        profile,
+        view="dialogs",
+        include_archived=True,
+        limit=10,
+        offset=0,
+    )
+    assert not await adapter.inbox(
+        profile,
+        view="dialogs",
+        include_archived=True,
+        limit=10,
+        offset=0,
+        folder_id=2,
+    )
+    fake_client.message_result = [message(1), None, message(3)]
+    context = await adapter.message_context(
+        profile,
+        "me",
+        2,
+        before=1,
+        after=1,
+        include_raw=False,
+    )
+    assert len(context) == 2
+    fake_client.message_result = message()
+    assert await adapter.message_replies(
+        profile,
+        "me",
+        1,
+        limit=1,
+        offset_id=0,
+        include_raw=True,
+    )
+
+
+def test_message_filter_predicate() -> None:
+    current = message()
+    assert TelegramAdapter._message_matches(
+        current, sender_id=2, after=None, before=None, media_only=False
+    )
+    assert not TelegramAdapter._message_matches(
+        None, sender_id=None, after=None, before=None, media_only=False
+    )
+    assert not TelegramAdapter._message_matches(
+        current, sender_id=99, after=None, before=None, media_only=False
+    )
+    assert not TelegramAdapter._message_matches(
+        current,
+        sender_id=None,
+        after=datetime(2026, 1, 2, tzinfo=UTC),
+        before=None,
+        media_only=False,
+    )
+    assert not TelegramAdapter._message_matches(
+        current,
+        sender_id=None,
+        after=None,
+        before=datetime(2026, 1, 1, tzinfo=UTC),
+        media_only=False,
+    )
+    assert not TelegramAdapter._message_matches(
+        current, sender_id=None, after=None, before=None, media_only=True
+    )
+    no_date = SimpleNamespace(sender_id=2, date=None, media=object())
+    assert not TelegramAdapter._message_matches(
+        no_date, sender_id=None, after=datetime.now(UTC), before=None, media_only=False
+    )
+    assert not TelegramAdapter._message_matches(
+        no_date, sender_id=None, after=None, before=datetime.now(UTC), media_only=False
+    )
+
+
+@pytest.mark.asyncio
+async def test_update_watch_controls(
+    adapter: StubAdapter, profile: Profile, fake_client: FakeClient
+) -> None:
+    fake_client.pending_updates = [types.UpdateNewMessage(message=message(), pts=1, pts_count=1)]
+    records = [
+        item
+        async for item in adapter.watch_updates(
+            profile,
+            event_types={"message.new"},
+            peers={"1"},
+            max_events=1,
+            idle_timeout=1,
+            total_timeout=1,
+            heartbeat=None,
+        )
+    ]
+    assert len(records) == 1
+    assert any(call[0] == "remove_event_handler" for call in fake_client.calls)
+
+    fake_client.pending_updates = [types.UpdateNewMessage(message=message(), pts=1, pts_count=1)]
+    filtered = [
+        item
+        async for item in adapter.watch_updates(
+            profile,
+            event_types={"message.deleted"},
+            peers=set(),
+            max_events=1,
+            idle_timeout=0.01,
+            total_timeout=0.02,
+            heartbeat=0.002,
+        )
+    ]
+    assert filtered and all(item["event_type"] == "heartbeat" for item in filtered)
+
+    fake_client.pending_updates = [types.UpdateNewMessage(message=message(), pts=1, pts_count=1)]
+    peer_filtered = [
+        item
+        async for item in adapter.watch_updates(
+            profile,
+            event_types=set(),
+            peers={"99"},
+            max_events=1,
+            idle_timeout=0.005,
+            total_timeout=None,
+            heartbeat=None,
+        )
+    ]
+    assert peer_filtered == []
+    fake_client.pending_updates = []
+    timed_out = [
+        item
+        async for item in adapter.watch_updates(
+            profile,
+            event_types=set(),
+            peers=set(),
+            max_events=None,
+            idle_timeout=None,
+            total_timeout=0.002,
+            heartbeat=None,
+        )
+    ]
+    assert timed_out == []

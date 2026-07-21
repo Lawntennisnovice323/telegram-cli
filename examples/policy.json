@@ -1,0 +1,31 @@
+{
+  "policy_version": "0.1",
+  "allow_commands": [
+    "account.get",
+    "dialogs.*",
+    "inbox.*",
+    "messages.*"
+  ],
+  "deny_commands": [
+    "messages.delete"
+  ],
+  "allow_peers": [
+    "me",
+    "@trusted_*"
+  ],
+  "deny_peers": [
+    "@blocked"
+  ],
+  "allow_mutation_risks": [
+    "write"
+  ],
+  "allow_raw_methods": [
+    "help.*"
+  ],
+  "deny_raw_methods": [],
+  "allow_raw_risks": [
+    "read"
+  ],
+  "max_operations": 100,
+  "max_targets": 25
+}

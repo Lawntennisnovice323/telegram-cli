@@ -81,8 +81,10 @@ class Profile(BaseModel):
 
     name: str
     api_id: int
-    api_hash: str = Field(repr=False)
+    api_hash: str | None = Field(default=None, repr=False)
+    api_hash_ref: str | None = Field(default=None, repr=False)
     phone: str | None = None
+    policy_file: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
@@ -92,6 +94,8 @@ class ProfileView(BaseModel):
     name: str
     api_id: int
     phone: str | None
+    secret_storage: Literal["environment", "keyring", "file", "legacy", "missing"]
+    policy_file: str | None
     created_at: datetime
     is_default: bool
 
@@ -145,3 +149,58 @@ class CapabilityCatalog(BaseModel):
     telegram_layer: int
     generated_at: datetime
     capabilities: list[Capability]
+
+
+class UpdateRecord(BaseModel):
+    """One normalized or raw Telegram update."""
+
+    event_id: str
+    event_type: str
+    occurred_at: datetime
+    peer_id: str | None = None
+    data: dict[str, Any] = Field(default_factory=dict)
+    raw_type: str | None = None
+    cursor: str
+
+
+class AuditRecord(BaseModel):
+    """Content-free local command audit record."""
+
+    id: int
+    occurred_at: datetime
+    profile: str | None
+    command: str
+    request_id: str
+    target: str | None = None
+    ok: bool
+    error_code: str | None = None
+
+
+class BatchOperation(BaseModel):
+    """One structured read-only batch operation."""
+
+    id: str
+    command: str
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+class PolicyDocument(BaseModel):
+    """Versioned local authorization policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_version: Literal["0.1"] = "0.1"
+    allow_commands: list[str] = Field(default_factory=list)
+    deny_commands: list[str] = Field(default_factory=list)
+    allow_peers: list[str] = Field(default_factory=list)
+    deny_peers: list[str] = Field(default_factory=list)
+    allow_mutation_risks: list[Literal["write", "destructive", "critical"]] = Field(
+        default_factory=list
+    )
+    allow_raw_methods: list[str] = Field(default_factory=list)
+    deny_raw_methods: list[str] = Field(default_factory=list)
+    allow_raw_risks: list[Literal["read", "write", "destructive", "critical", "unknown"]] = Field(
+        default_factory=list
+    )
+    max_operations: int = Field(default=100, ge=1, le=10_000)
+    max_targets: int = Field(default=25, ge=1, le=1_000)

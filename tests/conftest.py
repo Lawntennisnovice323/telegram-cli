@@ -21,6 +21,7 @@ def isolate_clitg_environment(monkeypatch: pytest.MonkeyPatch) -> None:
         "CLITG_PROFILE",
     ):
         monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("PYTHON_KEYRING_BACKEND", "keyring.backends.null.Keyring")
 
 
 @pytest.fixture

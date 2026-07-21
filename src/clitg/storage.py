@@ -59,6 +59,11 @@ class Paths:
         path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         return path
 
+    def export_dir(self, profile: str) -> Path:
+        """Return the default parent for resumable exports."""
+
+        return self.data_dir / "profiles" / profile / "exports"
+
     def profile_lock(self, profile: str) -> FileLock:
         """Return a cross-platform session lock."""
 
@@ -152,6 +157,29 @@ class ProfileStore:
         self._save(value)
         return self.view(Profile.model_validate(raw), True)
 
+    def set_secret_reference(self, name: str, reference: str) -> Profile:
+        """Atomically replace a legacy API hash with a secret reference."""
+
+        value = self._load()
+        raw = value["profiles"].get(name)
+        if raw is None:
+            raise ClitgError(ErrorCode.NOT_FOUND, f"Profile '{name}' does not exist")
+        raw["api_hash"] = None
+        raw["api_hash_ref"] = reference
+        self._save(value)
+        return Profile.model_validate(raw)
+
+    def set_policy_file(self, name: str, policy_file: str | None) -> ProfileView:
+        """Attach or clear a versioned policy document."""
+
+        value = self._load()
+        raw = value["profiles"].get(name)
+        if raw is None:
+            raise ClitgError(ErrorCode.NOT_FOUND, f"Profile '{name}' does not exist")
+        raw["policy_file"] = policy_file
+        self._save(value)
+        return self.view(Profile.model_validate(raw), name == value["default"])
+
     def remove(self, name: str) -> ProfileView:
         """Remove local profile configuration."""
 
@@ -168,10 +196,14 @@ class ProfileStore:
     def view(profile: Profile, is_default: bool) -> ProfileView:
         """Build a redacted public view."""
 
+        from clitg.credentials import CredentialStore
+
         return ProfileView(
             name=profile.name,
             api_id=profile.api_id,
             phone=profile.phone,
+            secret_storage=CredentialStore.kind(profile.api_hash_ref, profile.api_hash),
+            policy_file=profile.policy_file,
             created_at=profile.created_at,
             is_default=is_default,
         )
@@ -223,6 +255,23 @@ class StateStore:
                     payload_hash TEXT NOT NULL,
                     expires_at TEXT NOT NULL,
                     used INTEGER NOT NULL DEFAULT 0
+                );
+                CREATE TABLE IF NOT EXISTS checkpoints (
+                    profile TEXT NOT NULL,
+                    consumer_id TEXT NOT NULL,
+                    cursor TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY (profile, consumer_id)
+                );
+                CREATE TABLE IF NOT EXISTS audit (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    occurred_at TEXT NOT NULL,
+                    profile TEXT,
+                    command TEXT NOT NULL,
+                    request_id TEXT NOT NULL,
+                    target TEXT,
+                    ok INTEGER NOT NULL,
+                    error_code TEXT
                 );
                 """,
             )
@@ -287,7 +336,11 @@ class StateStore:
         """Return a cached result or reject a key reused with another payload."""
 
         digest = payload_hash(payload)
+        cutoff = datetime.now(UTC) - timedelta(days=30)
         with self._connect() as connection:
+            connection.execute(
+                "DELETE FROM idempotency WHERE created_at < ?", (cutoff.isoformat(),)
+            )
             row = connection.execute(
                 "SELECT payload_hash, result_json FROM idempotency "
                 "WHERE profile=? AND action=? AND key=?",
@@ -371,8 +424,69 @@ class StateStore:
         with self._connect() as connection:
             return {
                 table: int(connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
-                for table in ("logins", "idempotency", "confirmations")
+                for table in ("logins", "idempotency", "confirmations", "checkpoints", "audit")
             }
+
+    def save_checkpoint(self, profile: str, consumer_id: str, cursor: str) -> None:
+        """Persist the last cursor acknowledged by one consumer."""
+
+        with self._connect() as connection:
+            connection.execute(
+                "INSERT OR REPLACE INTO checkpoints VALUES (?, ?, ?, ?)",
+                (profile, consumer_id, cursor, datetime.now(UTC).isoformat()),
+            )
+
+    def get_checkpoint(self, profile: str, consumer_id: str) -> str | None:
+        """Load a consumer cursor when present."""
+
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT cursor FROM checkpoints WHERE profile=? AND consumer_id=?",
+                (profile, consumer_id),
+            ).fetchone()
+        return None if row is None else str(row["cursor"])
+
+    def record_audit(
+        self,
+        profile: str | None,
+        command: str,
+        request_id: str,
+        *,
+        target: str | None,
+        ok: bool,
+        error_code: str | None,
+    ) -> None:
+        """Record content-free command metadata and prune old entries."""
+
+        cutoff = datetime.now(UTC) - timedelta(days=90)
+        with self._connect() as connection:
+            connection.execute("DELETE FROM audit WHERE occurred_at < ?", (cutoff.isoformat(),))
+            connection.execute(
+                "INSERT INTO audit "
+                "(occurred_at, profile, command, request_id, target, ok, error_code) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    datetime.now(UTC).isoformat(),
+                    profile,
+                    command,
+                    request_id,
+                    target,
+                    int(ok),
+                    error_code,
+                ),
+            )
+
+    def list_audit(self, limit: int | None = 100) -> list[dict[str, Any]]:
+        """Return recent audit metadata."""
+
+        with self._connect() as connection:
+            if limit is None:
+                rows = connection.execute("SELECT * FROM audit ORDER BY id DESC").fetchall()
+            else:
+                rows = connection.execute(
+                    "SELECT * FROM audit ORDER BY id DESC LIMIT ?", (limit,)
+                ).fetchall()
+        return [dict(row) for row in rows]
 
     def prune(self, kind: str, before: datetime | None = None) -> dict[str, int]:
         """Delete auxiliary state by kind and optional age."""
@@ -381,6 +495,8 @@ class StateStore:
             "login": ("logins", "created_at"),
             "idempotency": ("idempotency", "created_at"),
             "confirmation": ("confirmations", "expires_at"),
+            "checkpoint": ("checkpoints", "updated_at"),
+            "audit": ("audit", "occurred_at"),
         }
         selected = tables.values() if kind == "all" else (tables[kind],)
         result: dict[str, int] = {}

@@ -15,6 +15,8 @@ from telethon.tl.tlobject import TLRequest
 
 from clitg import SCHEMA_VERSION, __version__
 from clitg.models import (
+    AuditRecord,
+    BatchOperation,
     Capability,
     CapabilityCatalog,
     Confirmation,
@@ -23,7 +25,9 @@ from clitg.models import (
     JsonlRecord,
     LoginState,
     Meta,
+    PolicyDocument,
     ProfileView,
+    UpdateRecord,
 )
 from clitg.serialization import to_jsonable
 
@@ -85,17 +89,32 @@ WRITE_WORDS = (
 
 
 COMMAND_CATALOG: dict[str, dict[str, Any]] = {
-    "auth": {"commands": ["request-code", "verify", "status", "logout"]},
+    "account": {"commands": []},
+    "audit": {"commands": ["list", "export", "prune"]},
+    "auth": {"commands": ["request-code", "verify", "qr-login", "status", "logout"]},
+    "batch": {"commands": ["run"]},
+    "bots": {"commands": []},
     "capabilities": {"commands": ["list", "get"]},
+    "chats": {"commands": []},
+    "commands": {"commands": ["list", "get"]},
     "contacts": {"commands": ["list", "search", "resolve"]},
     "dialogs": {"commands": ["list", "get", "search"]},
+    "drafts": {"commands": []},
+    "folders": {"commands": []},
+    "gifs": {"commands": []},
     "help": {"commands": []},
+    "inbox": {"commands": ["list"]},
+    "invite-links": {"commands": []},
+    "join-requests": {"commands": []},
     "media": {"commands": ["download"]},
     "messages": {
         "commands": [
             "list",
             "get",
             "search",
+            "context",
+            "replies",
+            "export",
             "send",
             "reply",
             "forward",
@@ -108,12 +127,17 @@ COMMAND_CATALOG: dict[str, dict[str, Any]] = {
         ]
     },
     "polls": {"commands": ["create", "vote", "close"]},
+    "policy": {"commands": ["validate", "set", "get", "explain"]},
     "profiles": {"commands": ["create", "list", "get", "set-default", "remove"]},
     "raw": {"commands": ["invoke"]},
+    "saved": {"commands": []},
     "scheduled": {"commands": ["list", "cancel"]},
     "schema": {"commands": ["list", "get", "export"]},
     "state": {"commands": ["get", "prune"]},
+    "stickers": {"commands": []},
+    "stories": {"commands": []},
     "topics": {"commands": ["list"]},
+    "updates": {"commands": ["watch"]},
     "version": {"commands": []},
 }
 
@@ -122,6 +146,8 @@ SCHEMA_MODELS = {
     for cls in (
         Capability,
         CapabilityCatalog,
+        AuditRecord,
+        BatchOperation,
         Confirmation,
         Envelope,
         ErrorInfo,
@@ -129,6 +155,8 @@ SCHEMA_MODELS = {
         LoginState,
         Meta,
         ProfileView,
+        PolicyDocument,
+        UpdateRecord,
     )
 }
 
@@ -170,12 +198,16 @@ def request_registry() -> dict[str, type[TLRequest]]:
 def capability_catalog() -> CapabilityCatalog:
     """Generate the capability manifest from the live Telethon registry."""
 
+    from clitg.operations import OPERATIONS
+
+    dedicated = {operation.method: operation.command for operation in OPERATIONS}
+    high_level = {**HIGH_LEVEL_METHODS, **dedicated}
     capabilities: list[Capability] = []
     for method, request_class in request_registry().items():
         reason = UNSUPPORTED_METHODS.get(method)
         if reason:
             status = "unsupported"
-        elif method in HIGH_LEVEL_METHODS:
+        elif method in high_level:
             status = "high-level"
         else:
             status = "raw-only"
@@ -185,7 +217,7 @@ def capability_catalog() -> CapabilityCatalog:
                 python_class=f"{request_class.__module__}.{request_class.__name__}",
                 status=status,
                 risk=risk_for(method),
-                command=HIGH_LEVEL_METHODS.get(method),
+                command=high_level.get(method),
                 reason=reason,
             )
         )
@@ -200,6 +232,15 @@ def capability_catalog() -> CapabilityCatalog:
 def command_catalog() -> dict[str, Any]:
     """Return the machine-readable top-level command catalog."""
 
+    from clitg.operations import operation_catalog
+
+    operations = operation_catalog()
+    groups = {name: dict(value) for name, value in COMMAND_CATALOG.items()}
+    for command in operations:
+        group, leaf = command.split(".", maxsplit=1)
+        groups.setdefault(group, {"commands": []})["commands"].append(leaf)
+    for value in groups.values():
+        value["commands"] = sorted(set(value["commands"]))
     return {
         "schema_version": SCHEMA_VERSION,
         "cli_version": __version__,
@@ -209,7 +250,8 @@ def command_catalog() -> dict[str, Any]:
             "timeout_seconds": "positive integer",
             "verbose": "boolean",
         },
-        "groups": COMMAND_CATALOG,
+        "groups": groups,
+        "operations": operations,
     }
 
 

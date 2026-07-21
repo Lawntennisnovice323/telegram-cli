@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from telethon import utils
 from telethon.tl import alltlobjects
 from telethon.tl.tlobject import TLObject, TLRequest
 
@@ -71,6 +72,22 @@ class RawCodec:
                     ErrorCode.INTERNAL, "A Telegram client is required to resolve peers"
                 )
             return await client.get_input_entity(value["$peer"])
+        if "$channel" in value:
+            if not resolve:
+                return value["$channel"]
+            if client is None:
+                raise ClitgError(
+                    ErrorCode.INTERNAL, "A Telegram client is required to resolve channels"
+                )
+            return utils.get_input_channel(await client.get_entity(value["$channel"]))
+        if "$user" in value:
+            if not resolve:
+                return value["$user"]
+            if client is None:
+                raise ClitgError(
+                    ErrorCode.INTERNAL, "A Telegram client is required to resolve users"
+                )
+            return utils.get_input_user(await client.get_entity(value["$user"]))
         if "$upload" in value:
             path = Path(value["$upload"])
             if not path.is_file():

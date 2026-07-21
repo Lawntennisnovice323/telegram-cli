@@ -1,0 +1,2 @@
+{"id":"account","command":"account.get","params":{"id":{"_":"InputUserSelf"}}}
+{"id":"sessions","command":"auth.sessions","params":{}}

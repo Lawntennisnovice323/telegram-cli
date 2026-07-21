@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import mimetypes
 import os
-from collections.abc import Awaitable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from datetime import datetime
 from pathlib import Path
 from typing import Any, TypeVar
@@ -15,9 +16,12 @@ from telethon.errors import FloodWaitError, RPCError
 
 from clitg import SCHEMA_VERSION, __version__
 from clitg.catalog import capability_catalog, command_catalog, schema_catalog
+from clitg.credentials import CredentialStore
 from clitg.errors import ClitgError
-from clitg.models import CommandResult, ErrorCode, Profile
-from clitg.serialization import decode_cursor, encode_cursor
+from clitg.models import BatchOperation, CommandResult, ErrorCode, PolicyDocument, Profile
+from clitg.operations import OPERATION_BY_COMMAND, Operation, normalize_params
+from clitg.policy import evaluate_policy, load_policy, require_policy
+from clitg.serialization import decode_cursor, encode_cursor, json_dumps
 from clitg.storage import Paths, ProfileStore, StateStore
 from clitg.telegram import TelegramAdapter
 
@@ -31,6 +35,7 @@ class ClitgService:
         self.paths = paths or Paths()
         self.profiles = ProfileStore(self.paths)
         self.state = StateStore(self.paths)
+        self.credentials = CredentialStore(self.paths)
         self.telegram = TelegramAdapter(self.paths, timeout_seconds=timeout_seconds)
 
     def profile(self, requested: str | None) -> Profile:
@@ -47,6 +52,14 @@ class ClitgService:
                 ) from exc
         if api_hash := os.getenv("CLITG_API_HASH"):
             changes["api_hash"] = api_hash
+        elif profile.api_hash:
+            reference = self.credentials.save(profile.name, profile.api_hash)
+            profile = self.profiles.set_secret_reference(profile.name, reference)
+            changes["api_hash"] = self.credentials.load(reference)
+        elif profile.api_hash_ref:
+            changes["api_hash"] = self.credentials.load(profile.api_hash_ref)
+        else:
+            raise ClitgError(ErrorCode.PROFILE_ERROR, "The profile API hash is unavailable")
         if phone := os.getenv("CLITG_PHONE"):
             changes["phone"] = phone
         return profile.model_copy(update=changes)
@@ -88,9 +101,16 @@ class ClitgService:
     ) -> CommandResult:
         """Create a profile."""
 
+        normalized = self.profiles.validate_name(name)
+        reference = self.credentials.save(normalized, api_hash)
         return CommandResult(
             data=self.profiles.create(
-                Profile(name=name, api_id=api_id, api_hash=api_hash, phone=phone),
+                Profile(
+                    name=normalized,
+                    api_id=api_id,
+                    api_hash_ref=reference,
+                    phone=phone,
+                ),
                 make_default=make_default,
             )
         )
@@ -171,6 +191,23 @@ class ClitgService:
         profile = self.profile(requested)
         return CommandResult(data=await self.telegram_call(self.telegram.auth_status(profile)))
 
+    async def qr_login(
+        self,
+        requested: str | None,
+        output: Path,
+        timeout: int,
+    ) -> CommandResult:
+        """Authenticate by writing a QR image and waiting for a scan."""
+
+        if timeout < 1:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "QR timeout must be positive")
+        if output.exists():
+            raise ClitgError(ErrorCode.CONFLICT, f"QR output already exists: {output}")
+        profile = self.profile(requested)
+        return CommandResult(
+            data=await self.telegram_call(self.telegram.qr_login(profile, output, timeout))
+        )
+
     async def logout(
         self, requested: str | None, *, dry_run: bool, confirmation: str | None
     ) -> CommandResult:
@@ -197,6 +234,7 @@ class ClitgService:
 
         self._limit(limit)
         profile = self.profile(requested)
+        self._authorize(profile, "dialogs.search" if query else "dialogs.list", "read")
         offset = int(self._cursor(cursor).get("offset", 0))
         items = await self.telegram_call(
             self.telegram.dialogs(
@@ -218,6 +256,7 @@ class ClitgService:
         """Resolve a peer."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "dialogs.get", "read", reference)
         return CommandResult(
             data=await self.telegram_call(
                 self.telegram.peer(profile, reference, include_raw=include_raw)
@@ -228,6 +267,7 @@ class ClitgService:
         """List or search contacts locally."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "contacts.search" if query else "contacts.list", "read")
         items = await self.telegram_call(self.telegram.contacts(profile))
         if query:
             folded = query.casefold()
@@ -243,27 +283,165 @@ class ClitgService:
     async def messages(
         self,
         requested: str | None,
-        peer: str,
+        peer: str | None,
         *,
         query: str | None,
         cursor: str | None,
         limit: int,
         topic_id: int | None,
         include_raw: bool,
+        sender: str | None = None,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        media_only: bool = False,
     ) -> CommandResult:
         """List or search a peer's messages."""
 
         self._limit(limit)
+        if after is not None and before is not None and after >= before:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "--after must be earlier than --before")
         profile = self.profile(requested)
+        self._authorize(profile, "messages.search" if query else "messages.list", "read", peer)
         offset_id = int(self._cursor(cursor).get("offset_id", 0))
+        if peer is None:
+            if not query:
+                raise ClitgError(ErrorCode.INVALID_INPUT, "Global search requires a query")
+            if topic_id is not None:
+                raise ClitgError(ErrorCode.INVALID_INPUT, "Global search does not support topics")
+            items = await self.telegram_call(
+                self.telegram.global_search(
+                    profile,
+                    query=query,
+                    limit=limit,
+                    offset_id=offset_id,
+                    sender=sender,
+                    after=after,
+                    before=before,
+                    media_only=media_only,
+                    include_raw=include_raw,
+                )
+            )
+        else:
+            items = await self.telegram_call(
+                self.telegram.messages(
+                    profile,
+                    peer,
+                    limit=limit,
+                    offset_id=offset_id,
+                    query=query,
+                    topic_id=topic_id,
+                    sender=sender,
+                    after=after,
+                    before=before,
+                    media_only=media_only,
+                    include_raw=include_raw,
+                )
+            )
+        next_cursor = (
+            encode_cursor({"offset_id": int(items[-1]["id"])}) if len(items) == limit else None
+        )
+        return CommandResult(data={"items": items}, items=items, next_cursor=next_cursor)
+
+    async def inbox(
+        self,
+        requested: str | None,
+        *,
+        view: str,
+        include_archived: bool,
+        cursor: str | None,
+        limit: int,
+        peer: str | None = None,
+        sender: str | None = None,
+        folder_id: int | None = None,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        media_only: bool = False,
+    ) -> CommandResult:
+        """List unread messages or unread dialog summaries."""
+
+        if view not in {"messages", "dialogs"}:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Inbox view must be messages or dialogs")
+        if folder_id is not None and folder_id < 0:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Folder ID cannot be negative")
+        if after is not None and before is not None and after >= before:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "--after must be earlier than --before")
+        self._limit(limit)
+        offset = int(self._cursor(cursor).get("offset", 0))
+        profile = self.profile(requested)
+        self._authorize(profile, "inbox.list", "read")
         items = await self.telegram_call(
-            self.telegram.messages(
+            self.telegram.inbox(
+                profile,
+                view=view,
+                include_archived=include_archived,
+                limit=limit,
+                offset=offset,
+                peer=peer,
+                sender=sender,
+                folder_id=folder_id,
+                after=after,
+                before=before,
+                media_only=media_only,
+            )
+        )
+        next_cursor = (
+            encode_cursor({"offset": offset + len(items)}) if len(items) == limit else None
+        )
+        return CommandResult(
+            data={"view": view, "items": items}, items=items, next_cursor=next_cursor
+        )
+
+    async def message_context(
+        self,
+        requested: str | None,
+        peer: str,
+        message_id: int,
+        *,
+        before: int,
+        after: int,
+        include_raw: bool,
+    ) -> CommandResult:
+        """Return messages around one anchor without changing read state."""
+
+        if not 0 <= before <= 100 or not 0 <= after <= 100:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Context windows must be between 0 and 100")
+        profile = self.profile(requested)
+        self._authorize(profile, "messages.context", "read", peer)
+        items = await self.telegram_call(
+            self.telegram.message_context(
                 profile,
                 peer,
+                message_id,
+                before=before,
+                after=after,
+                include_raw=include_raw,
+            )
+        )
+        return CommandResult(data={"anchor_id": message_id, "items": items}, items=items)
+
+    async def message_replies(
+        self,
+        requested: str | None,
+        peer: str,
+        message_id: int,
+        *,
+        cursor: str | None,
+        limit: int,
+        include_raw: bool,
+    ) -> CommandResult:
+        """List paginated replies or comments."""
+
+        self._limit(limit)
+        offset_id = int(self._cursor(cursor).get("offset_id", 0))
+        profile = self.profile(requested)
+        self._authorize(profile, "messages.replies", "read", peer)
+        items = await self.telegram_call(
+            self.telegram.message_replies(
+                profile,
+                peer,
+                message_id,
                 limit=limit,
                 offset_id=offset_id,
-                query=query,
-                topic_id=topic_id,
                 include_raw=include_raw,
             )
         )
@@ -271,6 +449,133 @@ class ClitgService:
             encode_cursor({"offset_id": int(items[-1]["id"])}) if len(items) == limit else None
         )
         return CommandResult(data={"items": items}, items=items, next_cursor=next_cursor)
+
+    async def export_conversation(
+        self,
+        requested: str | None,
+        peer: str,
+        output: Path,
+        *,
+        limit: int,
+        resume: bool,
+        download_media: bool,
+    ) -> CommandResult:
+        """Append one resumable history page to a JSONL export."""
+
+        self._limit(limit)
+        profile = self.profile(requested)
+        self._authorize(profile, "messages.export", "read", peer)
+        manifest_path = output / "manifest.json"
+        messages_path = output / "messages.jsonl"
+        if output.exists() and not resume:
+            raise ClitgError(ErrorCode.CONFLICT, f"Export output already exists: {output}")
+        if resume and not manifest_path.is_file():
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Export manifest was not found")
+        cursor: str | None = None
+        if resume:
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                cursor = manifest.get("next_cursor")
+            except (OSError, json.JSONDecodeError, AttributeError) as exc:
+                raise ClitgError(ErrorCode.INVALID_INPUT, "Export manifest is invalid") from exc
+        output.mkdir(parents=True, exist_ok=True)
+        result = await self.messages(
+            requested,
+            peer,
+            query=None,
+            cursor=cursor,
+            limit=limit,
+            topic_id=None,
+            include_raw=False,
+        )
+        items = list(result.items or [])
+        media_dir = output / "media"
+        if download_media:
+            media_dir.mkdir(exist_ok=True)
+            for item in items:
+                if item.get("has_media"):
+                    target = media_dir / str(item["id"])
+                    try:
+                        path = await self.telegram_call(
+                            self.telegram.download(profile, peer, int(item["id"]), target)
+                        )
+                        item["exported_media"] = str(path.relative_to(output))
+                    except ClitgError as exc:
+                        item["media_error"] = exc.info
+        with messages_path.open("a", encoding="utf-8") as stream:
+            for item in items:
+                stream.write(json_dumps(item) + "\n")
+        manifest = {
+            "schema_version": SCHEMA_VERSION,
+            "peer": peer,
+            "next_cursor": result.next_cursor,
+            "complete": result.next_cursor is None,
+            "download_media": download_media,
+        }
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        return CommandResult(
+            data={
+                "output": str(output.resolve()),
+                "count": len(items),
+                "next_cursor": result.next_cursor,
+                "complete": result.next_cursor is None,
+            },
+            items=items,
+            next_cursor=result.next_cursor,
+        )
+
+    async def watch_updates(
+        self,
+        requested: str | None,
+        *,
+        event_types: set[str],
+        peers: set[str],
+        cursor: str | None,
+        consumer_id: str | None,
+        max_events: int | None,
+        idle_timeout: float | None,
+        total_timeout: float | None,
+        heartbeat: float | None,
+    ) -> AsyncIterator[dict[str, Any]]:
+        """Stream updates and persist optional consumer checkpoints."""
+
+        profile = self.profile(requested)
+        self._authorize(profile, "updates.watch", "read")
+        if max_events is not None and max_events < 1:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "max_events must be positive")
+        for value, label in (
+            (idle_timeout, "idle_timeout"),
+            (total_timeout, "total_timeout"),
+            (heartbeat, "heartbeat"),
+        ):
+            if value is not None and value <= 0:
+                raise ClitgError(ErrorCode.INVALID_INPUT, f"{label} must be positive")
+        selected_cursor = cursor
+        if selected_cursor is None and consumer_id:
+            selected_cursor = self.state.get_checkpoint(profile.name, consumer_id)
+        state = self._cursor(selected_cursor)
+        sequence = int(state.get("sequence", 0))
+        resolved_peers: set[str] = set()
+        for peer in peers:
+            value = await self.telegram_call(self.telegram.peer(profile, peer, include_raw=False))
+            resolved_peers.add(str(value["id"]))
+        async for item in self.telegram.watch_updates(
+            profile,
+            event_types=event_types,
+            peers=resolved_peers,
+            max_events=max_events,
+            idle_timeout=idle_timeout,
+            total_timeout=total_timeout,
+            heartbeat=heartbeat,
+        ):
+            sequence += 1
+            next_cursor = encode_cursor(
+                {"stream": "updates", "sequence": sequence, "event_id": item["event_id"]}
+            )
+            item["cursor"] = next_cursor
+            if consumer_id:
+                self.state.save_checkpoint(profile.name, consumer_id, next_cursor)
+            yield item
 
     async def get_message(
         self,
@@ -283,6 +588,7 @@ class ClitgService:
         """Get one message."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "messages.get", "read", peer)
         return CommandResult(
             data=await self.telegram_call(
                 self.telegram.get_message(
@@ -319,6 +625,7 @@ class ClitgService:
                 ErrorCode.INVALID_INPUT, "Upload files do not exist", details={"files": missing}
             )
         profile = self.profile(requested)
+        self._authorize(profile, "messages.send", "write", peer)
         payload = {
             "peer": peer,
             "text": text,
@@ -385,6 +692,7 @@ class ClitgService:
         if not message_ids:
             raise ClitgError(ErrorCode.INVALID_INPUT, "At least one message ID is required")
         profile = self.profile(requested)
+        self._authorize(profile, "messages.forward", "write", target_peer)
         payload = {
             "source_peer": source_peer,
             "target_peer": target_peer,
@@ -430,10 +738,12 @@ class ClitgService:
         parse_mode: str,
         *,
         dry_run: bool,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or edit one message."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "messages.edit", "write", peer)
         payload = {
             "peer": peer,
             "message_id": message_id,
@@ -452,11 +762,14 @@ class ClitgService:
                     "dry_run": True,
                 }
             )
-        return CommandResult(
-            data=await self.telegram_call(
-                self.telegram.edit(profile, peer, message_id, text, parse_mode)
-            )
+        result, replay = await self._idempotent_call(
+            profile,
+            "messages.edit",
+            idempotency_key,
+            payload,
+            lambda: self.telegram.edit(profile, peer, message_id, text, parse_mode),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def delete_messages(
         self,
@@ -467,6 +780,7 @@ class ClitgService:
         *,
         dry_run: bool,
         confirmation: str | None,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or delete an exact message set."""
 
@@ -475,6 +789,7 @@ class ClitgService:
         if scope not in {"self", "everyone"}:
             raise ClitgError(ErrorCode.INVALID_INPUT, "Scope must be 'self' or 'everyone'")
         profile = self.profile(requested)
+        self._authorize(profile, "messages.delete", "destructive", peer)
         action = "messages.delete"
         payload = {"peer": peer, "message_ids": message_ids, "scope": scope}
         if dry_run:
@@ -485,16 +800,19 @@ class ClitgService:
                 data={"action": action, "payload": payload, "peer": resolved, "dry_run": True}
             )
         self._require_confirmation(action, confirmation)
-        return CommandResult(
-            data=await self.telegram_call(
-                self.telegram.delete(
-                    profile,
-                    peer,
-                    message_ids,
-                    everyone=scope == "everyone",
-                )
-            )
+        result, replay = await self._idempotent_call(
+            profile,
+            action,
+            idempotency_key,
+            payload,
+            lambda: self.telegram.delete(
+                profile,
+                peer,
+                message_ids,
+                everyone=scope == "everyone",
+            ),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def read_messages(
         self,
@@ -503,18 +821,25 @@ class ClitgService:
         max_id: int | None,
         *,
         dry_run: bool,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or explicitly acknowledge messages as read."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "messages.read", "write", peer)
         payload = {"peer": peer, "max_id": max_id}
         if dry_run:
             return CommandResult(
                 data={"action": "messages.read", "payload": payload, "dry_run": True}
             )
-        return CommandResult(
-            data=await self.telegram_call(self.telegram.read(profile, peer, max_id))
+        result, replay = await self._idempotent_call(
+            profile,
+            "messages.read",
+            idempotency_key,
+            payload,
+            lambda: self.telegram.read(profile, peer, max_id),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def react_message(
         self,
@@ -524,18 +849,25 @@ class ClitgService:
         reaction: str | None,
         *,
         dry_run: bool,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or update a message reaction."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "messages.react", "write", peer)
         payload = {"peer": peer, "message_id": message_id, "reaction": reaction}
         if dry_run:
             return CommandResult(
                 data={"action": "messages.react", "payload": payload, "dry_run": True}
             )
-        return CommandResult(
-            data=await self.telegram_call(self.telegram.react(profile, peer, message_id, reaction))
+        result, replay = await self._idempotent_call(
+            profile,
+            "messages.react",
+            idempotency_key,
+            payload,
+            lambda: self.telegram.react(profile, peer, message_id, reaction),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def pin_message(
         self,
@@ -545,22 +877,30 @@ class ClitgService:
         *,
         unpin: bool,
         dry_run: bool,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or update a pinned message."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "messages.unpin" if unpin else "messages.pin", "write", peer)
         action = "messages.unpin" if unpin else "messages.pin"
         payload = {"peer": peer, "message_id": message_id}
         if dry_run:
             return CommandResult(data={"action": action, "payload": payload, "dry_run": True})
-        return CommandResult(
-            data=await self.telegram_call(self.telegram.pin(profile, peer, message_id, unpin=unpin))
+        result, replay = await self._idempotent_call(
+            profile,
+            action,
+            idempotency_key,
+            payload,
+            lambda: self.telegram.pin(profile, peer, message_id, unpin=unpin),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def scheduled_messages(self, requested: str | None, peer: str) -> CommandResult:
         """List scheduled messages."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "scheduled.list", "read", peer)
         items = await self.telegram_call(self.telegram.scheduled(profile, peer))
         return CommandResult(data={"items": items}, items=items)
 
@@ -572,29 +912,35 @@ class ClitgService:
         *,
         dry_run: bool,
         confirmation: str | None,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or cancel scheduled messages."""
 
         if not message_ids:
             raise ClitgError(ErrorCode.INVALID_INPUT, "At least one message ID is required")
         profile = self.profile(requested)
+        self._authorize(profile, "scheduled.cancel", "destructive", peer)
         payload = {"peer": peer, "message_ids": message_ids}
         if dry_run:
             return CommandResult(
                 data={"action": "scheduled.cancel", "payload": payload, "dry_run": True}
             )
         self._require_confirmation("scheduled.cancel", confirmation)
-        return CommandResult(
-            data=await self.telegram_call(
-                self.telegram.cancel_scheduled(profile, peer, message_ids)
-            )
+        result, replay = await self._idempotent_call(
+            profile,
+            "scheduled.cancel",
+            idempotency_key,
+            payload,
+            lambda: self.telegram.cancel_scheduled(profile, peer, message_ids),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def topics(self, requested: str | None, peer: str, limit: int) -> CommandResult:
         """List forum topics."""
 
         self._limit(limit)
         profile = self.profile(requested)
+        self._authorize(profile, "topics.list", "read", peer)
         result = await self.telegram_call(self.telegram.topics(profile, peer, limit=limit))
         items = result.get("topics", []) if isinstance(result, dict) else []
         return CommandResult(data=result, items=items)
@@ -610,6 +956,7 @@ class ClitgService:
         anonymous: bool,
         quiz: bool,
         dry_run: bool,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or create a poll."""
 
@@ -618,6 +965,7 @@ class ClitgService:
         if len(answers) > 10:
             raise ClitgError(ErrorCode.INVALID_INPUT, "A poll supports at most ten answers")
         profile = self.profile(requested)
+        self._authorize(profile, "polls.create", "write", peer)
         payload = {
             "peer": peer,
             "question": question,
@@ -630,8 +978,12 @@ class ClitgService:
             return CommandResult(
                 data={"action": "polls.create", "payload": payload, "dry_run": True}
             )
-        result = await self.telegram_call(
-            self.telegram.create_poll(
+        result, replay = await self._idempotent_call(
+            profile,
+            "polls.create",
+            idempotency_key,
+            payload,
+            lambda: self.telegram.create_poll(
                 profile,
                 peer,
                 question,
@@ -639,9 +991,9 @@ class ClitgService:
                 multiple_choice=multiple_choice,
                 anonymous=anonymous,
                 quiz=quiz,
-            )
+            ),
         )
-        return CommandResult(data={"messages": result})
+        return CommandResult(data={"messages": result, "idempotent_replay": replay})
 
     async def vote_poll(
         self,
@@ -651,20 +1003,25 @@ class ClitgService:
         options: list[int],
         *,
         dry_run: bool,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or vote in a poll."""
 
         if not options or any(option < 0 or option > 9 for option in options):
             raise ClitgError(ErrorCode.INVALID_INPUT, "Poll options must be indexes from 0 to 9")
         profile = self.profile(requested)
+        self._authorize(profile, "polls.vote", "write", peer)
         payload = {"peer": peer, "message_id": message_id, "options": options}
         if dry_run:
             return CommandResult(data={"action": "polls.vote", "payload": payload, "dry_run": True})
-        return CommandResult(
-            data=await self.telegram_call(
-                self.telegram.vote_poll(profile, peer, message_id, options)
-            )
+        result, replay = await self._idempotent_call(
+            profile,
+            "polls.vote",
+            idempotency_key,
+            payload,
+            lambda: self.telegram.vote_poll(profile, peer, message_id, options),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def close_poll(
         self,
@@ -674,19 +1031,26 @@ class ClitgService:
         *,
         dry_run: bool,
         confirmation: str | None,
+        idempotency_key: str | None = None,
     ) -> CommandResult:
         """Preview or close a poll."""
 
         profile = self.profile(requested)
+        self._authorize(profile, "polls.close", "destructive", peer)
         payload = {"peer": peer, "message_id": message_id}
         if dry_run:
             return CommandResult(
                 data={"action": "polls.close", "payload": payload, "dry_run": True}
             )
         self._require_confirmation("polls.close", confirmation)
-        return CommandResult(
-            data=await self.telegram_call(self.telegram.close_poll(profile, peer, message_id))
+        result, replay = await self._idempotent_call(
+            profile,
+            "polls.close",
+            idempotency_key,
+            payload,
+            lambda: self.telegram.close_poll(profile, peer, message_id),
         )
+        return CommandResult(data=self._mutation_data(result, replay))
 
     async def raw(
         self,
@@ -706,6 +1070,14 @@ class ClitgService:
         profile = self.profile(requested)
         await self.telegram.codec.build(method, params, resolve=False)
         risk = self.telegram.codec.risk(method)
+        require_policy(
+            evaluate_policy(
+                self._policy(profile),
+                "raw.invoke",
+                risk=risk,
+                raw_method=method,
+            )
+        )
         payload = {"method": method, "params": params}
         critical = risk in {"critical", "unknown"}
         if dry_run:
@@ -737,6 +1109,328 @@ class ClitgService:
                 ),
             }
         )
+
+    async def execute_operation(
+        self,
+        requested: str | None,
+        command: str,
+        params: dict[str, Any],
+        *,
+        dry_run: bool,
+        confirmation: str | None,
+        confirmation_token: str | None,
+        idempotency_key: str | None,
+    ) -> CommandResult:
+        """Execute one registered operation with uniform agent safeguards."""
+
+        operation = OPERATION_BY_COMMAND.get(command)
+        if operation is None:
+            raise ClitgError(ErrorCode.NOT_FOUND, f"Operation '{command}' was not found")
+        profile = self.profile(requested)
+        selected = self._role_params(operation, params)
+        normalized = normalize_params(selected)
+        await self.telegram.codec.build(operation.method, normalized, resolve=False)
+        target = self._operation_target(selected)
+        require_policy(
+            evaluate_policy(
+                self._policy(profile),
+                operation.command,
+                risk=operation.risk,
+                peer=target,
+            )
+        )
+        payload = {"command": command, "method": operation.method, "params": selected}
+        if dry_run:
+            data: dict[str, Any] = {
+                "action": command,
+                "method": operation.method,
+                "risk": operation.risk,
+                "payload": payload,
+                "dry_run": True,
+            }
+            if operation.critical:
+                issued = self.state.issue_confirmation(profile.name, command, payload)
+                data["confirmation_token"] = issued.token
+                data["confirmation_expires_at"] = issued.expires_at
+            return CommandResult(data=data)
+        if not operation.mutation and idempotency_key:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Read operations do not use idempotency keys")
+        if operation.mutation and idempotency_key:
+            existing = self.state.get_idempotent(profile.name, command, idempotency_key, payload)
+            if existing is not None:
+                return CommandResult(data={"result": existing, "idempotent_replay": True})
+        if operation.critical:
+            self._require_confirmation(command, confirmation)
+            if not confirmation_token:
+                raise ClitgError(
+                    ErrorCode.CONFIRMATION_REQUIRED,
+                    "A critical confirmation token is required",
+                )
+            self.state.consume_confirmation(confirmation_token, profile.name, command, payload)
+        elif operation.risk == "destructive":
+            self._require_confirmation(command, confirmation)
+        result = await self.telegram_call(
+            self.telegram.raw_invoke(profile, operation.method, normalized)
+        )
+        if operation.mutation and idempotency_key:
+            self.state.save_idempotent(profile.name, command, idempotency_key, payload, result)
+        return CommandResult(
+            data={
+                "command": command,
+                "method": operation.method,
+                "risk": operation.risk,
+                "result": result,
+                "idempotent_replay": False,
+            }
+        )
+
+    async def batch(
+        self,
+        requested: str | None,
+        operations: list[BatchOperation],
+        *,
+        concurrency: int,
+        fail_fast: bool,
+    ) -> CommandResult:
+        """Execute a bounded batch containing registered reads only."""
+
+        if not 1 <= concurrency <= 10:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Concurrency must be between 1 and 10")
+        profile = self.profile(requested)
+        policy = self._policy(profile)
+        if policy and len(operations) > policy.max_operations:
+            raise ClitgError(ErrorCode.PERMISSION_DENIED, "Batch exceeds policy max_operations")
+        targets = {
+            target
+            for item in operations
+            if (target := self._operation_target(item.params)) is not None
+        }
+        if policy and len(targets) > policy.max_targets:
+            raise ClitgError(ErrorCode.PERMISSION_DENIED, "Batch exceeds policy max_targets")
+        for item in operations:
+            operation = OPERATION_BY_COMMAND.get(item.command)
+            if operation is None or operation.mutation:
+                raise ClitgError(
+                    ErrorCode.INVALID_INPUT,
+                    f"Batch operation '{item.command}' is not a registered read",
+                )
+
+        async def run(item: BatchOperation) -> dict[str, Any]:
+            try:
+                result = await self.execute_operation(
+                    requested,
+                    item.command,
+                    item.params,
+                    dry_run=False,
+                    confirmation=None,
+                    confirmation_token=None,
+                    idempotency_key=None,
+                )
+                return {"id": item.id, "ok": True, "data": result.data, "error": None}
+            except ClitgError as exc:
+                return {"id": item.id, "ok": False, "data": None, "error": exc.info}
+
+        results: list[dict[str, Any]] = []
+        if fail_fast:
+            for item in operations:
+                result = await run(item)
+                results.append(result)
+                if not result["ok"]:
+                    break
+        else:
+            semaphore = asyncio.Semaphore(concurrency)
+
+            async def bounded(item: BatchOperation) -> dict[str, Any]:
+                async with semaphore:
+                    return await run(item)
+
+            results = list(await asyncio.gather(*(bounded(item) for item in operations)))
+        return CommandResult(
+            data={
+                "items": results,
+                "count": len(results),
+                "succeeded": sum(bool(item["ok"]) for item in results),
+                "failed": sum(not bool(item["ok"]) for item in results),
+            },
+            items=results,
+        )
+
+    def set_policy(self, name: str, path: Path | None) -> CommandResult:
+        """Attach a validated policy document to one profile."""
+
+        resolved: str | None = None
+        if path is not None:
+            load_policy(path)
+            resolved = str(path.resolve())
+        return CommandResult(data=self.profiles.set_policy_file(name, resolved))
+
+    def inspect_policy(self, requested: str | None) -> CommandResult:
+        """Return the selected policy without credential material."""
+
+        profile = self.profile(requested)
+        policy = self._policy(profile)
+        return CommandResult(
+            data={"profile": profile.name, "policy_file": profile.policy_file, "policy": policy}
+        )
+
+    def validate_policy(self, path: Path) -> CommandResult:
+        """Validate a policy without attaching it."""
+
+        return CommandResult(data={"valid": True, "policy": load_policy(path)})
+
+    def explain_policy(
+        self,
+        requested: str | None,
+        command: str,
+        risk: str,
+        peer: str | None,
+        raw_method: str | None,
+    ) -> CommandResult:
+        """Explain the selected policy decision without executing an operation."""
+
+        profile = self.profile(requested)
+        return CommandResult(
+            data={
+                "profile": profile.name,
+                "command": command,
+                "risk": risk,
+                "peer": peer,
+                "raw_method": raw_method,
+                "decision": evaluate_policy(
+                    self._policy(profile),
+                    command,
+                    risk=risk,
+                    peer=peer,
+                    raw_method=raw_method,
+                ),
+            }
+        )
+
+    def audit_records(self, limit: int) -> CommandResult:
+        """List recent content-free audit records."""
+
+        self._limit(limit)
+        items = self.state.list_audit(limit)
+        return CommandResult(data={"items": items}, items=items)
+
+    def export_audit(self, output: Path, *, overwrite: bool) -> CommandResult:
+        """Export content-free audit records as JSONL."""
+
+        if output.exists() and not overwrite:
+            raise ClitgError(ErrorCode.CONFLICT, f"Output already exists: {output}")
+        output.parent.mkdir(parents=True, exist_ok=True)
+        rows = self.state.list_audit(None)
+        output.write_text("".join(json.dumps(item, separators=(",", ":")) + "\n" for item in rows))
+        return CommandResult(data={"path": str(output.resolve()), "count": len(rows)})
+
+    def record_audit(
+        self,
+        profile: str | None,
+        command: str,
+        request_id: str,
+        *,
+        ok: bool,
+        error_code: str | None = None,
+        target: str | None = None,
+    ) -> None:
+        """Persist one command audit record."""
+
+        self.state.record_audit(
+            profile,
+            command,
+            request_id,
+            target=target,
+            ok=ok,
+            error_code=error_code,
+        )
+
+    @staticmethod
+    def _operation_target(params: dict[str, Any]) -> str | None:
+        for key in ("peer", "channel", "user", "user_id", "bot", "bot_id"):
+            value = params.get(key)
+            if isinstance(value, str | int):
+                return str(value)
+        return None
+
+    async def _idempotent_call(
+        self,
+        profile: Profile,
+        action: str,
+        key: str | None,
+        payload: dict[str, Any],
+        factory: Callable[[], Awaitable[Any]],
+    ) -> tuple[Any, bool]:
+        """Execute and cache one compatible mutation."""
+
+        if key:
+            existing = self.state.get_idempotent(profile.name, action, key, payload)
+            if existing is not None:
+                return existing, True
+        result = await self.telegram_call(factory())
+        if key:
+            self.state.save_idempotent(profile.name, action, key, payload, result)
+        return result, False
+
+    @staticmethod
+    def _mutation_data(result: Any, replay: bool) -> dict[str, Any]:
+        """Preserve mapping results while exposing uniform replay metadata."""
+
+        if isinstance(result, dict):
+            return {**result, "idempotent_replay": replay}
+        return {"result": result, "idempotent_replay": replay}
+
+    @staticmethod
+    def _role_params(operation: Operation, params: dict[str, Any]) -> dict[str, Any]:
+        selected = dict(params)
+        role = selected.pop("role", None)
+        overrides = selected.pop("rights_overrides", None)
+        if role is None:
+            return selected
+        if operation.command not in {
+            "chats.promote-channel",
+            "chats.promote-group",
+            "chats.restrict",
+        }:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Roles are not supported by this operation")
+        if role not in {"moderator", "admin", "restricted"}:
+            raise ClitgError(ErrorCode.INVALID_INPUT, "Unknown administration role")
+        if operation.command == "chats.promote-group":
+            selected["is_admin"] = role in {"moderator", "admin"}
+            if overrides is not None:
+                if not isinstance(overrides, dict):
+                    raise ClitgError(ErrorCode.INVALID_INPUT, "rights_overrides must be an object")
+                selected.update(overrides)
+            return selected
+        if operation.command == "chats.promote-channel":
+            rights: dict[str, Any] = {
+                "_": "ChatAdminRights",
+                "delete_messages": True,
+                "ban_users": True,
+                "invite_users": True,
+                "pin_messages": True,
+                "manage_call": True,
+                "manage_topics": True,
+                "add_admins": role == "admin",
+            }
+            key = "admin_rights"
+        else:
+            rights = {"_": "ChatBannedRights", "until_date": None, "send_messages": True}
+            key = "banned_rights"
+        if overrides is not None:
+            if not isinstance(overrides, dict):
+                raise ClitgError(ErrorCode.INVALID_INPUT, "rights_overrides must be an object")
+            rights.update(overrides)
+        selected[key] = rights
+        return selected
+
+    @staticmethod
+    def _policy(profile: Profile) -> PolicyDocument | None:
+        return load_policy(profile.policy_file) if profile.policy_file else None
+
+    def _authorize(
+        self, profile: Profile, command: str, risk: str, peer: str | None = None
+    ) -> None:
+        require_policy(evaluate_policy(self._policy(profile), command, risk=risk, peer=peer))
 
     async def download(
         self,
@@ -836,22 +1530,23 @@ class ClitgService:
         *,
         dry_run: bool,
         confirmation: str | None,
+        action: str = "state.prune",
     ) -> CommandResult:
         """Preview or delete auxiliary state."""
 
-        if kind not in {"login", "idempotency", "confirmation", "all"}:
+        if kind not in {"login", "idempotency", "confirmation", "checkpoint", "audit", "all"}:
             raise ClitgError(ErrorCode.INVALID_INPUT, "Invalid state kind")
         if dry_run:
             return CommandResult(
                 data={
-                    "action": "state.prune",
+                    "action": action,
                     "kind": kind,
                     "before": before,
                     "current": self.state.counts(),
                     "dry_run": True,
                 }
             )
-        self._require_confirmation("state.prune", confirmation)
+        self._require_confirmation(action, confirmation)
         return CommandResult(data={"deleted": self.state.prune(kind, before)})
 
     @staticmethod

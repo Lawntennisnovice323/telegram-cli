@@ -67,7 +67,7 @@ def test_command_and_schema_catalogs(tmp_path: Path) -> None:
     write_catalogs(tmp_path)
     capabilities = json.loads((tmp_path / "capabilities.json").read_text())
     assert capabilities["generated_at"] == "generated"
-    assert json.loads((tmp_path / "schemas.json").read_text())["schema_version"] == "0.1"
+    assert json.loads((tmp_path / "schemas.json").read_text())["schema_version"] == "0.2"
 
 
 def test_catalog_module_entrypoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -84,6 +84,17 @@ class FakeRawClient:
     async def upload_file(self, value: Path) -> tuple[str, str]:
         return ("upload", str(value))
 
+    async def get_entity(self, value: object) -> object:
+        if value == "channel":
+            return types.Channel(
+                id=1,
+                title="Channel",
+                photo=types.ChatPhotoEmpty(),
+                date=datetime.now(UTC),
+                access_hash=2,
+            )
+        return types.User(id=1, access_hash=2, first_name="User")
+
 
 @pytest.mark.asyncio
 async def test_raw_codec_values(tmp_path: Path) -> None:
@@ -98,6 +109,16 @@ async def test_raw_codec_values(tmp_path: Path) -> None:
     assert dt == datetime(2026, 1, 1, tzinfo=UTC)
     assert await codec.decode_value({"$peer": "me"}, client, resolve=False) == "me"
     assert await codec.decode_value({"$peer": "me"}, client, resolve=True) == ("peer", "me")
+    assert await codec.decode_value({"$channel": "channel"}, client, resolve=False) == "channel"
+    assert isinstance(
+        await codec.decode_value({"$channel": "channel"}, client, resolve=True),
+        types.InputChannel,
+    )
+    assert await codec.decode_value({"$user": "user"}, client, resolve=False) == "user"
+    assert isinstance(
+        await codec.decode_value({"$user": "user"}, client, resolve=True),
+        types.InputUser,
+    )
     upload = tmp_path / "x"
     upload.write_text("x")
     assert await codec.decode_value({"$upload": str(upload)}, client, resolve=False) == str(upload)
@@ -126,6 +147,10 @@ async def test_raw_codec_errors(tmp_path: Path) -> None:
         await codec.decode_value({"$datetime": "no"}, None, resolve=False)
     with pytest.raises(ClitgError, match="required to resolve"):
         await codec.decode_value({"$peer": "me"}, None, resolve=True)
+    with pytest.raises(ClitgError, match="required to resolve channels"):
+        await codec.decode_value({"$channel": "channel"}, None, resolve=True)
+    with pytest.raises(ClitgError, match="required to resolve users"):
+        await codec.decode_value({"$user": "user"}, None, resolve=True)
     with pytest.raises(ClitgError, match="does not exist"):
         await codec.decode_value({"$upload": str(tmp_path / "none")}, None, resolve=True)
     upload = tmp_path / "x"

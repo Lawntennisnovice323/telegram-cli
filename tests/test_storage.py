@@ -19,6 +19,7 @@ def test_paths(paths: Paths) -> None:
     assert paths.state_file.name == "state.sqlite3"
     assert paths.session_file("personal").parent.exists()
     assert paths.profile_lock("personal").lock_file.endswith(".lock")
+    assert paths.export_dir("personal").name == "exports"
 
 
 def test_secure_write(tmp_path: Path) -> None:
@@ -89,6 +90,20 @@ def test_profile_conflicts_and_missing(profile_store: ProfileStore, profile: Pro
             operation("missing")
     with pytest.raises(ClitgError, match="does not exist"):
         profile_store.resolve("missing")
+    with pytest.raises(ClitgError, match="does not exist"):
+        profile_store.set_secret_reference("missing", "file:/x")
+    with pytest.raises(ClitgError, match="does not exist"):
+        profile_store.set_policy_file("missing", None)
+
+
+def test_profile_secret_and_policy_updates(
+    profile_store: ProfileStore, profile: Profile, tmp_path: Path
+) -> None:
+    profile_store.create(profile)
+    updated = profile_store.set_secret_reference("personal", "file:/secret")
+    assert updated.api_hash is None and updated.api_hash_ref == "file:/secret"
+    view = profile_store.set_policy_file("personal", str(tmp_path / "policy.json"))
+    assert view.policy_file and view.secret_storage == "file"
 
 
 def test_invalid_profile_files(paths: Paths) -> None:
@@ -153,8 +168,41 @@ def test_counts_and_prune(state_store: StateStore) -> None:
     state_store.save_login("p", "+1", "h")
     state_store.save_idempotent("p", "a", "k", {}, {})
     state_store.issue_confirmation("p", "m", {})
-    assert state_store.counts() == {"logins": 1, "idempotency": 1, "confirmations": 1}
+    assert state_store.counts() == {
+        "logins": 1,
+        "idempotency": 1,
+        "confirmations": 1,
+        "checkpoints": 0,
+        "audit": 0,
+    }
     future = datetime.now(UTC) + timedelta(days=1)
     assert state_store.prune("login", future) == {"logins": 1}
     deleted = state_store.prune("all")
-    assert deleted == {"logins": 0, "idempotency": 1, "confirmations": 1}
+    assert deleted == {
+        "logins": 0,
+        "idempotency": 1,
+        "confirmations": 1,
+        "checkpoints": 0,
+        "audit": 0,
+    }
+
+
+def test_checkpoints_and_audit(state_store: StateStore) -> None:
+    assert state_store.get_checkpoint("p", "agent") is None
+    state_store.save_checkpoint("p", "agent", "cursor-1")
+    assert state_store.get_checkpoint("p", "agent") == "cursor-1"
+    state_store.save_checkpoint("p", "agent", "cursor-2")
+    assert state_store.get_checkpoint("p", "agent") == "cursor-2"
+    state_store.record_audit(
+        "p",
+        "messages.list",
+        "request",
+        target="1",
+        ok=False,
+        error_code="network",
+    )
+    rows = state_store.list_audit(1)
+    assert rows[0]["target"] == "1" and rows[0]["error_code"] == "network"
+    assert state_store.list_audit(None) == rows
+    assert state_store.prune("checkpoint") == {"checkpoints": 1}
+    assert state_store.prune("audit") == {"audit": 1}

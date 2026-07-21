@@ -193,12 +193,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "auth.sessions",
       "method": "account.getAuthorizations",
       "python_class": "telethon.tl.functions.account.GetAuthorizationsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -385,12 +385,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "account.privacy",
       "method": "account.getPrivacy",
       "python_class": "telethon.tl.functions.account.GetPrivacyRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -921,12 +921,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "dialogs.unmute",
       "method": "account.updateNotifySettings",
       "python_class": "telethon.tl.functions.account.UpdateNotifySettingsRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -1617,12 +1617,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.create-channel",
       "method": "channels.createChannel",
       "python_class": "telethon.tl.functions.channels.CreateChannelRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -1633,12 +1633,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.delete-channel",
       "method": "channels.deleteChannel",
       "python_class": "telethon.tl.functions.channels.DeleteChannelRequest",
       "reason": null,
       "risk": "destructive",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -1665,20 +1665,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.promote-channel",
       "method": "channels.editAdmin",
       "python_class": "telethon.tl.functions.channels.EditAdminRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "chats.restrict",
       "method": "channels.editBanned",
       "python_class": "telethon.tl.functions.channels.EditBannedRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -1689,20 +1689,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.edit-channel-photo",
       "method": "channels.editPhoto",
       "python_class": "telethon.tl.functions.channels.EditPhotoRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "chats.edit-channel",
       "method": "channels.editTitle",
       "python_class": "telethon.tl.functions.channels.EditTitleRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -1713,12 +1713,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.admin-log",
       "method": "channels.getAdminLog",
       "python_class": "telethon.tl.functions.channels.GetAdminLogRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -1801,12 +1801,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.participants",
       "method": "channels.getParticipants",
       "python_class": "telethon.tl.functions.channels.GetParticipantsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -1817,28 +1817,28 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.invite-channel",
       "method": "channels.inviteToChannel",
       "python_class": "telethon.tl.functions.channels.InviteToChannelRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "chats.join",
       "method": "channels.joinChannel",
       "python_class": "telethon.tl.functions.channels.JoinChannelRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "chats.leave-channel",
       "method": "channels.leaveChannel",
       "python_class": "telethon.tl.functions.channels.LeaveChannelRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2049,12 +2049,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.update-username",
       "method": "channels.updateUsername",
       "python_class": "telethon.tl.functions.channels.UpdateUsernameRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2153,20 +2153,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "contacts.add",
       "method": "contacts.addContact",
       "python_class": "telethon.tl.functions.contacts.AddContactRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "contacts.block",
       "method": "contacts.block",
       "python_class": "telethon.tl.functions.contacts.BlockRequest",
       "reason": null,
       "risk": "unknown",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2185,12 +2185,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "contacts.delete",
       "method": "contacts.deleteContacts",
       "python_class": "telethon.tl.functions.contacts.DeleteContactsRequest",
       "reason": null,
       "risk": "destructive",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2217,12 +2217,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "contacts.blocked",
       "method": "contacts.getBlocked",
       "python_class": "telethon.tl.functions.contacts.GetBlockedRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2353,12 +2353,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "contacts.unblock",
       "method": "contacts.unblock",
       "python_class": "telethon.tl.functions.contacts.UnblockRequest",
       "reason": null,
       "risk": "unknown",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2369,12 +2369,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "dialogs.unarchive",
       "method": "folders.editPeerFolders",
       "python_class": "telethon.tl.functions.folders.EditPeerFoldersRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2809,12 +2809,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.invite-group",
       "method": "messages.addChatUser",
       "python_class": "telethon.tl.functions.messages.AddChatUserRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2913,20 +2913,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.create-group",
       "method": "messages.createChat",
       "python_class": "telethon.tl.functions.messages.CreateChatRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "topics.create",
       "method": "messages.createForumTopic",
       "python_class": "telethon.tl.functions.messages.CreateForumTopicRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -2937,28 +2937,28 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.delete-group",
       "method": "messages.deleteChat",
       "python_class": "telethon.tl.functions.messages.DeleteChatRequest",
       "reason": null,
       "risk": "destructive",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "chats.remove-group-member",
       "method": "messages.deleteChatUser",
       "python_class": "telethon.tl.functions.messages.DeleteChatUserRequest",
       "reason": null,
       "risk": "destructive",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "invite-links.revoke",
       "method": "messages.deleteExportedChatInvite",
       "python_class": "telethon.tl.functions.messages.DeleteExportedChatInviteRequest",
       "reason": null,
       "risk": "destructive",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3057,12 +3057,12 @@
       "status": "high-level"
     },
     {
-      "command": null,
+      "command": "topics.delete",
       "method": "messages.deleteTopicHistory",
       "python_class": "telethon.tl.functions.messages.DeleteTopicHistoryRequest",
       "reason": null,
       "risk": "destructive",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3073,20 +3073,20 @@
       "status": "unsupported"
     },
     {
-      "command": null,
+      "command": "chats.edit-about",
       "method": "messages.editChatAbout",
       "python_class": "telethon.tl.functions.messages.EditChatAboutRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "chats.promote-group",
       "method": "messages.editChatAdmin",
       "python_class": "telethon.tl.functions.messages.EditChatAdminRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3113,28 +3113,28 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.edit-group-photo",
       "method": "messages.editChatPhoto",
       "python_class": "telethon.tl.functions.messages.EditChatPhotoRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "chats.edit-group",
       "method": "messages.editChatTitle",
       "python_class": "telethon.tl.functions.messages.EditChatTitleRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "invite-links.edit",
       "method": "messages.editExportedChatInvite",
       "python_class": "telethon.tl.functions.messages.EditExportedChatInviteRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3145,12 +3145,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "topics.reopen",
       "method": "messages.editForumTopic",
       "python_class": "telethon.tl.functions.messages.EditForumTopicRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3161,7 +3161,7 @@
       "status": "raw-only"
     },
     {
-      "command": "messages.edit",
+      "command": "scheduled.edit",
       "method": "messages.editMessage",
       "python_class": "telethon.tl.functions.messages.EditMessageRequest",
       "reason": null,
@@ -3177,12 +3177,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "invite-links.create",
       "method": "messages.exportChatInvite",
       "python_class": "telethon.tl.functions.messages.ExportChatInviteRequest",
       "reason": null,
       "risk": "unknown",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3209,12 +3209,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "drafts.list",
       "method": "messages.getAllDrafts",
       "python_class": "telethon.tl.functions.messages.GetAllDraftsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3281,20 +3281,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "bots.click",
       "method": "messages.getBotCallbackAnswer",
       "python_class": "telethon.tl.functions.messages.GetBotCallbackAnswerRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "join-requests.list",
       "method": "messages.getChatInviteImporters",
       "python_class": "telethon.tl.functions.messages.GetChatInviteImportersRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3345,12 +3345,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "folders.list",
       "method": "messages.getDialogFilters",
       "python_class": "telethon.tl.functions.messages.GetDialogFiltersRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3473,12 +3473,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "invite-links.list",
       "method": "messages.getExportedChatInvites",
       "python_class": "telethon.tl.functions.messages.GetExportedChatInvitesRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3497,12 +3497,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "stickers.favorites",
       "method": "messages.getFavedStickers",
       "python_class": "telethon.tl.functions.messages.GetFavedStickersRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3561,7 +3561,7 @@
       "status": "raw-only"
     },
     {
-      "command": "messages.list",
+      "command": "saved.list",
       "method": "messages.getHistory",
       "python_class": "telethon.tl.functions.messages.GetHistoryRequest",
       "reason": null,
@@ -3569,12 +3569,12 @@
       "status": "high-level"
     },
     {
-      "command": null,
+      "command": "bots.inline",
       "method": "messages.getInlineBotResults",
       "python_class": "telethon.tl.functions.messages.GetInlineBotResultsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3601,12 +3601,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "messages.reactions",
       "method": "messages.getMessageReactionsList",
       "python_class": "telethon.tl.functions.messages.GetMessageReactionsListRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3721,20 +3721,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "polls.results",
       "method": "messages.getPollResults",
       "python_class": "telethon.tl.functions.messages.GetPollResultsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "polls.voters",
       "method": "messages.getPollVotes",
       "python_class": "telethon.tl.functions.messages.GetPollVotesRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3777,12 +3777,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "stickers.recent",
       "method": "messages.getRecentStickers",
       "python_class": "telethon.tl.functions.messages.GetRecentStickersRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3801,12 +3801,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "saved.dialogs",
       "method": "messages.getSavedDialogs",
       "python_class": "telethon.tl.functions.messages.GetSavedDialogsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3817,12 +3817,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "gifs.recent",
       "method": "messages.getSavedGifs",
       "python_class": "telethon.tl.functions.messages.GetSavedGifsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3833,12 +3833,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "saved.tags",
       "method": "messages.getSavedReactionTags",
       "python_class": "telethon.tl.functions.messages.GetSavedReactionTagsRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": "scheduled.list",
@@ -3977,12 +3977,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "join-requests.reject",
       "method": "messages.hideChatJoinRequest",
       "python_class": "telethon.tl.functions.messages.HideChatJoinRequestRequest",
       "reason": null,
       "risk": "unknown",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -3993,12 +3993,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "chats.join-invite",
       "method": "messages.importChatInvite",
       "python_class": "telethon.tl.functions.messages.ImportChatInviteRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -4017,12 +4017,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "dialogs.mark-unread",
       "method": "messages.markDialogUnread",
       "python_class": "telethon.tl.functions.messages.MarkDialogUnreadRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -4297,12 +4297,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "drafts.delete",
       "method": "messages.saveDraft",
       "python_class": "telethon.tl.functions.messages.SaveDraftRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -4329,7 +4329,7 @@
       "status": "raw-only"
     },
     {
-      "command": "messages.search",
+      "command": "saved.search",
       "method": "messages.search",
       "python_class": "telethon.tl.functions.messages.SearchRequest",
       "reason": null,
@@ -4377,12 +4377,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "stickers.search",
       "method": "messages.searchStickers",
       "python_class": "telethon.tl.functions.messages.SearchStickersRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -4425,7 +4425,7 @@
       "status": "raw-only"
     },
     {
-      "command": "messages.send",
+      "command": "stickers.send",
       "method": "messages.sendMedia",
       "python_class": "telethon.tl.functions.messages.SendMediaRequest",
       "reason": null,
@@ -4633,12 +4633,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "bots.start",
       "method": "messages.startBot",
       "python_class": "telethon.tl.functions.messages.StartBotRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -4673,12 +4673,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "dialogs.unpin-dialog",
       "method": "messages.toggleDialogPin",
       "python_class": "telethon.tl.functions.messages.ToggleDialogPinRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -4769,20 +4769,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "folders.delete",
       "method": "messages.updateDialogFilter",
       "python_class": "telethon.tl.functions.messages.UpdateDialogFilterRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "folders.reorder",
       "method": "messages.updateDialogFiltersOrder",
       "python_class": "telethon.tl.functions.messages.UpdateDialogFiltersOrderRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -4793,7 +4793,7 @@
       "status": "raw-only"
     },
     {
-      "command": "messages.pin",
+      "command": "topics.pin",
       "method": "messages.updatePinnedMessage",
       "python_class": "telethon.tl.functions.messages.UpdatePinnedMessageRequest",
       "reason": null,
@@ -4801,12 +4801,12 @@
       "status": "high-level"
     },
     {
-      "command": null,
+      "command": "saved.untag",
       "method": "messages.updateSavedReactionTag",
       "python_class": "telethon.tl.functions.messages.UpdateSavedReactionTagRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -6025,20 +6025,20 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "stories.delete",
       "method": "stories.deleteStories",
       "python_class": "telethon.tl.functions.stories.DeleteStoriesRequest",
       "reason": null,
       "risk": "destructive",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
-      "command": null,
+      "command": "stories.edit",
       "method": "stories.editStory",
       "python_class": "telethon.tl.functions.stories.EditStoryRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -6073,12 +6073,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "stories.list",
       "method": "stories.getAllStories",
       "python_class": "telethon.tl.functions.stories.GetAllStoriesRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -6121,12 +6121,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "stories.get",
       "method": "stories.getStoriesByID",
       "python_class": "telethon.tl.functions.stories.GetStoriesByIDRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -6201,12 +6201,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "stories.publish",
       "method": "stories.sendStory",
       "python_class": "telethon.tl.functions.stories.SendStoryRequest",
       "reason": null,
       "risk": "write",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -6345,12 +6345,12 @@
       "status": "raw-only"
     },
     {
-      "command": null,
+      "command": "account.get",
       "method": "users.getFullUser",
       "python_class": "telethon.tl.functions.users.GetFullUserRequest",
       "reason": null,
       "risk": "read",
-      "status": "raw-only"
+      "status": "high-level"
     },
     {
       "command": null,
@@ -6402,7 +6402,7 @@
     }
   ],
   "generated_at": "generated",
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "telegram_layer": 227,
   "telethon_version": "1.44.0"
 }

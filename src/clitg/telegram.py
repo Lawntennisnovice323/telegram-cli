@@ -2,20 +2,23 @@
 
 from __future__ import annotations
 
+import asyncio
+import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import qrcode
 from filelock import Timeout as FileLockTimeout
-from telethon import TelegramClient, functions, types
+from telethon import TelegramClient, events, functions, types
 from telethon.errors import SessionPasswordNeededError
 
 from clitg.errors import ClitgError
 from clitg.models import ErrorCode, Profile
 from clitg.raw import RawCodec
-from clitg.serialization import to_jsonable
+from clitg.serialization import payload_hash, to_jsonable
 from clitg.storage import Paths
 
 
@@ -74,17 +77,63 @@ def message_view(message: Any, *, include_raw: bool = False) -> dict[str, Any]:
 def dialog_view(dialog: Any, *, include_raw: bool = False) -> dict[str, Any]:
     """Normalize a Telegram dialog."""
 
+    folder_id = getattr(dialog, "folder_id", None)
+    if folder_id is None:
+        folder_id = getattr(getattr(dialog, "dialog", None), "folder_id", None)
     value = {
         **entity_view(dialog.entity),
         "unread_count": dialog.unread_count,
         "unread_mentions_count": dialog.unread_mentions_count,
         "pinned": dialog.pinned,
         "archived": dialog.archived,
+        "folder_id": folder_id,
         "last_message": message_view(dialog.message) if dialog.message else None,
     }
     if include_raw:
         value["raw"] = to_jsonable(dialog.entity, raw=True)
     return value
+
+
+def update_view(update: Any) -> dict[str, Any]:
+    """Normalize common Telegram updates with a safe raw fallback."""
+
+    raw_type = update.__class__.__name__
+    event_type = {
+        "UpdateNewMessage": "message.new",
+        "UpdateNewChannelMessage": "message.new",
+        "UpdateEditMessage": "message.edited",
+        "UpdateEditChannelMessage": "message.edited",
+        "UpdateDeleteMessages": "message.deleted",
+        "UpdateDeleteChannelMessages": "message.deleted",
+        "UpdateReadHistoryInbox": "message.read",
+        "UpdateReadChannelInbox": "message.read",
+        "UpdateMessageReactions": "message.reaction",
+    }.get(raw_type, "telegram.raw_update")
+    message = getattr(update, "message", None)
+    raw = to_jsonable(update, raw=True)
+    data = message_view(message) if message is not None and hasattr(message, "id") else raw
+    peer = getattr(message, "peer_id", None) if message is not None else None
+    peer = peer or getattr(update, "peer", None)
+    peer_id = None
+    if peer is not None:
+        for field in ("user_id", "chat_id", "channel_id"):
+            if getattr(peer, field, None) is not None:
+                peer_id = getattr(peer, field)
+                break
+    if peer_id is None:
+        for field in ("channel_id", "chat_id", "user_id"):
+            if getattr(update, field, None) is not None:
+                peer_id = to_jsonable(getattr(update, field), raw=True)
+                break
+    digest = payload_hash({"type": raw_type, "data": raw})
+    return {
+        "event_id": str(uuid.uuid5(uuid.NAMESPACE_OID, digest)),
+        "event_type": event_type,
+        "occurred_at": datetime.now(UTC),
+        "peer_id": str(peer_id) if peer_id is not None else None,
+        "data": data if isinstance(data, dict) else {"value": data},
+        "raw_type": raw_type if event_type == "telegram.raw_update" else None,
+    }
 
 
 class TelegramAdapter:
@@ -96,6 +145,8 @@ class TelegramAdapter:
         self.codec = RawCodec()
 
     def _new_client(self, profile: Profile) -> TelegramClient:
+        if not profile.api_hash:
+            raise ClitgError(ErrorCode.PROFILE_ERROR, "The profile API hash is unavailable")
         return TelegramClient(
             str(self.paths.session_file(profile.name)),
             profile.api_id,
@@ -166,6 +217,26 @@ class TelegramAdapter:
             authorized = await client.is_user_authorized()
             me = await client.get_me() if authorized else None
             return {"authorized": authorized, "user": entity_view(me) if me else None}
+
+    async def qr_login(self, profile: Profile, output: Path, timeout: int) -> dict[str, Any]:
+        """Write a QR image and wait non-interactively for authorization."""
+
+        async with self.client(profile, require_auth=False) as client:
+            if await client.is_user_authorized():
+                me = await client.get_me()
+                return {"authorized": True, "already_authorized": True, "user": entity_view(me)}
+            qr = await client.qr_login()
+            output.parent.mkdir(parents=True, exist_ok=True)
+            image = qrcode.make(qr.url)
+            image.save(output)
+            await qr.wait(timeout=timeout)
+            me = await client.get_me()
+            return {
+                "authorized": True,
+                "already_authorized": False,
+                "qr_path": str(output.resolve()),
+                "user": entity_view(me),
+            }
 
     async def logout(self, profile: Profile) -> bool:
         """Revoke the current Telegram authorization."""
@@ -255,8 +326,205 @@ class TelegramAdapter:
         query: str | None,
         topic_id: int | None,
         include_raw: bool,
+        sender: str | None = None,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        media_only: bool = False,
     ) -> list[dict[str, Any]]:
         """List or search messages without sending read acknowledgements."""
+
+        async with self.client(profile) as client:
+            entity = await self.resolve_peer(client, peer)
+            sender_entity = await self.resolve_peer(client, sender) if sender else None
+            fetch_limit = min(limit * 4, 1000) if after or before or media_only else limit
+            found: list[dict[str, Any]] = []
+            async for message in client.iter_messages(
+                entity,
+                limit=fetch_limit,
+                offset_id=offset_id,
+                offset_date=before,
+                search=query,
+                reply_to=topic_id,
+                from_user=sender_entity,
+            ):
+                if not self._message_matches(
+                    message,
+                    sender_id=None,
+                    after=after,
+                    before=before,
+                    media_only=media_only,
+                ):
+                    continue
+                found.append(message_view(message, include_raw=include_raw))
+                if len(found) == limit:
+                    break
+            return found
+
+    async def global_search(
+        self,
+        profile: Profile,
+        *,
+        query: str,
+        limit: int,
+        offset_id: int,
+        include_raw: bool,
+        sender: str | None = None,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        media_only: bool = False,
+    ) -> list[dict[str, Any]]:
+        """Search messages across the account without read acknowledgements."""
+
+        async with self.client(profile) as client:
+            sender_entity = await self.resolve_peer(client, sender) if sender else None
+            fetch_limit = min(limit * 4, 1000) if after or before or media_only else limit
+            found: list[dict[str, Any]] = []
+            async for message in client.iter_messages(
+                None,
+                limit=fetch_limit,
+                offset_id=offset_id,
+                offset_date=before,
+                search=query,
+                from_user=sender_entity,
+            ):
+                if not self._message_matches(
+                    message,
+                    sender_id=None,
+                    after=after,
+                    before=before,
+                    media_only=media_only,
+                ):
+                    continue
+                found.append(message_view(message, include_raw=include_raw))
+                if len(found) == limit:
+                    break
+            return found
+
+    async def inbox(
+        self,
+        profile: Profile,
+        *,
+        view: str,
+        include_archived: bool,
+        limit: int,
+        offset: int,
+        peer: str | None = None,
+        sender: str | None = None,
+        folder_id: int | None = None,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        media_only: bool = False,
+    ) -> list[dict[str, Any]]:
+        """Return unread messages or unread dialog summaries."""
+
+        async with self.client(profile) as client:
+            peer_entity = await self.resolve_peer(client, peer) if peer else None
+            sender_entity = await self.resolve_peer(client, sender) if sender else None
+            peer_id = getattr(peer_entity, "id", None)
+            sender_id = getattr(sender_entity, "id", None)
+            dialogs = [
+                dialog
+                async for dialog in client.iter_dialogs()
+                if dialog.unread_count > 0
+                and (include_archived or folder_id == 1 or not dialog.archived)
+                and (peer_id is None or getattr(dialog.entity, "id", None) == peer_id)
+                and (
+                    folder_id is None
+                    or getattr(dialog, "folder_id", getattr(dialog.dialog, "folder_id", None))
+                    == folder_id
+                )
+            ]
+            if view == "dialogs":
+                filtered = [
+                    dialog_view(dialog)
+                    for dialog in dialogs
+                    if self._message_matches(
+                        dialog.message,
+                        sender_id=sender_id,
+                        after=after,
+                        before=before,
+                        media_only=media_only,
+                    )
+                ]
+                return filtered[offset : offset + limit]
+            items: list[dict[str, Any]] = []
+            for dialog in dialogs:
+                read_max = int(getattr(dialog.dialog, "read_inbox_max_id", 0) or 0)
+                async for message in client.iter_messages(
+                    dialog.entity,
+                    limit=min(dialog.unread_count, limit + offset),
+                ):
+                    if (
+                        not bool(getattr(message, "out", False))
+                        and int(message.id) > read_max
+                        and self._message_matches(
+                            message,
+                            sender_id=sender_id,
+                            after=after,
+                            before=before,
+                            media_only=media_only,
+                        )
+                    ):
+                        value = message_view(message)
+                        value["dialog"] = entity_view(dialog.entity)
+                        items.append(value)
+            items.sort(key=lambda item: str(item.get("date") or ""), reverse=True)
+            return items[offset : offset + limit]
+
+    @staticmethod
+    def _message_matches(
+        message: Any,
+        *,
+        sender_id: int | None,
+        after: datetime | None,
+        before: datetime | None,
+        media_only: bool,
+    ) -> bool:
+        """Apply deterministic local filters to one Telegram message."""
+
+        if message is None:
+            return False
+        date = getattr(message, "date", None)
+        return not (
+            (sender_id is not None and getattr(message, "sender_id", None) != sender_id)
+            or (after is not None and (date is None or date < after))
+            or (before is not None and (date is None or date >= before))
+            or (media_only and getattr(message, "media", None) is None)
+        )
+
+    async def message_context(
+        self,
+        profile: Profile,
+        peer: str,
+        message_id: int,
+        *,
+        before: int,
+        after: int,
+        include_raw: bool,
+    ) -> list[dict[str, Any]]:
+        """Return nearby message IDs around one anchor."""
+
+        async with self.client(profile) as client:
+            entity = await self.resolve_peer(client, peer)
+            ids = list(range(max(1, message_id - before), message_id + after + 1))
+            values = await client.get_messages(entity, ids=ids)
+            return [
+                message_view(message, include_raw=include_raw)
+                for message in values
+                if message is not None
+            ]
+
+    async def message_replies(
+        self,
+        profile: Profile,
+        peer: str,
+        message_id: int,
+        *,
+        limit: int,
+        offset_id: int,
+        include_raw: bool,
+    ) -> list[dict[str, Any]]:
+        """List replies or comments attached to one message."""
 
         async with self.client(profile) as client:
             entity = await self.resolve_peer(client, peer)
@@ -266,10 +534,74 @@ class TelegramAdapter:
                     entity,
                     limit=limit,
                     offset_id=offset_id,
-                    search=query,
-                    reply_to=topic_id,
+                    reply_to=message_id,
                 )
             ]
+
+    async def watch_updates(
+        self,
+        profile: Profile,
+        *,
+        event_types: set[str],
+        peers: set[str],
+        max_events: int | None,
+        idle_timeout: float | None,
+        total_timeout: float | None,
+        heartbeat: float | None,
+    ) -> AsyncIterator[dict[str, Any]]:
+        """Yield normalized updates with bounded waiting controls."""
+
+        async with self.client(profile) as client:
+            queue: asyncio.Queue[Any] = asyncio.Queue()
+
+            async def receive(update: Any) -> None:
+                queue.put_nowait(update)
+
+            client.add_event_handler(receive, events.Raw)
+            await client.catch_up()
+            loop = asyncio.get_running_loop()
+            started = last_event = last_output = loop.time()
+            emitted = 0
+            try:
+                while max_events is None or emitted < max_events:
+                    now = loop.time()
+                    if total_timeout is not None and now - started >= total_timeout:
+                        break
+                    if idle_timeout is not None and now - last_event >= idle_timeout:
+                        break
+                    waits = [1.0]
+                    if heartbeat is not None:
+                        waits.append(max(0.01, heartbeat - (now - last_output)))
+                    if total_timeout is not None:
+                        waits.append(max(0.01, total_timeout - (now - started)))
+                    if idle_timeout is not None:
+                        waits.append(max(0.01, idle_timeout - (now - last_event)))
+                    try:
+                        raw = await asyncio.wait_for(queue.get(), timeout=min(waits))
+                    except TimeoutError:
+                        now = loop.time()
+                        if heartbeat is not None and now - last_output >= heartbeat:
+                            last_output = now
+                            yield {
+                                "event_id": str(uuid.uuid4()),
+                                "event_type": "heartbeat",
+                                "occurred_at": datetime.now(UTC),
+                                "peer_id": None,
+                                "data": {"connected": True},
+                                "raw_type": None,
+                            }
+                        continue
+                    last_event = loop.time()
+                    value = update_view(raw)
+                    if event_types and value["event_type"] not in event_types:
+                        continue
+                    if peers and str(value["peer_id"]) not in peers:
+                        continue
+                    emitted += 1
+                    last_output = loop.time()
+                    yield value
+            finally:
+                client.remove_event_handler(receive, events.Raw)
 
     async def get_message(
         self,

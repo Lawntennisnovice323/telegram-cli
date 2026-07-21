@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -49,7 +50,10 @@ def test_credential_keyring_and_file_fallback(
     reference = store.save("fallback", "file-hash")
     assert reference.startswith("file:")
     assert store.load(reference) == "file-hash"
-    assert Path(reference.removeprefix("file:")).stat().st_mode & 0o777 == 0o600
+    secret_path = Path(reference.removeprefix("file:"))
+    assert secret_path.is_file()
+    if os.name == "posix":
+        assert secret_path.stat().st_mode & 0o777 == 0o600
 
 
 def test_credential_errors_and_kinds(paths: Paths, monkeypatch: pytest.MonkeyPatch) -> None:

